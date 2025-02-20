@@ -130,35 +130,84 @@ Item {
             radius: 8
             border.color: "#ababab"
             border.width: 2
+            visible: userLevelGlobalVars.count > 0 && (userLevelGlobalVars.get(0).userLevel >= 1 && userLevelGlobalVars.get(0).userLevel <= 3)
             Text {
                 id: text3
-                text: qsTr("ADMIN")
-                anchors.fill: parent
+                text: {
+                    if (userLevelGlobalVars.count > 0) {
+                        switch (userLevelGlobalVars.get(0).userLevel) {
+                            case 1:
+                                return qsTr("ADMIN");
+                            case 2:
+                                return qsTr("SUPERVISOR");
+                            case 3:
+                                return qsTr("VIEWER");
+                            default:
+                                return "";
+                        }
+                    } else {
+                        return "";
+                    }
+                }
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.top: parent.top
+                anchors.bottom: parent.bottom
+                anchors.leftMargin: 0
                 font.pixelSize: 12
                 horizontalAlignment: Text.AlignHCenter
                 verticalAlignment: Text.AlignVCenter
-                anchors.rightMargin: 0
-                anchors.topMargin: 0
+            }
 
-                Rectangle {
-                    id: lockadmin
-                    x: 80
-                    y: 0
-                    width: 73
-                    height: 48
-                    color: "#fae6d7"
-                    radius: 8
-                    border.color: "#ababab"
-                    border.width: 2
-                    Text {
-                        id: text4
-                        text: qsTr("LOCKED\nBY ADMIN")
-                        anchors.fill: parent
-                        font.pixelSize: 12
-                        horizontalAlignment: Text.AlignHCenter
-                        verticalAlignment: Text.AlignVCenter
-                        wrapMode: Text.WordWrap
+            Rectangle {
+                id: lockadmin
+                x: 80
+                y: 0
+                width: 73
+                height: 48
+                radius: 8
+                border.color: "#ababab"
+                border.width: 2
+
+                visible: userLevelGlobalVars.count > 0 && (userLevelGlobalVars.get(0).userLevel >= 1 && userLevelGlobalVars.get(0).userLevel <= 3)
+                color: {
+                        if (userLevelGlobalVars.count > 0) {
+                                switch (userLevelGlobalVars.get(0).userLevel) {
+                                    case 1:
+                                    case 2:
+                                        return "#fae6d7";
+                                    case 3:
+                                        return "#b8b8b8";
+                                    default:
+                                           return "#f2f2f2";
+                                   }
+                               } else {
+                                   return "#f2f2f2";
+                               }
+                           }
+                Text {
+                    id: text4
+                    text: {
+                        if (userLevelGlobalVars.count > 0) {
+                            switch (userLevelGlobalVars.get(0).userLevel) {
+                                case 1:
+                                    return qsTr("LOCKED\nBY ADMIN");
+                                case 2:
+                                    return qsTr("LOCKED\nBY SUPERVISOR");
+                                case 3:
+                                    return qsTr("LOCKED\nBY VIEWER");
+                                default:
+                                    return "";
+                            }
+                        } else {
+                            return "";
+                        }
                     }
+                    anchors.fill: parent
+                    font.pixelSize: 12
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+                    wrapMode: Text.WordWrap
                 }
             }
         }
@@ -181,9 +230,10 @@ Item {
                     font.pointSize: 9
                 }
                 onClicked: {
-                    while (stackView.depth > 1) {
-                        stackView.pop()
-                    }
+                    // while (stackView.depth > 1) {
+                    //     stackView.pop()
+                    // }
+                    stackView.push("qrc:/Mainpage.qml")
                     currentPage = "MainPage"
                     backtoMainpage.visible = false
                     eventsalarms.visible = true
@@ -287,6 +337,7 @@ Item {
                         eventsalarms.visible = true
                         dataStorage.visible = true
                         imageSetting.visible = true
+                        userLevelGlobalVars.clear();
                     }
                 }
             }

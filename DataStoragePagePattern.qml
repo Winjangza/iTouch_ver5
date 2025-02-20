@@ -11,6 +11,7 @@ import QtQuick.Controls 2.13
 // import QtQuick.Controls.Material 2.4
 import QtQuick.Shapes 1.15
 import QtQuick.Controls.Material 2.4
+// import "main.qml" as Globals
 
 Item {
     id: _item
@@ -20,8 +21,6 @@ Item {
     // Material.accent: "#E91E63"
     property bool focustextInformation: inputPanel.visible
     property string textforinformation:  textInformation.text
-
-
 
     property string selectedFilename: ""
     property string selectedEventDatetime: ""
@@ -185,6 +184,7 @@ Item {
                             // dataStoragePagePatternSearch.clearTableRequested();
                             console.log(ButtonpatternData);
                             qmlCommand(ButtonpatternData);
+                            // console.log("Current User Level: " + Globals.userLevelglobalVars.userLevel);
                         } else {
                             console.log("No row selected!");
                         }

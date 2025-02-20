@@ -11,6 +11,7 @@ Window {
     visible: true
     width: 1024
     height: 600
+    property int userLevel: 0
     signal getScreenshot()
     property string serverAddress: "127.0.0.1"
     property var socketPort: 1234
@@ -290,8 +291,10 @@ Window {
         property  string event_dtaatime : ""
         property  string filename: ""
     }
-
-
+    ListModel {
+        id: userLevelGlobalVars
+        property int userLevel: 0
+    }
 
     //         property string globalPhaseA: ""
     //         property bool globalStatusA: false
@@ -341,8 +344,12 @@ Window {
         anchors.fill: parent
         anchors.topMargin: 0
         anchors.rightMargin: 0
-        initialItem: "qrc:/Mainpage.qml"
+        initialItem: "qrc:/LoginPage.qml"
+        onCurrentItemChanged: {
+            mainBar.visible = stackView.currentItem.objectName !== "LoginPage"
+        }
     }
+
     MainBar {
         id: mainBar
         x: 0
@@ -367,6 +374,12 @@ Window {
             mainBarMasterSelect = userTypeMaster;
             usertypeSelect = JsonObject.userStatusMaster
         }
+        else if (objectName ==="userlavel")
+        {
+            console.log("iuhododjoewjoidje", message);
+            userlavel(message);
+        }
+
         else if  (objectName === "PatternData"){
             console.log("PatternDataQML:", message);
             // const { filename, event_datetime } = JsonObject;
@@ -696,7 +709,14 @@ Window {
         }
     }
 
-
+    function userlavel(message){
+        var JsonObject = JSON.parse(message);
+        var filename = JsonObject.filename;
+        var userLevel = JsonObject.level;
+        userLevelGlobalVars.append({
+                                "userLevel": userLevel,
+                                });
+    }
     function appendDatStorage(message){
         console.log("debug_pattern_SQL");
         var JsonObject = JSON.parse(message);
@@ -973,6 +993,7 @@ Window {
 //            });
 //        }
 //    }
+
     function clearAlarmLog() {
         if (eventAlarmLog.count > 0 || fullEventData.length > 0) {
             console.log(`[clearAlarmLog] Found ${eventAlarmLog.count} items and ${fullEventData.length} cached items. Clearing...`);
@@ -1896,7 +1917,6 @@ Window {
             }
         }
 
-        // Slider ปรับความสว่างหน้าจอ
         Column {
             anchors.centerIn: parent
             spacing: 20

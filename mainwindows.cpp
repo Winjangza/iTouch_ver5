@@ -147,7 +147,7 @@ mainwindows::mainwindows(QObject *parent) : QObject(parent){
     // connect(this,SIGNAL(sendMessage(QString)),client,SLOT(sendMessage(QString)));
     // connect(screenShot,SIGNAL(sendlinkPicturesToServer(QString)),this,SLOT(sendlinkPictures(QString)));
 
-        serverAddress = "192.168.10.52";
+        serverAddress = "192.168.10.62";
         serverPort = 5520;
 //        qDebug() << "serverAddress:" << serverAddress << " serverPort:" << serverPort;
         client->createConnection(serverAddress,serverPort);
@@ -272,6 +272,26 @@ void mainwindows::cppSubmitTextFiled(QString qmlJson){
 //        qDebug() << "cppSubmitTextFiled UserM:" << selectMaster << userStatus << userType;
         cppCommand(selectMaster);
         emit updateUser(selectMaster);
+    }
+    else if(getCommand == "login"){
+        QString user = QJsonValue(command["username"]).toString();
+        QString password = QJsonValue(command["password"]).toString();
+        int Userlevel;
+        if (user == "admin"&&password == "admin"){
+             Userlevel = 1;
+        }
+        else if(user == "admin1" && password == "admin1"){
+             Userlevel = 2;
+        }
+        else {
+             Userlevel = 3;
+        }
+
+        QString User = QString("{"
+                                "\"objectName\":\"userlavel\","
+                                "\"level\":\%1"
+                                "}").arg(Userlevel);
+        cppCommand(User);
     }
     else if(getCommand == "PatternData"){
         // qDebug() << "patternA:";
@@ -1796,9 +1816,6 @@ void mainwindows::cppSubmitTextFiled(QString qmlJson){
         cppCommand(qmlJson);
     }else if(getCommand == "realDistanceC") {
         qDebug() << "Check Data realDistanceC:" << qmlJson;
-        cppCommand(qmlJson);
-    }else if(getCommand == "userLogIn") {
-        qDebug() << "Check userLogIn:" << qmlJson;
         cppCommand(qmlJson);
     }
 
