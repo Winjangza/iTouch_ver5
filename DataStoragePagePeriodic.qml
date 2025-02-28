@@ -23,7 +23,7 @@ Item {
 
     property string selectedFilename: ""
     property string selectedEventDatetime: ""
-
+    visible: userLevelGlobalVars.count > 0 && (userLevelGlobalVars.get(0).userLevel >= 1 && userLevelGlobalVars.get(0).userLevel <= 3)
     onFocustextInformationChanged: {
         if(focustextInformation == false){
             fileNamePattern.color = "#000000"
@@ -36,7 +36,6 @@ Item {
         console.log("onTextforinformationChanged",textforinformation)
 
     }
-
 
     // Column {
     //     anchors.top: progressContainer.bottom
@@ -161,6 +160,7 @@ Item {
                     id: toolButtonDelete
                     text: qsTr("DELETE")
                     Layout.preferredWidth: 30
+                    visible: !(userLevelGlobalVars.get(0).userLevel === 3)
                     onClicked: {
                         if (selectedFilename !== "" && selectedEventDatetime !== "") {
                             var ButtonpatternData = JSON.stringify({

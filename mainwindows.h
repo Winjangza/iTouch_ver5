@@ -29,7 +29,7 @@
 #include <QtMath>
 #include <QTextStream>
 #include <QGuiApplication>
-
+#include "NetworkMng.h"
 #include <QNetworkInterface>
 #include <QHostAddress>
 
@@ -51,6 +51,8 @@
 #define NETWORK_SERVER "NETWORK"
 #define SNMP_SERVER "SNMP_SERVER"
 #define TIME_SERVER "TIME_SERVER"
+#define USER_MODE "USER"
+#define FILESETTING "/etc/systemd/timesyncd.conf"
 typedef int		pj_status_t;
 class mainwindows : public QObject
 {
@@ -159,6 +161,7 @@ public slots:
     void getSetting();
     void updateNetwork();
     void captureScreenshotseand();
+    void updateNTP();
 private:
     ChatServer *SocketServer;
     Database *mysql;
@@ -169,7 +172,7 @@ private:
     QTimer *reconnectTimer;
     QTimer *Timer;
     QTimer *TimerVerify;
-
+    NetworkMng *networking;
     double sagFactor = 0.0;       // SAG factor
     double samplingRate = 0.0; // Sampling rate (meters per sample)
     double distanceToStart = 0.0; // ระยะตั้งต้น (เมตร)
@@ -229,7 +232,8 @@ private:
         QString location_snmp = "";
 
         QString ip_timeserver = "";
-
+        QString ip_master = "";
+        QString ip_slave = "";
         void printinfo(){
             qDebug() << "dhcpmethod:" << dhcpmethod << " ip_address:" << ip_address
                      << " subnet:" << subnet << " ip_gateway:" << ip_gateway << " pridns:" << pridns
@@ -274,7 +278,7 @@ private:
     bool isFirstEvent_PERIODIC_TEST_EVENT = true;
     bool isFirstEvent_MANUAL_TEST_EVENT = true;
     bool isFirstEvent_LFL_FAIL = true;
-    bool isFirstEvent_LEL_OPERATE = true;
+    bool isFirstEvent_LFL_OPERATE = true;
 
     bool previousStates_DO = false;
     bool previousStates_DI = false;
@@ -289,7 +293,11 @@ private:
     bool previousStates_PERIODIC_TEST_EVENT = false;
     bool previousStates_MANUAL_TEST_EVENT = false;
     bool previousStates_LFL_FAIL = false;
-    bool previousStates_LEL_OPERATE = false;
+    bool previousStates_LFL_OPERATE = false;
+    QString userMode;
+    QString Ipaddress_Master;
+    QString Ipaddress_Slave;
+
 };
 
 #endif // MAINWINDOWS_H

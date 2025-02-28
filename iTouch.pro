@@ -19,6 +19,7 @@ static {
 #DEFINES += QT_NO_DEBUG_OUTPUT
 SOURCES += \
         ChatServer.cpp \
+        NetworkMng.cpp \
         SocketClient.cpp \
         database.cpp \
         main.cpp \
@@ -48,6 +49,7 @@ DISTFILES += \
 
 HEADERS += \
     ChatServer.h \
+    NetworkMng.h \
     SocketClient.h \
     database.h \
     mainwindows.h \

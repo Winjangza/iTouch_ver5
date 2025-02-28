@@ -1,6 +1,6 @@
 import QtQuick 2.0
-import QtQuick.Controls 2.15
-import QtQuick.Layouts 1.15
+//import QtQuick.Controls 2.15
+//import QtQuick.Layouts 1.15
 import QtWebSockets 1.0
 import QtQuick.Extras 1.4
 import QtQuick.Controls 1.4
@@ -70,11 +70,9 @@ Item {
                 Layout.preferredWidth: 50
                 Layout.preferredHeight: 30
                 text: ""
-
                 icon.source: textPassword.echoMode === TextInput.Password ? "qrc:/images/invisible.png" : "qrc:/images/show.png"
                 icon.width: 24
                 icon.height: 24
-
                 onClicked: {
                     textPassword.echoMode = textPassword.echoMode === TextInput.Password ? TextInput.Normal : TextInput.Password;
                     togglePasswordButton.icon.source = textPassword.echoMode === TextInput.Password ? "qrc:/images/invisible.png" : "qrc:/images/show.png";

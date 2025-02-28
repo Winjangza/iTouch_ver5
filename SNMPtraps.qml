@@ -65,7 +65,9 @@ Item {
 
                         Rectangle {
                             id: plcDoError
-                            color: isActive ? "#00FF00" : "#ffffff"
+                            color:(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
+                                ?( isActive ? "#d3d3d3" : "#f2f2f2")
+                                :( isActive ? "#00FF00" : "#f2f2f2")
                             radius: 3
                             border.width: 1
                             Layout.preferredHeight: 35
@@ -73,6 +75,7 @@ Item {
                             property bool isActive: selectPLCDoError
                             MouseArea {
                                 anchors.fill: parent
+                                enabled: !(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
                                 onClicked: {
                                     plcDoError.isActive = !plcDoError.isActive;
                                     var SelectSNMP = '{"objectName":"SNMPenable", "plcDoError": ' + plcDoError.isActive + '}';
@@ -93,7 +96,9 @@ Item {
 
                         Rectangle {
                             id: plcDiError
-                            color: isActive ? "#00FF00" : "#ffffff"
+                            color:(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
+                                ?( isActive ? "#d3d3d3" : "#f2f2f2")
+                                :( isActive ? "#00FF00" : "#f2f2f2")
                             radius: 3
                             border.width: 1
                             Layout.preferredHeight: 35
@@ -101,6 +106,7 @@ Item {
                             property bool isActive: selectPLCDiError  // ใช้ selectPhaseAError ให้เป็นค่าของ isActive
                             MouseArea {
                                 anchors.fill: parent
+                                enabled: !(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
                                 onClicked: {
                                     plcDiError.isActive = !plcDiError.isActive;
                                     var SelectSNMP = '{"objectName":"SNMPenable", "plcDiError": ' + plcDiError.isActive + '}';
@@ -121,7 +127,9 @@ Item {
 
                         Rectangle {
                             id: hispeedPhaseA
-                            color: isActive ? "#00FF00" : "#ffffff"
+                            color:(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
+                                ?( isActive ? "#d3d3d3" : "#f2f2f2")
+                                :( isActive ? "#00FF00" : "#f2f2f2")
                             radius: 3
                             border.width: 1
                             Layout.preferredHeight: 35
@@ -129,6 +137,7 @@ Item {
                             property bool isActive: selectModbusErrorA
                             MouseArea {
                                 anchors.fill: parent
+                                enabled: !(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
                                 onClicked: {
                                     hispeedPhaseA.isActive = !hispeedPhaseA.isActive;
                                     var SelectSNMP = '{"objectName":"SNMPenable", "hispeedPhaseA": ' + hispeedPhaseA.isActive + '}';
@@ -149,7 +158,9 @@ Item {
 
                         Rectangle {
                             id: hispeedPhaseB
-                            color: isActive ? "#00FF00" : "#ffffff"
+                            color:(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
+                                ?( isActive ? "#d3d3d3" : "#f2f2f2")
+                                :( isActive ? "#00FF00" : "#f2f2f2")
                             radius: 3
                             border.width: 1
                             Layout.preferredHeight: 35
@@ -157,6 +168,7 @@ Item {
                             property bool isActive: selectModbusErrorB
                             MouseArea {
                                 anchors.fill: parent
+                                enabled: !(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
                                 onClicked: {
                                     hispeedPhaseB.isActive = !hispeedPhaseB.isActive;
                                     var SelectSNMP = '{"objectName":"SNMPenable", "hispeedPhaseB": ' + hispeedPhaseB.isActive + '}';
@@ -177,7 +189,9 @@ Item {
 
                         Rectangle {
                             id: hispeedPhaseC
-                            color: isActive ? "#00FF00" : "#ffffff"
+                            color:(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
+                                ?( isActive ? "#d3d3d3" : "#f2f2f2")
+                                :( isActive ? "#00FF00" : "#f2f2f2")
                             radius: 3
                             border.width: 1
                             Layout.preferredHeight: 35
@@ -185,6 +199,7 @@ Item {
                             property bool isActive: selectModbusErrorC
                             MouseArea {
                                 anchors.fill: parent
+                                enabled: !(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
                                 onClicked: {
                                     hispeedPhaseC.isActive = !hispeedPhaseC.isActive;
                                     var SelectSNMP = '{"objectName":"SNMPenable", "hispeedPhaseC": ' + hispeedPhaseC.isActive + '}';
@@ -205,7 +220,9 @@ Item {
 
                         Rectangle {
                             id: commuPhaseA
-                            color: isActive ? "#00FF00" : "#ffffff"
+                            color:(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
+                                ?( isActive ? "#d3d3d3" : "#f2f2f2")
+                                :( isActive ? "#00FF00" : "#f2f2f2")
                             radius: 3
                             border.width: 1
                             Layout.preferredHeight: 35
@@ -213,6 +230,7 @@ Item {
                             property bool isActive: selectPhaseAError
                             MouseArea {
                                 anchors.fill: parent
+                                enabled: !(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
                                 onClicked: {
                                     commuPhaseA.isActive = !commuPhaseA.isActive;
                                     var SelectSNMP = '{"objectName":"SNMPenable", "commuPhaseA": ' + commuPhaseA.isActive + '}';
@@ -233,7 +251,9 @@ Item {
 
                         Rectangle {
                             id: commuPhaseB
-                            color: isActive ? "#00FF00" : "#ffffff"
+                            color:(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
+                                ?( isActive ? "#d3d3d3" : "#f2f2f2")
+                                :( isActive ? "#00FF00" : "#f2f2f2")
                             radius: 3
                             border.width: 1
                             Layout.preferredHeight: 35
@@ -241,6 +261,7 @@ Item {
                             property bool isActive: selectPhaseBError
                             MouseArea {
                                 anchors.fill: parent
+                                enabled: !(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
                                 onClicked: {
                                     commuPhaseB.isActive = !commuPhaseB.isActive;
                                     var SelectSNMP = '{"objectName":"SNMPenable", "commuPhaseB": ' + commuPhaseB.isActive + '}';
@@ -261,7 +282,9 @@ Item {
 
                         Rectangle {
                             id: commuPhaseC
-                            color: isActive ? "#00FF00" : "#ffffff"
+                            color:(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
+                                ?( isActive ? "#d3d3d3" : "#f2f2f2")
+                                :( isActive ? "#00FF00" : "#f2f2f2")
                             radius: 3
                             border.width: 1
                             Layout.preferredHeight: 35
@@ -269,6 +292,7 @@ Item {
                             property bool isActive: selectPhaseCError
                             MouseArea {
                                 anchors.fill: parent
+                                enabled: !(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
                                 onClicked: {
                                     commuPhaseC.isActive = !commuPhaseC.isActive;
                                     var SelectSNMP = '{"objectName":"SNMPenable", "commuPhaseC": ' + commuPhaseC.isActive + '}';
@@ -289,7 +313,9 @@ Item {
 
                         Rectangle {
                             id: gpsModule
-                            color: isActive ? "#00FF00" : "#ffffff"
+                            color:(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
+                                ?( isActive ? "#d3d3d3" : "#f2f2f2")
+                                :( isActive ? "#00FF00" : "#f2f2f2")
                             radius: 3
                             border.width: 1
                             Layout.preferredHeight: 35
@@ -297,6 +323,7 @@ Item {
                             property bool isActive: selectGPSModule
                             MouseArea {
                                 anchors.fill: parent
+                                enabled: !(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
                                 onClicked: {
                                     gpsModule.isActive = !gpsModule.isActive;
                                     var SelectSNMP = '{"objectName":"SNMPenable", "gpsModule": ' + gpsModule.isActive + '}';
@@ -317,7 +344,9 @@ Item {
 
                         Rectangle {
                             id: systemInti
-                            color: isActive ? "#00FF00" : "#ffffff"
+                            color:(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
+                                ?( isActive ? "#d3d3d3" : "#f2f2f2")
+                                :( isActive ? "#00FF00" : "#f2f2f2")
                             radius: 3
                             border.width: 1
                             Layout.preferredHeight: 35
@@ -325,6 +354,7 @@ Item {
                             property bool isActive: selectSystemInit
                             MouseArea {
                                 anchors.fill: parent
+                                enabled: !(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
                                 onClicked: {
                                     systemInti.isActive = !systemInti.isActive;
                                     var SelectSNMP = '{"objectName":"SNMPenable", "systemInti": ' + systemInti.isActive + '}';
@@ -345,7 +375,9 @@ Item {
 
                         Rectangle {
                             id: commuError
-                            color: isActive ? "#00FF00" : "#ffffff"
+                            color:(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
+                                ?( isActive ? "#d3d3d3" : "#f2f2f2")
+                                :( isActive ? "#00FF00" : "#f2f2f2")
                             radius: 3
                             border.width: 1
                             Layout.preferredHeight: 35
@@ -353,6 +385,7 @@ Item {
                             property bool isActive: selectCommuError
                             MouseArea {
                                 anchors.fill: parent
+                                enabled: !(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
                                 onClicked: {
                                     commuError.isActive = !commuError.isActive;
                                     var SelectSNMP = '{"objectName":"SNMPenable", "commuError": ' + commuError.isActive + '}';
@@ -373,7 +406,9 @@ Item {
 
                         Rectangle {
                             id: relayStart
-                            color: isActive ? "#00FF00" : "#ffffff"
+                            color:(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
+                                ?( isActive ? "#d3d3d3" : "#f2f2f2")
+                                :( isActive ? "#00FF00" : "#f2f2f2")
                             radius: 3
                             border.width: 1
                             Layout.preferredHeight: 35
@@ -381,6 +416,7 @@ Item {
                             property bool isActive: selectRelayStart
                             MouseArea {
                                 anchors.fill: parent
+                                enabled: !(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
                                 onClicked: {
                                     relayStart.isActive = !relayStart.isActive;
                                     var SelectSNMP = '{"objectName":"SNMPenable", "relayStart": ' + relayStart.isActive + '}';
@@ -401,7 +437,9 @@ Item {
 
                         Rectangle {
                             id: surageStart
-                            color: isActive ? "#00FF00" : "#ffffff"
+                            color:(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
+                                ?( isActive ? "#d3d3d3" : "#f2f2f2")
+                                :( isActive ? "#00FF00" : "#f2f2f2")
                             radius: 3
                             border.width: 1
                             Layout.preferredHeight: 35
@@ -409,6 +447,7 @@ Item {
                             property bool isActive: selectSurageStart
                             MouseArea {
                                 anchors.fill: parent
+                                enabled: !(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
                                 onClicked: {
                                     surageStart.isActive = !surageStart.isActive;
                                     var SelectSNMP = '{"objectName":"SNMPenable", "surageStart": ' + surageStart.isActive + '}';
@@ -429,7 +468,9 @@ Item {
 
                         Rectangle {
                             id: preiodicStart
-                            color: isActive ? "#00FF00" : "#ffffff"
+                            color:(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
+                                ?( isActive ? "#d3d3d3" : "#f2f2f2")
+                                :( isActive ? "#00FF00" : "#f2f2f2")
                             radius: 3
                             border.width: 1
                             Layout.preferredHeight: 35
@@ -437,6 +478,7 @@ Item {
                             property bool isActive: selectPeriodicStart
                             MouseArea {
                                 anchors.fill: parent
+                                enabled: !(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
                                 onClicked: {
                                     preiodicStart.isActive = !preiodicStart.isActive;
                                     var SelectSNMP = '{"objectName":"SNMPenable", "preiodicStart": ' + preiodicStart.isActive + '}';
@@ -457,7 +499,9 @@ Item {
 
                         Rectangle {
                             id: manualTest
-                            color: isActive ? "#00FF00" : "#ffffff"
+                            color:(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
+                                ?( isActive ? "#d3d3d3" : "#f2f2f2")
+                                :( isActive ? "#00FF00" : "#f2f2f2")
                             radius: 3
                             border.width: 1
                             Layout.preferredHeight: 35
@@ -465,6 +509,7 @@ Item {
                             property bool isActive: selectManualTest
                             MouseArea {
                                 anchors.fill: parent
+                                enabled: !(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
                                 onClicked: {
                                     manualTest.isActive = !manualTest.isActive;
                                     var SelectSNMP = '{"objectName":"SNMPenable", "manualTest": ' + manualTest.isActive + '}';
@@ -485,7 +530,9 @@ Item {
 
                         Rectangle {
                             id: lflfail
-                            color: isActive ? "#00FF00" : "#ffffff"
+                            color:(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
+                                ?( isActive ? "#d3d3d3" : "#f2f2f2")
+                                :( isActive ? "#00FF00" : "#f2f2f2")
                             radius: 3
                             border.width: 1
                             Layout.preferredHeight: 35
@@ -493,6 +540,7 @@ Item {
                             property bool isActive: selectLFLfail
                             MouseArea {
                                 anchors.fill: parent
+                                enabled: !(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
                                 onClicked: {
                                     lflfail.isActive = !lflfail.isActive;
                                     var SelectSNMP = '{"objectName":"SNMPenable", "lflfail": ' + lflfail.isActive + '}';
@@ -513,7 +561,9 @@ Item {
 
                         Rectangle {
                             id: lfloperate
-                            color: isActive ? "#00FF00" : "#ffffff"
+                            color:(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
+                                ?( isActive ? "#d3d3d3" : "#f2f2f2")
+                                :( isActive ? "#00FF00" : "#f2f2f2")
                             radius: 3
                             border.width: 1
                             Layout.preferredHeight: 35
@@ -521,6 +571,7 @@ Item {
                             property bool isActive: selectLFLOperate
                             MouseArea {
                                 anchors.fill: parent
+                                enabled: !(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
                                 onClicked: {
                                     lfloperate.isActive = !lfloperate.isActive;
                                     var SelectSNMP = '{"objectName":"SNMPenable", "lfloperate": ' + lfloperate.isActive + '}';

@@ -15,7 +15,7 @@ Item {
 //    property string mainBarMasterSelect
 //    property string mainBarSlaveSelect
 //    property bool checkUser: checkUser
-    property string typrUser: !usertypeSelect ? mainBarSlaveSelect : mainBarMasterSelect
+    property string typeUser: userMode
 
     ListModel{
         id: listmodel
@@ -111,7 +111,7 @@ Item {
 
             Text {
                 id: userType
-                text: typrUser
+                text: typeUser
                 anchors.fill: parent
                 font.pixelSize: 12
                 horizontalAlignment: Text.AlignHCenter
@@ -119,98 +119,139 @@ Item {
 
             }
         }
+        // Rectangle {
+        //     id: admin
+        //     x: 221
+        //     y: 5
+        //     width: 73
+        //     height: 48
+        //     color: "#f2f2f2"
+        //     radius: 8
+        //     border.color: "#ababab"
+        //     border.width: 2
+        //     Text {
+        //         id: text3
+        //         text: qsTr("ADMIN")
+        //         anchors.fill: parent
+        //         font.pixelSize: 12
+        //         horizontalAlignment: Text.AlignHCenter
+        //         verticalAlignment: Text.AlignVCenter
+        //         anchors.rightMargin: 0
+        //         anchors.topMargin: 0
 
-        Rectangle {
-            id: admin
-            x: 221
-            y: 5
-            width: 73
-            height: 48
-            color: "#f2f2f2"
-            radius: 8
-            border.color: "#ababab"
-            border.width: 2
-            visible: userLevelGlobalVars.count > 0 && (userLevelGlobalVars.get(0).userLevel >= 1 && userLevelGlobalVars.get(0).userLevel <= 3)
-            Text {
-                id: text3
-                text: {
-                    if (userLevelGlobalVars.count > 0) {
-                        switch (userLevelGlobalVars.get(0).userLevel) {
-                            case 1:
-                                return qsTr("ADMIN");
-                            case 2:
-                                return qsTr("SUPERVISOR");
-                            case 3:
-                                return qsTr("VIEWER");
-                            default:
-                                return "";
-                        }
-                    } else {
-                        return "";
-                    }
-                }
-                anchors.left: parent.left
-                anchors.right: parent.right
-                anchors.top: parent.top
-                anchors.bottom: parent.bottom
-                anchors.leftMargin: 0
-                font.pixelSize: 12
-                horizontalAlignment: Text.AlignHCenter
-                verticalAlignment: Text.AlignVCenter
-            }
+        //         Rectangle {
+        //             id: lockadmin
+        //             x: 80
+        //             y: 0
+        //             width: 73
+        //             height: 48
+        //             color: "#fae6d7"
+        //             radius: 8
+        //             border.color: "#ababab"
+        //             border.width: 2
+        //             Text {
+        //                 id: text4
+        //                 text: qsTr("LOCKED\nBY ADMIN")
+        //                 anchors.fill: parent
+        //                 font.pixelSize: 12
+        //                 horizontalAlignment: Text.AlignHCenter
+        //                 verticalAlignment: Text.AlignVCenter
+        //                 wrapMode: Text.WordWrap
+        //             }
+        //         }
+        //     }
+        // }
+       Rectangle {
+           id: admin
+           x: 221
+           y: 5
+           width: 73
+           height: 48
+           color: "#f2f2f2"
+           radius: 8
+           border.color: "#ababab"
+           border.width: 2
+           visible: userLevelGlobalVars.count > 0 && (userLevelGlobalVars.get(0).userLevel >= 1 && userLevelGlobalVars.get(0).userLevel <= 3)
+           Text {
+               id: text3
+               text: {
+                   if (userLevelGlobalVars.count > 0) {
+                       switch (userLevelGlobalVars.get(0).userLevel) {
+                           case 1:
+                               return qsTr("ADMIN");
+                           case 2:
+                               return qsTr("SUPERVISOR");
+                           case 3:
+                               return qsTr("VIEWER");
+                           default:
+                               return "";
+                       }
+                   } else {
+                       return "";
+                   }
+               }
+               anchors.left: parent.left
+               anchors.right: parent.right
+               anchors.top: parent.top
+               anchors.bottom: parent.bottom
+               anchors.leftMargin: 0
+               font.pixelSize: 12
+               horizontalAlignment: Text.AlignHCenter
+               verticalAlignment: Text.AlignVCenter
+           }
 
-            Rectangle {
-                id: lockadmin
-                x: 80
-                y: 0
-                width: 73
-                height: 48
-                radius: 8
-                border.color: "#ababab"
-                border.width: 2
+           Rectangle {
+               id: lockadmin
+               x: 80
+               y: 0
+               width: 73
+               height: 48
+               radius: 8
+               border.color: "#ababab"
+               border.width: 2
 
-                visible: userLevelGlobalVars.count > 0 && (userLevelGlobalVars.get(0).userLevel >= 1 && userLevelGlobalVars.get(0).userLevel <= 3)
-                color: {
-                        if (userLevelGlobalVars.count > 0) {
-                                switch (userLevelGlobalVars.get(0).userLevel) {
-                                    case 1:
-                                    case 2:
-                                        return "#fae6d7";
-                                    case 3:
-                                        return "#b8b8b8";
-                                    default:
-                                           return "#f2f2f2";
-                                   }
-                               } else {
-                                   return "#f2f2f2";
-                               }
+               visible: userLevelGlobalVars.count > 0 && (userLevelGlobalVars.get(0).userLevel >= 1 && userLevelGlobalVars.get(0).userLevel <= 3)
+               color: {
+                       if (userLevelGlobalVars.count > 0) {
+                               switch (userLevelGlobalVars.get(0).userLevel) {
+                                   case 1:
+                                   case 2:
+                                       return "#fae6d7";
+                                   case 3:
+                                       return "#b8b8b8";
+                                   default:
+                                          return "#f2f2f2";
+                                  }
+                              } else {
+                                  return "#f2f2f2";
+                              }
+                          }
+               Text {
+                   id: text4
+                   text: {
+                       if (userLevelGlobalVars.count > 0) {
+                           switch (userLevelGlobalVars.get(0).userLevel) {
+                               case 1:
+                                   return qsTr("LOCKED\nBY ADMIN");
+                               case 2:
+                                   return qsTr("LOCKED\nBY SUPERVISOR");
+                               case 3:
+                                   return qsTr("LOCKED\nBY VIEWER");
+                               default:
+                                   return "";
                            }
-                Text {
-                    id: text4
-                    text: {
-                        if (userLevelGlobalVars.count > 0) {
-                            switch (userLevelGlobalVars.get(0).userLevel) {
-                                case 1:
-                                    return qsTr("LOCKED\nBY ADMIN");
-                                case 2:
-                                    return qsTr("LOCKED\nBY SUPERVISOR");
-                                case 3:
-                                    return qsTr("LOCKED\nBY VIEWER");
-                                default:
-                                    return "";
-                            }
-                        } else {
-                            return "";
-                        }
-                    }
-                    anchors.fill: parent
-                    font.pixelSize: 12
-                    horizontalAlignment: Text.AlignHCenter
-                    verticalAlignment: Text.AlignVCenter
-                    wrapMode: Text.WordWrap
-                }
-            }
-        }
+                       } else {
+                           return "";
+                       }
+                   }
+                   anchors.fill: parent
+                   font.pixelSize: 12
+                   horizontalAlignment: Text.AlignHCenter
+                   verticalAlignment: Text.AlignVCenter
+                   wrapMode: Text.WordWrap
+               }
+           }
+       }
 
         RowLayout {
             x: 446

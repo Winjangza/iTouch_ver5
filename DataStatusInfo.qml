@@ -16,6 +16,10 @@ Item {
     property double realDistanceA_Measure: realDistanceA
     property double realDistanceB_Measure: realDistanceB
     property double realDistanceC_Measure: realDistanceC
+    property string modeUserMasterandSlave: remoteMonitor
+
+    property bool isMasterMode: true
+    property string userModeSelect: userMode
     Rectangle {
         id: mainDataInfo
         x: 0
@@ -39,6 +43,7 @@ Item {
                 font.pixelSize: 12
                 horizontalAlignment: Text.AlignHCenter
                 verticalAlignment: Text.AlignVCenter
+                Layout.fillHeight: true
                 Layout.fillWidth: true
             }
 
@@ -48,6 +53,8 @@ Item {
                 font.pixelSize: 12
                 horizontalAlignment: Text.AlignHCenter
                 verticalAlignment: Text.AlignVCenter
+                Layout.leftMargin: 4
+                Layout.fillHeight: true
                 Layout.fillWidth: false
             }
 
@@ -57,6 +64,8 @@ Item {
                 font.pixelSize: 12
                 horizontalAlignment: Text.AlignHCenter
                 verticalAlignment: Text.AlignVCenter
+                Layout.leftMargin: 10
+                Layout.fillHeight: true
                 Layout.fillWidth: true
             }
 
@@ -66,6 +75,8 @@ Item {
                 font.pixelSize: 12
                 horizontalAlignment: Text.AlignHCenter
                 verticalAlignment: Text.AlignVCenter
+                Layout.leftMargin: 10
+                Layout.fillHeight: true
                 Layout.fillWidth: true
             }
 
@@ -75,6 +86,7 @@ Item {
                 font.pixelSize: 12
                 horizontalAlignment: Text.AlignHCenter
                 verticalAlignment: Text.AlignVCenter
+                Layout.fillHeight: true
                 Layout.fillWidth: true
             }
 
@@ -84,6 +96,7 @@ Item {
                 font.pixelSize: 12
                 horizontalAlignment: Text.AlignHCenter
                 verticalAlignment: Text.AlignVCenter
+                Layout.fillHeight: true
                 Layout.fillWidth: true
             }
 
@@ -93,6 +106,7 @@ Item {
                 font.pixelSize: 12
                 horizontalAlignment: Text.AlignHCenter
                 verticalAlignment: Text.AlignVCenter
+                Layout.fillHeight: true
                 Layout.fillWidth: true
                 Layout.margins: 0
                 Layout.leftMargin: 0
@@ -106,9 +120,11 @@ Item {
 
             ColumnLayout {
                 id: datacolor
+                Layout.leftMargin: 3
+                Layout.rightMargin: 0
                 Layout.fillWidth: true
                 Layout.preferredHeight: 156
-                Layout.preferredWidth: 50
+                Layout.preferredWidth: 45
 
                 Rectangle {
                     id: rectangle1
@@ -167,6 +183,7 @@ Item {
 
             ColumnLayout {
                 id: phaseName
+                Layout.leftMargin: 20
                 Layout.fillWidth: true
                 Layout.preferredHeight: 156
                 Layout.preferredWidth: 40
@@ -203,7 +220,7 @@ Item {
 
             ColumnLayout {
                 id: databutton
-                Layout.leftMargin: 0
+                Layout.leftMargin: 20
                 Layout.fillWidth: true
 
                 ToolButton {
@@ -317,6 +334,7 @@ Item {
 
             ColumnLayout {
                 id: patternButton
+                Layout.leftMargin: 20
                 Layout.fillWidth: true
                 Layout.preferredHeight: 161
                 Layout.preferredWidth: 50
@@ -432,6 +450,7 @@ Item {
 
             ColumnLayout {
                 width: 70
+                Layout.leftMargin: 20
                 Layout.preferredHeight: 156
                 Layout.preferredWidth: 69
 
@@ -445,15 +464,18 @@ Item {
                     Layout.preferredWidth: 70
                     Text {
                         id: distancephase1
-                        x: 0
-                        y: 0
-                        width: 70
-                        height: 30
                         text: realDistanceA_Measure.toFixed(2)
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+                        anchors.top: parent.top
+                        anchors.bottom: parent.bottom
+                        anchors.leftMargin: 0
                         font.pixelSize: 13
                         horizontalAlignment: Text.AlignHCenter
                         verticalAlignment: Text.AlignVCenter
                         anchors.rightMargin: 0
+                        anchors.topMargin: 0
+                        anchors.bottomMargin: 0
                     }
                 }
 
@@ -467,11 +489,8 @@ Item {
                     Layout.preferredWidth: 70
                     Text {
                         id: distancephase2
-                        x: 0
-                        y: 0
-                        width: 70
-                        height: 30
                         text: realDistanceB_Measure.toFixed(2)
+                        anchors.fill: parent
                         font.pixelSize: 13
                         horizontalAlignment: Text.AlignHCenter
                         verticalAlignment: Text.AlignVCenter
@@ -488,11 +507,8 @@ Item {
                     Layout.preferredWidth: 70
                     Text {
                         id: distancephase3
-                        x: 0
-                        y: 0
-                        width: 70
-                        height: 30
                         text: realDistanceC_Measure.toFixed(2)
+                        anchors.fill: parent
                         font.pixelSize: 13
                         horizontalAlignment: Text.AlignHCenter
                         verticalAlignment: Text.AlignVCenter
@@ -510,6 +526,7 @@ Item {
                     radius: 5
                     border.color: "#ffffff"
                     border.width: 2
+                    visible: !(userLevelGlobalVars.get(0).userLevel === 3)
                     Layout.preferredHeight: 30
                     Layout.preferredWidth: 70
                     Text {
@@ -537,6 +554,7 @@ Item {
                     radius: 5
                     border.color: "#ffffff"
                     border.width: 2
+                    visible: !(userLevelGlobalVars.get(0).userLevel === 3)
                     Layout.preferredHeight: 30
                     Layout.preferredWidth: 70
                     Text {
@@ -558,6 +576,7 @@ Item {
                     radius: 5
                     border.color: "#ffffff"
                     border.width: 2
+                    visible: !(userLevelGlobalVars.get(0).userLevel === 3)
                     Layout.preferredHeight: 30
                     Layout.preferredWidth: 70
                     Text {
@@ -577,7 +596,7 @@ Item {
             ColumnLayout {
                 Layout.preferredHeight: 156
                 Layout.preferredWidth: 19
-
+                visible: !(userLevelGlobalVars.get(0).userLevel === 3)
                 Text {
                     id: unitmVlotage1
                     text: qsTr("mV")
@@ -754,9 +773,10 @@ Item {
                     anchors.rightMargin: 0
                     fillMode: Image.PreserveAspectFit
                     smooth: true
+
                     Text {
                         id: remoteText
-                        text: qsTr("REMOTE TO SLAVE")
+                        text: userModeSelect === "MASTER" ? qsTr("REMOTE TO SLAVE") : qsTr("REMOTE TO MASTER")
                         anchors.fill: parent
                         horizontalAlignment: Text.AlignHCenter
                         verticalAlignment: Text.AlignVCenter
@@ -769,8 +789,6 @@ Item {
                         color: "#000000"
                     }
                 }
-
-
             }
 
             background: Rectangle {
@@ -779,13 +797,18 @@ Item {
             }
 
             onClicked: {
-                if (remoteText.text === qsTr("REMOTE TO SLAVE")) {
-                    remoteText.text = qsTr("REMOTE TO MASTER");
-                } else {
-                    remoteText.text = qsTr("REMOTE TO SLAVE");
-                }
+//                if (userModeSelect === "MASTER") {
+//                    userModeSelect = "SLAVE";
+                    console.log("Switching to SLAVE...");
+                    qmlCommand("CHANGE");
+//                } else if(userModeSelect === "SLAVE") {
+////                    userModeSelect = "MASTER";
+//                    console.log("Switching to MASTER...");
+//                    qmlCommand("CHANGETOMASTER");
+//                }
             }
         }
+
     }
 
     //    ToolButton {
@@ -812,6 +835,6 @@ Item {
 
 /*##^##
 Designer {
-    D{i:0;formeditorZoom:2}
+    D{i:0;formeditorZoom:2}D{i:45}D{i:47}D{i:49}
 }
 ##^##*/

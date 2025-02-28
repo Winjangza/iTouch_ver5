@@ -15,6 +15,8 @@ mainwindows::mainwindows(QObject *parent) : QObject(parent){
     screenShot = new ImageProvider();
     QTimer *timer = new QTimer(this);
     TimerVerify = new QTimer();
+    networking = new NetworkMng(this);
+
     getSetting();
     connect(reconnectTimer,SIGNAL(timeout()),this,SLOT(reconnectTimerTimeout()));
     connect(Timer,SIGNAL(timeout()),this,SLOT(connectTimeOut()));
@@ -34,7 +36,7 @@ mainwindows::mainwindows(QObject *parent) : QObject(parent){
 //    connect(mysql,SIGNAL(packageRawData(QString)),SocketServer,SLOT(boardcasttomessaege(QString)));
 //    connect(this, SIGNAL(changeDistanceRange(QString)), mysql, SLOT(getChangeDistance(QString)));
 //    connect(this,SIGNAL(clearDisplay(QString)),mysql,SLOT(cleanDataInGraph(QString)));
-//    connect(this,SIGNAL(clearDisplay(QString)),SocketServer,SLOT(boardcasttomessaege(QString)));  //SetNetworkSNMP
+//    connect(this,SIGNAL(clearDisplay(QString)),SocketServer,SLOT(boardcasttomessaege(QString)));
 //    connect(this,SIGNAL(settingdisplay(QString)),mysql,SLOT(SettingDisplay(QString)));
 //    connect(this,SIGNAL(settingdisplay(QString)),SocketServer,SLOT(boardcasttomessaege(QString)));
 //    connect(this,SIGNAL(getsettingdisplay()),mysql,SLOT(GetSettingDisplay()));
@@ -81,7 +83,6 @@ mainwindows::mainwindows(QObject *parent) : QObject(parent){
     connect(mysql,SIGNAL(sendUpdatedMarginList(QString)),SocketServer,SLOT(boardcasttomessaege(QString)));
     connect(mysql,SIGNAL(UpdatepreiodicInfo(QString)),SocketServer,SLOT(boardcasttomessaege(QString)));
     connect(mysql,SIGNAL(sendMarginUpdate(QString)),SocketServer,SLOT(boardcasttomessaege(QString)));
-    connect(mysql,SIGNAL(SetNetworkSNMP(QString)),SocketServer,SLOT(boardcasttomessaege(QString)));
     connect(mysql,SIGNAL(updateDisplaySetting(QString)),SocketServer,SLOT(boardcasttomessaege(QString)));
     connect(mysql,SIGNAL(cursorPosition(QString)),SocketServer,SLOT(boardcasttomessaege(QString)));
     connect(mysql,SIGNAL(showtaggingpoint(QString)),SocketServer,SLOT(boardcasttomessaege(QString)));
@@ -96,7 +97,6 @@ mainwindows::mainwindows(QObject *parent) : QObject(parent){
     connect(mysql,SIGNAL(updatedataTableC(QString)),SocketServer,SLOT(boardcasttomessaege(QString)));
     connect(mysql,SIGNAL(updataEditDataA(QString)),SocketServer,SLOT(boardcasttomessaege(QString)));
 //------------------------------show information on Gerneral and graph ----------------------------------//displaysetting
-    connect(mysql,SIGNAL(SetNetworkSNMP(QString)),SocketServer,SLOT(boardcasttomessaege(QString)));
     connect(mysql,SIGNAL(UpdateSettingInfo(QString)),SocketServer,SLOT(boardcasttomessaege(QString)));
     connect(mysql,SIGNAL(showUpdateInfoSetting(QString)),SocketServer,SLOT(boardcasttomessaege(QString)));
 
@@ -131,7 +131,6 @@ mainwindows::mainwindows(QObject *parent) : QObject(parent){
     connect(this, SIGNAL(rawdataPlot(QString)),client, SLOT(sendMessage(QString)));
     connect(this,SIGNAL(clearPatternGraph(QString)),client, SLOT(sendMessage(QString)));
     connect(this,SIGNAL(clearDisplay(QString)),client, SLOT(sendMessage(QString)));
-    connect(mysql,SIGNAL(SetNetworkSNMP(QString)),client,SLOT(sendMessage(QString)));
     connect(this,SIGNAL(settingdisplay(QString)),client,SLOT(sendMessage(QString)));
     connect(this,SIGNAL(parameterThreshold(QString)),client,SLOT(sendMessage(QString)));
     connect(this,SIGNAL(ButtonPattern(QString)),client,SLOT(sendMessage(QString)));
@@ -150,43 +149,58 @@ mainwindows::mainwindows(QObject *parent) : QObject(parent){
         serverAddress = "192.168.10.62";
         serverPort = 5520;
 //        qDebug() << "serverAddress:" << serverAddress << " serverPort:" << serverPort;
-        client->createConnection(serverAddress,serverPort);
+//        client->createConnection(networks->ip_address,serverPort);
+//        client->createConnection(serverAddress,serverPort);
 
     if (client->isConnected == true){
         connectToPLC();
         qDebug() << "TimeOutTimer timer->stop()";
     }
-
+    userMode = "SLAVE";
     mysql->getEventandAlarm("getEventandAlarm");  //rawdataPlot
 
     connect(timer, &QTimer::timeout, this, &mainwindows::updateDateTime);
     timer->start(1000); // Update every 1000 milliseconds (1 second)
     reconnectTimer->start(3000);
-    Timer->start(100);
+//    Timer->start(100);
     updateDateTime();
 }
 
 
 void mainwindows::reconnectTimerTimeout(){
-    if (client->isConnected == false){
-    if ((serverAddress != "") & (serverPort > 0) & (serverPort < 65536)){
-        isVersion= false;
-        cppCommand(isVersion);
-        client->createConnection(serverAddress,serverPort);
-    }
-//    qDebug() << "reconnectTimerTimeout" << isVersion;
 
-}
-if (client->isConnected == true){
-
-        if(!isVersion){
-            connectToPLC();
-            qDebug() << "isVersion" << isVersion;
+    if(userMode == "SLAVE"){
+        if (client->isConnected == false){
+//            if ((serverAddress != "") & (serverPort > 0) & (serverPort < 65536)){
+                isVersion= false;
+//                cppCommand(isVersion);
+                client->createConnection("192.168.10.62",serverPort);
+//            }
+        }
+        if (client->isConnected == true){
+            if(!isVersion){
+                connectToPLC();
+                qDebug() << "isVersion" << isVersion;
+            }
         }
     }
-cppCommand(isVersion);
-//qDebug() << "reconnectTimerTimeout" << isVersion;
-//qDebug() << "isVersion" << isVersion;
+    else if(userMode == "MASTER"){
+        if (client->isConnected == false){
+//            if ((serverAddress != "") & (serverPort > 0) & (serverPort < 65536)){
+                isVersion= false;
+//                cppCommand(isVersion);
+                client->createConnection("192.168.10.62",serverPort);
+//            }
+        }
+        if (client->isConnected == true){
+            if(!isVersion){
+                connectToPLC();
+                qDebug() << "isVersion" << isVersion;
+            }
+        }
+    }
+    qDebug() << "client->isConnected" << client->isConnected << "userMode" << userMode;
+//    cppCommand(isVersion);
 }
 
 void mainwindows::connectTimeOut(){
@@ -272,26 +286,40 @@ void mainwindows::cppSubmitTextFiled(QString qmlJson){
 //        qDebug() << "cppSubmitTextFiled UserM:" << selectMaster << userStatus << userType;
         cppCommand(selectMaster);
         emit updateUser(selectMaster);
-    }
-    else if(getCommand == "login"){
+    }else if(getCommand == "dateRemote") {
+         qDebug() << "dateRemote:" << qmlJson;
+         cppCommand(qmlJson);
+     }else if(getCommand == "login"){
         QString user = QJsonValue(command["username"]).toString();
         QString password = QJsonValue(command["password"]).toString();
-        int Userlevel;
-        if (user == "admin"&&password == "admin"){
-             Userlevel = 1;
-        }
-        else if(user == "admin1" && password == "admin1"){
-             Userlevel = 2;
-        }
-        else {
-             Userlevel = 3;
-        }
+        QJsonObject jsonOutput;
+        jsonOutput["objectName"] = "login";
+        jsonOutput["username"] = user;
+        jsonOutput["password"] = password;
+        QJsonDocument doc(jsonOutput);
+        QString loginuser = doc.toJson(QJsonDocument::Compact);
+        qDebug()<<"loginppp"<<loginuser;
+        emit sendMessage(loginuser);
+        // int Userlevel;
+        // if (user == "admin"&&password == "admin"){
+        //      Userlevel = 1;
+        // }
+        // else if(user == "admin1" && password == "admin1"){
+        //      Userlevel = 2;
+        // }
+        // else {
+        //      Userlevel = 3;
+        // }
 
-        QString User = QString("{"
-                                "\"objectName\":\"userlavel\","
-                                "\"level\":\%1"
-                                "}").arg(Userlevel);
-        cppCommand(User);
+        // QString User = QString("{"
+        //                         "\"objectName\":\"userlavel\","
+        //                         "\"level\":\%1"
+        //                         "}").arg(Userlevel);
+        // cppCommand(User);
+    }
+     else if (getCommand == "userlevel"){
+        cppCommand(qmlJson);
+         qDebug()<<"userlevelpppp"<<qmlJson;
     }
     else if(getCommand == "PatternData"){
         // qDebug() << "patternA:";
@@ -1230,7 +1258,7 @@ void mainwindows::cppSubmitTextFiled(QString qmlJson){
             }else if (command.contains("lfloperate")) {
                 QString setSNMP = QString("{"
                                                "\"objectName\"     :\"updateSettingNetwork\","
-                                               "\"LEL_OPERATE\"         :\"%1\""
+                                               "\"LFL_OPERATE\"         :\"%1\""
                                                "}").arg(lfloperate ? "1" : "0");
                 qDebug() << "setSNMP lfloperate:" << setSNMP << lfloperate;
                 emit settingNetWorkandSNMP(setSNMP);
@@ -1335,20 +1363,14 @@ void mainwindows::cppSubmitTextFiled(QString qmlJson){
     }else if(getCommand == "dataPlotingC"){
         qDebug() << "dataPlotingC:";
         cppCommand(qmlJson);
-    }else if(getCommand == "dataPlotingB"){
-        qDebug() << "dataPlotingB:";
-
-       cppCommand(qmlJson);
-    }else if(getCommand == "dataPlotingC"){
-        qDebug() << "dataPlotingC:";
-       cppCommand(qmlJson);
     }else if(getCommand == "patternA"){
-        qDebug() << "patternA:";
+       qDebug() << "patternA:";
        cppCommand(qmlJson);
     }else if(getCommand == "patternB"){
-//        qDebug() << "patternB:";
+       qDebug() << "patternB:";
        cppCommand(qmlJson);
     }else if(getCommand == "patternC"){
+       qDebug() << "patternC:";
        cppCommand(qmlJson);
     }else if(getCommand == "spinBoxDisplay"){
         int levelofligth = command["displayLight"].toInt();
@@ -1696,29 +1718,11 @@ void mainwindows::cppSubmitTextFiled(QString qmlJson){
             }
         } else {
         }
-    }else if(getEventAndAlert == "SURGE_START_EVENT") {
-        QJsonDocument jsonDoc = QJsonDocument::fromJson(qmlJson.toUtf8());
-        if (!jsonDoc.isObject()) {
-            qDebug() << "Invalid JSON format.";
-            return;
-        }
-        QJsonObject command = jsonDoc.object();
-        if (command.contains("state") && command["state"].isBool()) {
-            bool currentState = command["state"].toBool();
-            if (isFirstEvent_SURGE_START_EVENT) {
-                cppCommand(qmlJson);
-                previousStates_SURGE_START_EVENT = currentState;
-                isFirstEvent_SURGE_START_EVENT = false;
-                return;
-            }
-            if (currentState != previousStates_SURGE_START_EVENT) {
-                cppCommand(qmlJson);
-                previousStates_SURGE_START_EVENT = currentState;
-            } else {
-            }
-        } else {
-        }
-    }else if(getEventAndAlert == "PERIODIC_TEST_EVENT") {
+    }else if(getEventAndAlert == "SURGE_START_EVENT_A" || getEventAndAlert == "SURGE_START_EVENT_B" || getEventAndAlert == "SURGE_START_EVENT_C") {
+         cppCommand(qmlJson);
+     }else if(getEventAndAlert == "Send Master Start" || getEventAndAlert == "Receive Master Start") {
+         cppCommand(qmlJson);
+     }else if(getEventAndAlert == "PERIODIC_TEST_EVENT") {
         QJsonDocument jsonDoc = QJsonDocument::fromJson(qmlJson.toUtf8());
         if (!jsonDoc.isObject()) {
             qDebug() << "Invalid JSON format.";
@@ -1786,7 +1790,7 @@ void mainwindows::cppSubmitTextFiled(QString qmlJson){
             }
         } else {
         }
-    }else if(getEventAndAlert == "LEL_OPERATE") {
+    }else if(getEventAndAlert == "LFL_OPERATE") {
         QJsonDocument jsonDoc = QJsonDocument::fromJson(qmlJson.toUtf8());
         if (!jsonDoc.isObject()) {
             qDebug() << "Invalid JSON format.";
@@ -1795,15 +1799,15 @@ void mainwindows::cppSubmitTextFiled(QString qmlJson){
         QJsonObject command = jsonDoc.object();
         if (command.contains("state") && command["state"].isBool()) {
             bool currentState = command["state"].toBool();
-            if (isFirstEvent_LEL_OPERATE) {
+            if (isFirstEvent_LFL_OPERATE) {
                 cppCommand(qmlJson);
-                previousStates_LEL_OPERATE = currentState;
-                isFirstEvent_LEL_OPERATE = false;
+                previousStates_LFL_OPERATE = currentState;
+                isFirstEvent_LFL_OPERATE = false;
                 return;
             }
-            if (currentState != previousStates_LEL_OPERATE) {
+            if (currentState != previousStates_LFL_OPERATE) {
                 cppCommand(qmlJson);
-                previousStates_LEL_OPERATE = currentState;
+                previousStates_LFL_OPERATE = currentState;
             } else {
             }
         } else {
@@ -1817,8 +1821,44 @@ void mainwindows::cppSubmitTextFiled(QString qmlJson){
     }else if(getCommand == "realDistanceC") {
         qDebug() << "Check Data realDistanceC:" << qmlJson;
         cppCommand(qmlJson);
-    }
+    }else if(getCommand == "updateNTPServer"){
+         networks->ip_timeserver = command["ntpServer"].toString();
+         networking->setNTPServer(networks->ip_timeserver);
+         updateNTP();
+     }else if (qmlJson == "CHANGETOSLAVE") {
+//         userMode = "slave";
+//         qDebug() << "debug change to slave" << userMode;
+//         networks->ip_address = "192.168.10.62";
+//         client->m_webSocket.close();
+     }else if (qmlJson == "CHANGE") {
+//         userMode = "master";
+//         qDebug() << "debug change to master:"  << userMode;
+//         networks->ip_address = "192.168.10.51";
+         client->m_webSocket.close();
+     }else if(getCommand == "updateDate") {
+         cppCommand(qmlJson);
+     }else if(getCommand == "Network") {
+        qDebug() << "Check Network:" << command["ip_address"].toString() << command.contains("ip_address");
+        networks->ip_address = command["ip_address"].toString();
+        networks->ip_gateway =  command["ip_gateway"].toString();
+        networks->ip_snmp    = command["ip_snmp"].toString();
+        networks->ip_timeserver = command["ip_timeserver"].toString();
+        updateNetwork();
+        cppCommand(qmlJson);
+     }else if(getCommand == "combinedDataPhaseA") {
+        cppCommand(qmlJson);
+     }else if(getCommand == "combinedDataPhaseB") {
+        cppCommand(qmlJson);
+     }else if(getCommand == "combinedDataPhaseC") {
+        cppCommand(qmlJson);
+     }else if(getCommand == "selectUser") {
 
+         userMode = command["userType"].toString();
+         qDebug() << "selectUser:" << userMode << command["userType"].toString();
+         cppCommand(qmlJson);
+     }else if(getCommand == "selectUsers") {
+         sendMessage(qmlJson);
+     }
 }
 
 QString getLocalIPAddress() {
@@ -1833,6 +1873,23 @@ QString getLocalIPAddress() {
     return "127.0.0.1"; // Fallback if no valid IP found
 }
 
+
+void mainwindows::updateNTP(){
+    qDebug() << "updateSMTP";
+    QSettings *settings;
+    const QString cfgfile = FILESETTING;
+    qDebug() << "Loading configuration from:" << cfgfile;
+    if(QDir::isAbsolutePath(cfgfile))
+    {
+        settings = new QSettings(cfgfile,QSettings::IniFormat);
+        settings->setValue(QString("%1/IP_ADDRESS").arg(TIME_SERVER),networks->ip_timeserver);
+    }
+    else{
+        qDebug() << "Loading configuration from:" << cfgfile << " FILE NOT FOUND!";
+    }
+    qDebug() << "Loading configuration completed";
+    delete settings;
+}
 void mainwindows::captureScreenshotseand(){
 
     QString savePath = "/var/www/html/pic/";
@@ -1850,7 +1907,7 @@ void mainwindows::captureScreenshotseand(){
     if (screenshot.save(filePath)) {
         qDebug() << "Saved file to:" << filePath;
     } else {
-        qDebug() << "❌Can't save file";
+        qDebug() << "Can't save file";
         return;
     }
 
@@ -1877,11 +1934,12 @@ void mainwindows::ServerCommand(QString qmlJson){
     QString getCommand2 =  QJsonValue(command["menuID"]).toString();
     if(getCommand.contains("SwVersion")){
             isVersion = true;
+            cppCommand(isVersion);
     }
 }
 
 void mainwindows::connectToPLC(){
-    qDebug() << "------Open websocket to server------";
+    qDebug() << "------Open websocket to server------" << "userMode" << userMode;
     QJsonDocument jsonDoc;
     QJsonObject Param;
     Param.insert("objectName","SwVersion");	             //Name
@@ -3462,6 +3520,10 @@ void mainwindows::getSetting()
 
         networks->ip_timeserver = settings->value(QString("%1/IP_ADDRESS").arg(TIME_SERVER),"0.0.0.0").toString();
         networks->location_snmp = settings->value(QString("%1/LOCATION").arg(TIME_SERVER),"").toString();
+
+        networks->ip_master = settings->value(QString("%1/IP_MASTER").arg(USER_MODE),"").toString();
+        networks->ip_slave = settings->value(QString("%1/IP_SLAVE").arg(USER_MODE),"").toString();
+
     }
     else{
         qDebug() << "Loading configuration from:" << cfgfile << " FILE NOT FOUND!";
@@ -3473,6 +3535,7 @@ void mainwindows::getSetting()
 
 void mainwindows::updateNetwork()
 {
+    return;
     qDebug() << "updateNetwork";
     QSettings *settings;
     const QString cfgfile = FILESETTINGMASTER;
@@ -3488,6 +3551,8 @@ void mainwindows::updateNetwork()
         settings->setValue(QString("%1/SECDNS").arg(NETWORK_SERVER),networks->secdns);
         settings->setValue(QString("%1/PHYNAME").arg(NETWORK_SERVER),networks->phyName);
 
+        settings->setValue(QString("%1/IP_MASTER").arg(USER_MODE),networks->ip_master);
+        settings->setValue(QString("%1/IP_SLAVE").arg(USER_MODE),networks->ip_slave);
 //        settings->setValue(QString("%1/IP_ADDRESS").arg(SNMP_SERVER),networks->ip_snmp);
 //        settings->setValue(QString("%1/EMAIL").arg(SNMP_SERVER),networks->email_snmp);
 

@@ -3186,8 +3186,8 @@ void Database::SettingNetworkSNMP(QString msg) {
         if(command.value("LFL_FAIL").toString() != ""){
             lflfail           = command.value("LFL_FAIL").toString();
         }
-        if(command.value("LEL_OPERATE").toString() != ""){
-            lfloperate        = command.value("LEL_OPERATE").toString();
+        if(command.value("LFL_OPERATE").toString() != ""){
+            lfloperate        = command.value("LFL_OPERATE").toString();
         }
 //         GateWsys       = command.value("gateway").toString();
 //         snmpIP         = command.value("ip_snmp").toString();
@@ -3208,7 +3208,7 @@ void Database::SettingNetworkSNMP(QString msg) {
 //         preiodicStart     = command.value("PERIODIC_TEST_EVENT").toString();
 //         manualTest        = command.value("MANUAL_TEST_EVENT").toString();
 //         lflfail           = command.value("LFL_FAIL").toString();
-//         lfloperate        = command.value("LEL_OPERATE").toString();
+//         lfloperate        = command.value("LFL_OPERATE").toString();
         Param.insert("objectName","updateSettingNetwork");	             //Name
         Param.insert("ipaddress",IPaddress);
         Param.insert("gateway",GateWsys);
@@ -3230,7 +3230,7 @@ void Database::SettingNetworkSNMP(QString msg) {
         Param.insert("PERIODIC_TEST_EVENT",preiodicStart);
         Param.insert("MANUAL_TEST_EVENT",manualTest);
         Param.insert("LFL_FAIL",lflfail);
-        Param.insert("LEL_OPERATE",lfloperate);
+        Param.insert("LFL_OPERATE",lfloperate);
         jsonDoc.setObject(Param);
         raw_data = QJsonDocument(Param).toJson(QJsonDocument::Compact).toStdString().c_str();
         qDebug() << "NetWork and SNMP settin:" << raw_data;
@@ -4039,7 +4039,7 @@ bool Database::database_createConnection()
         return false;
     }
     db.close();
-    qDebug() << "Database connected";    
+    qDebug() << "Database connected";
     return true;
 }
 qint64 Database::getTimeDuration(QString filePath)

@@ -24,6 +24,9 @@ Item {
     property double pointerY: 0
     property int globalNum: 0
     property int number: 0
+    property var globalMaxY : Number.NEGATIVE_INFINITY;
+    property var globalMinY : Number.POSITIVE_INFINITY;
+
 //     สำหรับ RawDataA
     onPlotdataAChanged: {
         try {
@@ -229,8 +232,8 @@ Item {
     function adjustAxes(distances, plotdataArrays) {
         var validDistances = distances.filter(isFinite);
         if (validDistances.length > 0) {
-            axisX.min = Math.min.apply(null, validDistances);
-            axisX.max = Math.max.apply(null, validDistances);
+            axisX.min = Math.min(...validDistances);
+            axisX.max = Math.max(...validDistances);
         }
 
         var validPlotdata = [];
@@ -239,11 +242,29 @@ Item {
         });
 
         if (validPlotdata.length > 0) {
-            axisY.min = Math.min.apply(null, validPlotdata);
-            axisY.max = Math.max.apply(null, validPlotdata);
+            let minY = Math.min(...validPlotdata);
+            let maxY = Math.max(...validPlotdata);
+
+            globalMaxY = Math.max(globalMaxY, maxY);
+            globalMinY = Math.min(globalMinY, minY);
+
+            let buffer = (globalMaxY - globalMinY) * 0.1;
+            if (buffer === 0) buffer = globalMaxY * 0.1; // Handle equal min/max case
+
+            axisY.min = globalMinY - buffer;
+            axisY.max = globalMaxY + buffer;
+
+            console.log("Updated Axis Y -> Min:", axisY.min, "Max:", axisY.max);
+            var Screenshot = JSON.stringify({
+                                            "objectName": "Screenshot",
+                                            "onClicked":"true",
+                                            });
+
+            console.log("Sending JSON:", Screenshot);
+            qmlCommand(Screenshot);
+            console.log("Capture screen")
         }
     }
-
     function clearGraphDataPhaseA() {
         distanceA = [];
         plotdataA = [];
@@ -293,43 +314,32 @@ Item {
         plotdatapatternC = voltagePatternC
     }
     function cleardisplay() {
-        distanceA = [];
-        plotdataA = [];
-        distanceB = [];
-        plotdataB = [];
-        distanceC = [];
-        plotdataC = [];
-        distancepatternA = [];
-        plotdatapatternA = [];
-        distancepatternB = [];
-        plotdatapatternB = [];
-        distancepatternC = [];
-        plotdatapatternC = [];
-        if(distanceA.length === 0 || plotdataA.length === 0){
-            distanceA.push(distanceRawA);
-            plotdataA.push(voltageRawA);
-        }
-        if(distanceB.length === 0 || plotdataB.length === 0){
-            distanceB.push(distanceRawB);
-            plotdataB.push(voltageRawB);
-        }
-        if(distanceC.length === 0 || plotdataC.length === 0){
-            distanceC.push(distanceRawC);
-            plotdataC.push(voltageRawC);
-        }
-        if(distancepatternA.length === 0 || plotdatapatternA.length === 0){
-            distancepatternA.push(distancePatternA);
-            plotdatapatternA.push(voltagePatternA);
-        }
-        if(distancepatternB.length === 0 || plotdatapatternB.length === 0){
-            distancepatternB.push(distancePatternB);
-            plotdatapatternB.push(voltagePatternB);
-        }
-        if(distancepatternC.length === 0 || plotdatapatternC.length === 0){
-            distancepatternC.push(distancePatternC);
-            plotdatapatternC.push(voltagePatternC);
-        }
+        console.log("Clearing all graph data...");
+        seriesRawA.clear();
+        seriesRawB.clear();
+        seriesRawC.clear();
+
+        series1.clear();
+        series2.clear();
+        series3.clear();
+        // ✅ Reset each array properly (using splice to trigger QML updates)
+        distanceA.splice(0, distanceA.length);
+        plotdataA.splice(0, plotdataA.length);
+        distanceB.splice(0, distanceB.length);
+        plotdataB.splice(0, plotdataB.length);
+        distanceC.splice(0, distanceC.length);
+        plotdataC.splice(0, plotdataC.length);
+        distancepatternA.splice(0, distancepatternA.length);
+        plotdatapatternA.splice(0, plotdatapatternA.length);
+        distancepatternB.splice(0, distancepatternB.length);
+        plotdatapatternB.splice(0, plotdatapatternB.length);
+        distancepatternC.splice(0, distancepatternC.length);
+        plotdatapatternC.splice(0, plotdatapatternC.length);
+
+        console.log("All arrays cleared, waiting for new data...");
     }
+
+
     function clearpattern() {
         distancepatternA = [];
         plotdatapatternA = [];

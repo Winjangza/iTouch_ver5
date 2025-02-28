@@ -50,8 +50,8 @@ Item {
                         anchors.bottomMargin: 0
                         clip: true
                         model: eventAlarmLog
-                        TableViewColumn { role: "datetEventandAlram"; title: "DATE"; width: 150;}
-                        TableViewColumn { role: "timeEventandAlram"; title: "TIME"; width: 160 }
+                        TableViewColumn { role: "datetEventandAlram"; title: "DATE"; width: 140;}
+                        TableViewColumn { role: "timeEventandAlram"; title: "TIME"; width: 290 }
                         TableViewColumn { role: "logDetail"; title: "ALARM/EVENT"; width: 440 }
                         TableViewColumn { role: "statusEventandAlram"; title: "STATUS"; width: 300}
                     }
@@ -326,7 +326,6 @@ Item {
 
 /*##^##
 Designer {
-    D{i:0;formeditorZoom:2}D{i:38}
+    D{i:0;formeditorZoom:1.25}
 }
 ##^##*/
-

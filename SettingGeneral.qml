@@ -39,6 +39,10 @@ Item {
     property string directionInfoSetting: directionInfo
     property int linenoInfoSetting: linenoInfo
 
+    property string userModeSelect: userMode
+
+    visible: userLevelGlobalVars.count > 0 && (userLevelGlobalVars.get(0).userLevel >= 1 && userLevelGlobalVars.get(0).userLevel <= 3)
+
     onFocustextInformationChanged: {
         if(focustextInformation == false){
             valueVoltage.color = "#000000"
@@ -83,7 +87,8 @@ Item {
         border.color: "#00ffffff"
         border.width: 1
         anchors.fill: parent
-        anchors.rightMargin: 731
+        anchors.rightMargin: 840
+        anchors.topMargin: 15
 
         ColumnLayout {
             x: 14
@@ -91,50 +96,59 @@ Item {
 
             Rectangle {
                 id: selectMaster
-                color: isActive ? "#00FF00" : "#f2f2f2"
+                color: (userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
+                       ? (userModeSelect === "MASTER" ? "#d3d3d3" : "#f2f2f2")
+                       : (userModeSelect === "MASTER" ? "#00FF00" : "#f2f2f2")
                 radius: 5
                 border.color: "#b7b7b7"
                 border.width: 1
                 Layout.preferredHeight: 40
                 Layout.preferredWidth: 40
-                property bool isActive: true
 
                 MouseArea {
                     anchors.fill: parent
+                    preventStealing: true
+                    propagateComposedEvents: false
+                    enabled: !(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
                     onClicked: {
-                        selectMaster.isActive = true
-                        selectSlaves.isActive = false
-                        checkUser = true
-                        var SelectMaster = '{"objectName":"UserSelectM","userType": "Master" ,"userStatusMaster":'+selectMaster.isActive+'}'
-                        console.log("selectMaster:",SelectMaster)
-                        qmlCommand(SelectMaster)
+                        if (userModeSelect !== "MASTER") {
+                            userModeSelect = "MASTER";
+                            var SelectMaster = '{"objectName":"selectUsers","userType": "MASTER"}';
+                            console.log("selectMaster:", SelectMaster);
+                            qmlCommand(SelectMaster);
+                        }
                     }
                 }
             }
 
             Rectangle {
                 id: selectSlaves
-                color: isActive ? "#00FF00" : "#f2f2f2"
+                color: (userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
+                       ? (userModeSelect === "SLAVE" ? "#d3d3d3" : "#f2f2f2")
+                       : (userModeSelect === "SLAVE" ? "#00FF00" : "#f2f2f2")
                 radius: 5
                 border.color: "#a6a6a6"
                 border.width: 1
                 Layout.preferredHeight: 40
                 Layout.preferredWidth: 40
-                property bool isActive: false
 
                 MouseArea {
                     anchors.fill: parent
+                    preventStealing: true
+                    propagateComposedEvents: false
+                    enabled: !(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
                     onClicked: {
-                        selectSlaves.isActive = true
-                        selectMaster.isActive = false
-                        checkUser = false
-                        var SelectSlave = '{"objectName":"UserSelectS","userType": "Slave" ,"userStatusSlave":'+selectMaster.isActive+'}'
-                        console.log("selectSlave:",SelectSlave)
-                        qmlCommand(SelectSlave)
+                        if (userModeSelect !== "SLAVE") {
+                            userModeSelect = "SLAVE";
+                            var SelectSlave = '{"objectName":"selectUsers","userType": "SLAVE"}';
+                            console.log("selectSlave:", SelectSlave);
+                            qmlCommand(SelectSlave);
+                        }
                     }
                 }
             }
         }
+
 
         ColumnLayout {
             x: 62
@@ -162,22 +176,33 @@ Item {
         border.width: 0
         anchors.fill: parent
         anchors.bottomMargin: 8
-        anchors.leftMargin: 181
-        anchors.topMargin: -8
+        anchors.leftMargin: 230
+        anchors.topMargin: 15
 
         TextField {
             id: valueVoltage
-            x: 8
             y: 76
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.leftMargin: 8
+            anchors.rightMargin: 50
             horizontalAlignment: Text.AlignHCenter
             Layout.fillHeight: false
             Layout.fillWidth: true
             font.pointSize: 11
             placeholderText: qsTr("Enter Voltage") ? voltageInfoSetting : qsTr("Enter Voltage")
-            inputMethodHints: Qt.ImhFormattedNumbersOnly
+            readOnly: (userLevelGlobalVars.get(0).userLevel === 3)
+            background: Rectangle {
+                color: ( userLevelGlobalVars.get(0).userLevel === 3)
+                       ? "#d3d3d3"
+                       : "#ffffff"
+            border.color: "#bcbcbc"
+            radius: 5
+            }
+            // inputMethodHints: Qt.ImhFormattedNumbersOnly
             focus: false
             onFocusChanged: {
-                if (focus) {
+                if (focus && !textTime.readOnly ) {
                     valueVoltage.focus = false
                     currentField = "valueVoltage";
                     inputPanel.visible = true;
@@ -202,16 +227,28 @@ Item {
 
         TextField {
             id: valueSubstation
-            x: 8
             y: 159
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.leftMargin: 8
+            anchors.rightMargin: 50
             horizontalAlignment: Text.AlignHCenter
             Layout.fillWidth: true
             Layout.preferredHeight: 40
             font.pointSize: 11
             placeholderText: qsTr("Enter Substation") ? substationInfoSetting : qsTr("Enter Substation")
+            readOnly: (userLevelGlobalVars.get(0).userLevel === 3)
+            background: Rectangle {
+                color: ( userLevelGlobalVars.get(0).userLevel === 3)
+                       ? "#d3d3d3"
+                       : "#ffffff"
+            border.color: "#bcbcbc"
+            radius: 5
+            }
+            // inputMethodHints: Qt.ImhFormattedNumbersOnly
             focus: false
             onFocusChanged: {
-                if (focus) {
+                if (focus  && !textTime.readOnly) {
                     valueSubstation.focus = false
                     currentField = "valueSubstation";
                     inputPanel.visible = true;
@@ -235,16 +272,28 @@ Item {
 
         TextField {
             id: valueDirection
-            x: 8
             y: 243
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.leftMargin: 8
+            anchors.rightMargin: 50
             horizontalAlignment: Text.AlignHCenter
             Layout.fillWidth: true
             Layout.preferredHeight: 40
             font.pointSize: 11
             placeholderText: qsTr("Enter DIRECTION") ? directionInfoSetting :  qsTr("Enter DIRECTION")
+            readOnly: (userLevelGlobalVars.get(0).userLevel === 3)
+            background: Rectangle {
+                color: ( userLevelGlobalVars.get(0).userLevel === 3)
+                       ? "#d3d3d3"
+                       : "#ffffff"
+            border.color: "#bcbcbc"
+            radius: 5
+            }
+            // inputMethodHints: Qt.ImhFormattedNumbersOnly
             focus: false
             onFocusChanged: {
-                if (focus) {
+                if (focus && !textTime.readOnly) {
                     valueDirection.focus = false
                     currentField = "valueDirection";
                     inputPanel.visible = true;
@@ -268,16 +317,28 @@ Item {
 
         TextField {
             id: valueLineNo
-            x: 8
             y: 327
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.leftMargin: 8
+            anchors.rightMargin: 50
             horizontalAlignment: Text.AlignHCenter
             Layout.fillWidth: true
             Layout.preferredHeight: 40
             font.pointSize: 11
             placeholderText: qsTr("Enter Number") ? linenoInfoSetting : qsTr("Enter Number")
+            readOnly: (userLevelGlobalVars.get(0).userLevel === 3)
+            background: Rectangle {
+                color: ( userLevelGlobalVars.get(0).userLevel === 3)
+                       ? "#d3d3d3"
+                       : "#ffffff"
+            border.color: "#bcbcbc"
+            radius: 5
+            }
+            // inputMethodHints: Qt.ImhFormattedNumbersOnly
             focus: false
             onFocusChanged: {
-                if (focus) {
+                if (focus && !textTime.readOnly) {
                     valueLineNo.focus = false
                     currentField = "valueLineNo";
                     inputPanel.visible = true;
@@ -302,7 +363,7 @@ Item {
 
         ColumnLayout {
         }
-        anchors.rightMargin: 500
+        anchors.rightMargin: 600
     }
 
     Rectangle {
@@ -310,17 +371,21 @@ Item {
         color: "#00f2f2f2"
         border.width: 0
         anchors.fill: parent
-        anchors.bottomMargin: -8
+        anchors.bottomMargin: 8
         anchors.leftMargin: 442
-        anchors.topMargin: 8
+        anchors.topMargin: 15
 
         ColumnLayout {
-            x: 8
             y: 102
-
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.leftMargin: 8
+            anchors.rightMargin: 262
             Rectangle {
                 id: checkMonday
-                color: isActive ? "#00FF00" : "#ffffff"
+                color:(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
+                    ?( isActive ? "#d3d3d3" : "#f2f2f2")
+                    :( isActive ? "#00FF00" : "#f2f2f2")
                 radius: 5
                 border.color: "#bcbcbc"
                 border.width: 1
@@ -331,6 +396,7 @@ Item {
 
                 MouseArea {
                     anchors.fill: parent
+                    enabled: !(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
                     onClicked: {
                         checkMonday.isActive = !checkMonday.isActive;
                         var SelectDate = '{"objectName":"date", "Monday": ' + checkMonday.isActive + '}';
@@ -348,7 +414,9 @@ Item {
 
             Rectangle {
                 id: checkTuesday
-                color: isActive ? "#00FF00" : "#ffffff"
+                color:(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
+                    ?( isActive ? "#d3d3d3" : "#f2f2f2")
+                    :( isActive ? "#00FF00" : "#f2f2f2")
                 radius: 5
                 border.color: "#bcbcbc"
                 border.width: 1
@@ -357,6 +425,7 @@ Item {
                 property bool isActive: selectTuesday
                 MouseArea {
                     anchors.fill: parent
+                    enabled: !(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
                     onClicked: {
                         checkTuesday.isActive = !checkTuesday.isActive;
                         var SelectDate = '{"objectName":"date", "Tuesday": ' + checkTuesday.isActive + '}';
@@ -371,7 +440,9 @@ Item {
 
             Rectangle {
                 id: checkWednesday
-                color: isActive ? "#00FF00" : "#ffffff"
+                color:(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
+                    ?( isActive ? "#d3d3d3" : "#f2f2f2")
+                    :( isActive ? "#00FF00" : "#f2f2f2")
                 radius: 5
                 border.color: "#bcbcbc"
                 border.width: 1
@@ -380,6 +451,7 @@ Item {
                 property bool isActive: selectWednesday
                 MouseArea {
                     anchors.fill: parent
+                    enabled: !(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
                     onClicked: {
                         checkWednesday.isActive = !checkWednesday.isActive;
                         var SelectDate = '{"objectName":"date", "Wednesday": ' + checkWednesday.isActive + '}';
@@ -394,7 +466,9 @@ Item {
 
             Rectangle {
                 id: checkThursday
-                color: isActive ? "#00FF00" : "#ffffff"
+                color:(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
+                    ?( isActive ? "#d3d3d3" : "#f2f2f2")
+                    :( isActive ? "#00FF00" : "#f2f2f2")
                 radius: 5
                 border.color: "#bcbcbc"
                 border.width: 1
@@ -403,6 +477,7 @@ Item {
                 property bool isActive: selectThursday
                 MouseArea {
                     anchors.fill: parent
+                    enabled: !(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
                     onClicked: {
                         checkThursday.isActive = !checkThursday.isActive;
                         var SelectDate = '{"objectName":"date", "Thursday": ' + checkThursday.isActive + '}';
@@ -417,7 +492,9 @@ Item {
 
             Rectangle {
                 id: checkFriday
-                color: isActive ? "#00FF00" : "#ffffff"
+                color:(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
+                    ?( isActive ? "#d3d3d3" : "#f2f2f2")
+                    :( isActive ? "#00FF00" : "#f2f2f2")
                 radius: 5
                 border.color: "#bcbcbc"
                 border.width: 1
@@ -426,6 +503,7 @@ Item {
                 property bool isActive: selectFriday
                 MouseArea {
                     anchors.fill: parent
+                    enabled: !(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
                     onClicked: {
                         checkFriday.isActive = !checkFriday.isActive;
                         var SelectDate = '{"objectName":"date", "Friday": ' + checkFriday.isActive + '}';
@@ -440,7 +518,9 @@ Item {
 
             Rectangle {
                 id: checkSaturday
-                color: isActive ? "#00FF00" : "#ffffff"
+                color:(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
+                    ?( isActive ? "#d3d3d3" : "#f2f2f2")
+                    :( isActive ? "#00FF00" : "#f2f2f2")
                 radius: 5
                 border.color: "#bcbcbc"
                 border.width: 1
@@ -449,6 +529,7 @@ Item {
                 property bool isActive: selectSaturday
                 MouseArea {
                     anchors.fill: parent
+                    enabled: !(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
                     onClicked: {
                         checkSaturday.isActive = !checkSaturday.isActive;
                         var SelectDate = '{"objectName":"date", "Saturday": ' + checkSaturday.isActive + '}';
@@ -463,7 +544,9 @@ Item {
 
             Rectangle {
                 id: checkSunday
-                color: isActive ? "#00FF00" : "#ffffff"
+                color:(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
+                    ?( isActive ? "#d3d3d3" : "#f2f2f2")
+                    :( isActive ? "#00FF00" : "#f2f2f2")
                 radius: 5
                 border.color: "#bcbcbc"
                 border.width: 1
@@ -472,6 +555,7 @@ Item {
                 property bool isActive: selectSunday
                 MouseArea {
                     anchors.fill: parent
+                    enabled: !(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
                     onClicked: {
                         checkSunday.isActive = !checkSunday.isActive;
                         var SelectDate = '{"objectName":"date", "Sunday": ' + checkSunday.isActive + '}';
@@ -486,10 +570,12 @@ Item {
         }
 
         ColumnLayout {
-            x: 54
             y: 102
-            width: 107
             height: 310
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.leftMargin: 54
+            anchors.rightMargin: 149
 
             Text {
                 id: monday
@@ -535,8 +621,11 @@ Item {
         }
 
         RowLayout {
-            x: 8
             y: 47
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.leftMargin: 8
+            anchors.rightMargin: 100
 
             Text {
                 id: timeText
@@ -548,27 +637,38 @@ Item {
                 id: textTime
                 horizontalAlignment: Text.AlignHCenter
                 Layout.preferredHeight: 35
-                Layout.preferredWidth: 97
-                placeholderText: qsTr("Text Time")? time :  qsTr("Text Time")
+                Layout.preferredWidth: 100
+                placeholderText: qsTr("Text Time")
+                readOnly: (userLevelGlobalVars.count > 0 &&
+                           (userLevelGlobalVars.get(0).userLevel === 2 ||
+                            userLevelGlobalVars.get(0).userLevel === 3))
+                background: Rectangle {
+                    color: (userLevelGlobalVars.count > 0 &&
+                            (userLevelGlobalVars.get(0).userLevel === 2 ||
+                             userLevelGlobalVars.get(0).userLevel === 3))
+                           ? "#d3d3d3"  // ถ้า userLevel 2 หรือ 3 ให้พื้นหลังสีเทา
+                           : "#ffffff"  // กรณีอื่นให้พื้นหลังสีขาว
+                    border.color: "#bcbcbc"
+                    radius: 5
+                }
                 focus: false
-                //                text:textforinformation
                 onFocusChanged: {
-                    if (focus) {
-                        textTime.focus = false
+                    if (focus && !textTime.readOnly) {
+                        textTime.focus = false;
                         currentField = "textTime";
                         inputPanel.visible = true;
                         textInformation.visible = true;
                         textInformation.placeholderText = qsTr("Enter Time");
                         textInformation.inputMethodHints = Qt.ImhFormattedNumbersOnly;
-                        textInformation.text = "";
+                        textInformation.text = textTime.text;
                         textInformation.focus = true;
-                        color = "#ff0000"
-
+                        color = "#ff0000";
                     }
                 }
             }
+
         }
-        anchors.rightMargin: 248
+        anchors.rightMargin: 310
     }
 
     Rectangle {
@@ -576,64 +676,99 @@ Item {
         color: "#00f2f2f2"
         border.width: 0
         anchors.fill: parent
-        anchors.bottomMargin: 0
-        anchors.leftMargin: 690
-        anchors.topMargin: 0
+        anchors.bottomMargin: 8
+        anchors.leftMargin: 700
+        anchors.topMargin: 15
 
         ColumnLayout {
-            x: 8
             y: 100
-
+            height: 85
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.leftMargin: 10
+            anchors.rightMargin: 241
+            // color: (userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
+            //        ? (userModeSelect === "MASTER" ? "#d3d3d3" : "#f2f2f2")
+            //        : (userModeSelect === "MASTER" ? "#00FF00" : "#f2f2f2")
             Rectangle {
                 id: checklflfail
-                color: isActive ? "#00FF00" : "#f2f2f2"
+                color: (userLevelGlobalVars.get(0).userLevel === 3)
+                        ? (checklflfail.isActive ? "#d3d3d3" : "#f2f2f2")
+                        : (checklflfail.isActive ? "#00FF00" : "#f2f2f2")
                 radius: 5
                 border.color: "#b7b7b7"
                 border.width: 1
                 Layout.preferredHeight: 40
                 Layout.preferredWidth: 40
-                property bool isActive: lflFail
-
+                property bool isActive: false
+                property bool lflFail: false
                 MouseArea {
                     anchors.fill: parent
+                    anchors.leftMargin: -4
+                    anchors.rightMargin: 4
+                    anchors.topMargin: 0
+                    anchors.bottomMargin: 0
+                    enabled: !(userLevelGlobalVars.get(0).userLevel === 3)
                     onClicked: {
-                        checklflfail.isActive = !checklflfail.isActive
-//                        checkoperate.isActive = false
-//                        checkAct = true
-                        var CheckStatusFail = '{"objectName":"statusFail","LFLFAIL":'+checklflfail.isActive+'}'
-                        qmlCommand(CheckStatusFail)
+                        console.log("Before Click | isActive:", checklflfail.isActive, "| lflFail:", lflFail);
+
+                        checklflfail.isActive = !checklflfail.isActive;
+                        lflFail = checklflfail.isActive;
+
+                        console.log("After Click | isActive:", checklflfail.isActive, "| lflFail:", lflFail);
+
+                        var CheckStatusFail = '{"objectName":"statusFail","LFLFAIL":'+checklflfail.isActive+'}';
+                        qmlCommand(CheckStatusFail);
                     }
                 }
             }
 
             Rectangle {
                 id: checkoperate
-                color: isActive ? "#00FF00" : "#f2f2f2"
+                color: (userLevelGlobalVars.get(0).userLevel === 3)
+                        ? (checkoperate.isActive  ? "#d3d3d3" : "#f2f2f2")
+                        : (checkoperate.isActive  ? "#00FF00" : "#f2f2f2")
                 radius: 5
                 border.color: "#a6a6a6"
                 border.width: 1
                 Layout.preferredHeight: 40
                 Layout.preferredWidth: 40
-                property bool isActive: lflOperate
+                property bool isActive: false
+                property bool lflOperate: false
 
                 MouseArea {
-                    anchors.fill: parent
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    anchors.top: parent.top
+                    anchors.bottom: parent.bottom
+                    anchors.leftMargin: 0
+                    anchors.rightMargin: 40
+                    anchors.topMargin: 0
+                    anchors.bottomMargin: 40
+                    rotation: -132.797
+                    enabled: !(userLevelGlobalVars.get(0).userLevel === 3)
                     onClicked: {
-                        checkoperate.isActive = !checkoperate.isActive
-//                        checklflfail.isActive = false
-//                        checkAct = false
-                        var CheckStatusOperate = '{"objectName":"statusOperate","LFLOPERATE":'+checkoperate.isActive+'}'
-                        qmlCommand(CheckStatusOperate)
+                        console.log("Before Click | isActive:", checkoperate.isActive, "| lflOperate:", lflOperate);
+
+                        checkoperate.isActive = !checkoperate.isActive;
+                        lflOperate = checkoperate.isActive;
+
+                        console.log("After Click | isActive:", checkoperate.isActive, "| lflOperate:", lflOperate);
+
+                        var CheckStatusOperate = '{"objectName":"statusOperate","LFLOPERATE":'+checkoperate.isActive+'}';
+                        qmlCommand(CheckStatusOperate);
                     }
                 }
             }
         }
 
         ColumnLayout {
-            x: 54
             y: 100
-            width: 73
             height: 85
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.leftMargin: 65
+            anchors.rightMargin: 10
 
             Text {
                 id: textlflfail
@@ -655,10 +790,13 @@ Item {
     }
 
     RowLayout {
-        x: 8
-        y: 0
-        width: 992
         height: 46
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.top: parent.top
+        anchors.leftMargin: 8
+        anchors.rightMargin: 0
+        anchors.topMargin: 10
 
         Text {
             id: text1
@@ -666,6 +804,7 @@ Item {
             font.pixelSize: 16
             horizontalAlignment: Text.AlignLeft
             verticalAlignment: Text.AlignVCenter
+            Layout.fillHeight: true
         }
 
         Text {
@@ -674,6 +813,8 @@ Item {
             font.pixelSize: 16
             horizontalAlignment: Text.AlignLeft
             verticalAlignment: Text.AlignVCenter
+            Layout.fillWidth: false
+            Layout.fillHeight: true
         }
 
         Text {
@@ -682,6 +823,7 @@ Item {
             font.pixelSize: 16
             horizontalAlignment: Text.AlignLeft
             verticalAlignment: Text.AlignVCenter
+            Layout.fillHeight: true
         }
 
         Text {
@@ -690,7 +832,12 @@ Item {
             font.pixelSize: 16
             horizontalAlignment: Text.AlignLeft
             verticalAlignment: Text.AlignVCenter
+            Layout.fillHeight: true
         }
+    }
+
+    Item {
+        id: __materialLibrary__
     }
 
 

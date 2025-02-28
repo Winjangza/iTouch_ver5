@@ -5,6 +5,7 @@ import QtQuick.Layouts 1.0
 import QtQml 2.2
 
 Item {
+    id: _item
     width: 369
     height: 220
     property double totalDecrease: 0.0
@@ -51,22 +52,20 @@ Item {
 
         RowLayout {
             x: 128
-            y: 117
+            y: 121
             width: 212
-            height: 103
+            height: 99
 
             RowLayout {
-                x: 128
-                y: 117
-                width: 212
-                height: 103
-
                 ToolButton {
                     id: patterntest
+                    visible: !(userLevelGlobalVars.get(0).userLevel === 3)
                     text: qsTr("PATTERN \n TEST")
                     contentItem: Image {
-                        width: 90
-                        height: 90
+                        anchors.fill: parent
+                        anchors.leftMargin: 6
+                        anchors.topMargin: 10
+                        anchors.bottomMargin: 10
                         source: "images/pattern_unpress_test.png"
                         sourceSize.height: 90
                         sourceSize.width: 90
@@ -79,32 +78,43 @@ Item {
                         qmlCommand(pattern);
                     }
                 }
+
+                ToolButton {
+                    id: manualtest
+                    Layout.fillWidth: userLevelGlobalVars.get(0).userLevel === 3
+                    width: userLevelGlobalVars.get(0).userLevel === 3 ? undefined : 103
+                    text: qsTr("MANUAL \n TEST")
+                    flat: true
+                    highlighted: false
+                    contentItem: Image {
+                        anchors.fill: parent
+                        anchors.leftMargin: 6
+                        anchors.topMargin: 10
+                        anchors.bottomMargin: 10
+                        source: "images/manual_unpress_test.png"
+                        sourceSize.height: 90
+                        sourceSize.width: 90
+                        fillMode: Image.PreserveAspectFit
+                        smooth: true
+                    }
+                    onClicked: {
+                        console.log("Manual Test");
+                        var manual = '{"objectName":"ManualTest"}';
+                        qmlCommand(manual);
+                    }
+                }
             }
 
-            ToolButton {
-                id: manualtest
-                text: qsTr("MANUAL \n TEST")
-                contentItem: Image {
-                    width: 90
-                    height: 90
-
-                    source: "images/manual_unpress_test.png"
-                    sourceSize.height: 90
-                    sourceSize.width: 90
-                    fillMode: Image.PreserveAspectFit
-                    smooth: true
-                }
-                onClicked: {
-                    console.log("Manual Test")
-                    var manual = '{"objectName":"ManualTest"}';
-                    qmlCommand(manual);
-                }
-            }
         }
 
         ColumnLayout {
-            anchors.fill: parent
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.top: parent.top
+            anchors.bottom: parent.bottom
+            anchors.leftMargin: 0
             anchors.rightMargin: 270
+            anchors.bottomMargin: 0
 
             ToolButton {
                 id: clearalarm
@@ -132,9 +142,9 @@ Item {
                 onClicked: {
                     console.log("CLEAR ALARM button clicked");
                     clearAlarmLog();
-//                    clearAlarmEventLog();
-//                    var pattern = '{"objectName":"CLEAR_ALARM"}';
-//                    qmlCommand(pattern);
+                    //                    clearAlarmEventLog();
+                    //                    var pattern = '{"objectName":"CLEAR_ALARM"}';
+                    //                    qmlCommand(pattern);
                 }
             }
 
@@ -148,6 +158,7 @@ Item {
                 Layout.fillWidth: true
                 font.pointSize: 9
                 contentItem: Image {
+                    id: image
                     width: 150
                     height: 150
                     source: "images/button_clear.png"
@@ -157,11 +168,13 @@ Item {
                     Text {
                         id: cleardisplaybutton
                         x: 8
-                        y: 0
                         width: 74
-                        height: 49
-                        anchors.fill: parent
                         text: qsTr("CLEAR \n DISPLAY")
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+                        anchors.top: parent.top
+                        anchors.bottom: parent.bottom
+                        anchors.topMargin: 9
                         font.pixelSize: 12
                         horizontalAlignment: Text.AlignHCenter
                         verticalAlignment: Text.AlignVCenter
@@ -170,8 +183,8 @@ Item {
                 onClicked: {
                     console.log("CLEAR ALARM")
                     contorlAndMonitor.cleardisplay();
-//                    var pattern = '{"objectName":"cleardisplay"}';
-//                    qmlCommand(pattern);
+                    //                    var pattern = '{"objectName":"cleardisplay"}';
+                    //                    qmlCommand(pattern);
                 }
             }
 
@@ -179,6 +192,7 @@ Item {
                 id: clearpattern
                 width: 90
                 height: 90
+                visible: !(userLevelGlobalVars.get(0).userLevel === 3)
                 text: qsTr("CLEAR \n PATTERN")
                 Layout.fillHeight: true
                 Layout.fillWidth: true
@@ -206,16 +220,16 @@ Item {
                 onClicked: {
                     console.log("CLEAR ALARM")
                     contorlAndMonitor.clearpattern();
-//                    var pattern = '{"objectName":"clearpattern"}';
-//                    qmlCommand(pattern);
+                    //                    var pattern = '{"objectName":"clearpattern"}';
+                    //                    qmlCommand(pattern);
                 }
             }
         }
 
         ColumnLayout {
-            x: 128
+            x: 105
             y: 27
-            width: 233
+            width: 256
             height: 94
 
             RowLayout {
@@ -350,7 +364,7 @@ Item {
                 Layout.fillHeight: true
                 Layout.preferredHeight: 31
                 Layout.preferredWidth: 280
-
+                visible: !(userLevelGlobalVars.get(0).userLevel === 3)
                 // ตัวแปรเก็บค่า DAC Level
                 property int patternLevel: 1
                 height: 30  // ค่าเริ่มต้น
@@ -407,6 +421,6 @@ Item {
 
 /*##^##
 Designer {
-    D{i:0;formeditorZoom:10}
+    D{i:0;formeditorZoom:4}D{i:6}D{i:8}D{i:15}
 }
 ##^##*/

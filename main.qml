@@ -163,7 +163,8 @@ Window {
     property string ip_gateway: ""
     property string ip_snmp: ""
     property string ip_timeserver: ""
-
+    property string userMode: ""
+    property string remoteMonitor: ""
     property var updateMarginA
     property var updateMarginB
     property var updateMarginC
@@ -191,11 +192,10 @@ Window {
     property var eventListeners:[];
     property var fullEventData:[];
     property var hiddenEventData:[];
-
-
     property double realDistanceA: 0.0
     property double realDistanceB: 0.0
     property double realDistanceC: 0.0
+
     ListModel {
         id: testGraph
         property var nameX: plotDataAX
@@ -293,7 +293,7 @@ Window {
     }
     ListModel {
         id: userLevelGlobalVars
-        property int userLevel: 0
+        property int userLevel: 3
     }
 
     //         property string globalPhaseA: ""
@@ -344,11 +344,18 @@ Window {
         anchors.fill: parent
         anchors.topMargin: 0
         anchors.rightMargin: 0
-        initialItem: "qrc:/LoginPage.qml"
-        onCurrentItemChanged: {
-            mainBar.visible = stackView.currentItem.objectName !== "LoginPage"
-        }
+        initialItem: "qrc:/Mainpage.qml"
     }
+//    StackView {
+//        id: stackView
+//        anchors.fill: parent
+//        anchors.topMargin: 0
+//        anchors.rightMargin: 0
+//        initialItem: "qrc:/LoginPage.qml"
+//        onCurrentItemChanged: {
+//            mainBar.visible = stackView.currentItem.objectName !== "LoginPage"
+//        }
+//    }
 
     MainBar {
         id: mainBar
@@ -363,6 +370,7 @@ Window {
         var objectName = JsonObject.objectName;
         var TrapsAlert = JsonObject.TrapsAlert;
         var menuID = JsonObject.objectName;
+        var eventRecord = JsonObject.eventRecord;
 //        console.log("receviceSocket:", message ,JsonObject,objectName,TrapsAlert,menuID,JSON.parse(message),JsonObject.objectName);
 
         if(message === true){
@@ -374,7 +382,7 @@ Window {
             mainBarMasterSelect = userTypeMaster;
             usertypeSelect = JsonObject.userStatusMaster
         }
-        else if (objectName ==="userlavel")
+        else if (objectName ==="userlevel")
         {
             console.log("iuhododjoewjoidje", message);
             userlavel(message);
@@ -514,43 +522,61 @@ Window {
             updateSaturday = JsonObject.Saturday;
             updateSunday = JsonObject.Sunday;
             console.log("getPeriodicInfo:", message,updateMonday, updateTuesday, updateWednesday, JsonObject.Monday);
-        }else if((objectName === 'dataPlotingA')) {
-            arrRawA = []
-            distanceRawA = []
-            voltageRawA = []
+        }else if (objectName === 'dataPlotingA') {
+            arrRawA = [];  // Clear the array before update
+            distanceRawA = [];
+            voltageRawA = [];
+
             arrRawA = JsonObject.dataPlotingA || [];
-            distanceRawA = JsonObject.distance;
-            voltageRawA = JsonObject.voltage;
+            distanceRawA = JsonObject.distance || [];
+            voltageRawA = JsonObject.voltage || [];
+
             console.log("Debug_RawdataA_dataPlotingA:", message , arrRawA, distanceRawA, voltageRawA);
         } else if (objectName === 'dataPlotingB') {
-            arrRawB = []
-            distanceRawB = []
-            voltageRawB = []
+            arrRawB = [];
+            distanceRawB = [];
+            voltageRawB = [];
+
             arrRawB = JsonObject.dataPlotingB || [];
-            distanceRawB = JsonObject.distance;
-            voltageRawB = JsonObject.voltage;
+            distanceRawB = JsonObject.distance || [];
+            voltageRawB = JsonObject.voltage || [];
+
             console.log("Debug_RawdataA_dataPlotingB:", message , arrRawB, distanceRawB, voltageRawB);
         } else if (objectName === 'dataPlotingC') {
-            arrRawC = []
-            distanceRawC = []
-            voltageRawC = []
+            arrRawC = [];
+            distanceRawC = [];
+            voltageRawC = [];
+
             arrRawC = JsonObject.dataPlotingC || [];
-            distanceRawC = JsonObject.distance;
-            voltageRawC = JsonObject.voltage;
+            distanceRawC = JsonObject.distance || [];
+            voltageRawC = JsonObject.voltage || [];
+
             console.log("Debug_RawdataA_dataPlotingC:", message , arrRawC, distanceRawC, voltageRawC);
-        }else if (objectName === 'patternA') {
+        } else if (objectName === 'patternA') {
             console.log("patthernA_check_debug:", message);
+
+            distancePatternA = [];
+            voltagePatternA = [];
+
             var arrA = JsonObject.data || [];
-            distancePatternA = JsonObject.distance;
-            voltagePatternA= JsonObject.voltage;
-        }else if (objectName === 'patternB') {
+            distancePatternA = JsonObject.distance || [];
+            voltagePatternA = JsonObject.voltage || [];
+        } else if (objectName === 'patternB') {
             console.log("patthernB_check_debug:", message);
-            distancePatternB = JsonObject.distance;
-            voltagePatternB = JsonObject.voltage;
+
+            distancePatternB = [];
+            voltagePatternB = [];
+
+            distancePatternB = JsonObject.distance || [];
+            voltagePatternB = JsonObject.voltage || [];
         } else if (objectName === 'patternC') {
             console.log("patthernC_check_debug:", message);
-            distancePatternC = JsonObject.distance;
-            voltagePatternC = JsonObject.voltage;
+
+            distancePatternC = [];
+            voltagePatternC = [];
+
+            distancePatternC = JsonObject.distance || [];
+            voltagePatternC = JsonObject.voltage || [];
         }else if (objectName === 'positonCursor') {
             console.log("positonCursor:", message, JsonObject.distance);
             cursorposition = parseFloat(JsonObject.distance).toFixed(2);
@@ -588,7 +614,7 @@ Window {
                 internal_phase_A_error          = JsonObject.INTERNAL_PHASE_A_ERROR;
                 internal_phase_B_error          = JsonObject.INTERNAL_PHASE_B_ERROR;
                 internal_phase_C_error          = JsonObject.INTERNAL_PHASE_C_ERROR;
-                lfl_operate                     = JsonObject.LEL_OPERATE;
+                lfl_operate                     = JsonObject.LFL_OPERATE;
                 lfl_fail                        = JsonObject.LFL_FAIL;
                 manual_test_event               = JsonObject.MANUAL_TEST_EVENT;
                 module_hi_speed_phase_A_error   = JsonObject.MODULE_HI_SPEED_PHASE_A_ERROR;
@@ -629,70 +655,44 @@ Window {
 
         }else if ((TrapsAlert === 'PLC_DO_ERROR')) {
             addEvent(message);
-//            console.log("TrapsAlert PLC_DO_ERROR:", message,alarm_plc_do_error,timeEventAlarm);
         }else if ((TrapsAlert === 'PLC_DI_ERROR')) {
             addEvent(message);
-//            console.log("TrapsAlert PLC_DI_ERROR:", message,alarm_plc_di_error,timeEventAlarm);
         }else if ((TrapsAlert === 'INTERNAL_PHASE_A_ERROR')) {
             addEvent(message);
-//            console.log("TrapsAlert INTERNAL_PHASE_A_ERROR:", message,alarm_internal_phase_A_error,timeEventAlarm);
         }else if ((TrapsAlert === 'INTERNAL_PHASE_B_ERROR')) {
             addEvent(message);
-//            console.log("TrapsAlert INTERNAL_PHASE_B_ERROR:", message,alarm_internal_phase_B_error,timeEventAlarm);
         }else if ((TrapsAlert === 'INTERNAL_PHASE_C_ERROR')) {
             addEvent(message);
-//            console.log("TrapsAlert INTERNAL_PHASE_C_ERROR:", message,alarm_internal_phase_C_error,timeEventAlarm);
-
         }else if ((TrapsAlert === 'MODULE_HI_SPEED_PHASE_A_ERROR')) {
             addEvent(message);
-//            console.log("TrapsAlert MODULE_HI_SPEED_PHASE_A_ERROR:", message,alarm_module_hi_speed_phase_A_error,timeEventAlarm);
-
         }else if ((TrapsAlert === 'MODULE_HI_SPEED_PHASE_B_ERROR')) {
             addEvent(message);
-//            console.log("TrapsAlert MODULE_HI_SPEED_PHASE_B_ERROR:", message,alarm_module_hi_speed_phase_B_error,timeEventAlarm);
-
         }else if ((TrapsAlert === 'MODULE_HI_SPEED_PHASE_C_ERROR')) {
             addEvent(message);
-//            console.log("TrapsAlert MODULE_HI_SPEED_PHASE_C_ERROR:", message,alarm_module_hi_speed_phase_C_error,timeEventAlarm);
-
         }else if ((TrapsAlert === 'GPS_MODULE_FAIL')) {
             addEvent(message);
-//            console.log("TrapsAlert GPS_MODULE_FAIL:", message,alarm_gps_module_fail,timeEventAlarm);
-
         }else if ((TrapsAlert === 'SYSTEM_INITIAL')) {
             addEvent(message);
-//            console.log("TrapsAlert SYSTEM_INITIAL:", message,alarm_system_initial,timeEventAlarm);
-
         }else if ((TrapsAlert === 'COMMUNICATION_ERROR')) {
             addEvent(message);
-//            console.log("TrapsAlert COMMUNICATION_ERROR:", message,alarm_communication_error,timeEventAlarm);
-
         }else if ((TrapsAlert === 'RELAY_START_EVENT')) {
             addEvent(message);
-//            console.log("TrapsAlert RELAY_START_EVENT:", message,alarm_relay_start_event,timeEventAlarm);
-
-        }else if ((TrapsAlert === 'SURGE_START_EVENT')) {
+        }else if ((TrapsAlert === 'SURGE_START_EVENT_A') || (TrapsAlert === 'SURGE_START_EVENT_B') || (TrapsAlert === 'SURGE_START_EVENT_C')) {
             addEvent(message);
-//            console.log("TrapsAlert SURGE_START_EVENT:", message,alarm_surage_start_event,timeEventAlarm);
-
+        }else if ((TrapsAlert === 'Send Master Start') || (TrapsAlert === 'Receive Master Start')) {
+            addEvent(message);
         }else if ((TrapsAlert === 'PERIODIC_TEST_EVENT')) {
+            console.log("PERIODIC_TEST_EVENT:",message);
             addEvent(message);
-//            console.log("TrapsAlert PERIODIC_TEST_EVENT:", message,alarm_periodic_test_event,timeEventAlarm);
-
         }else if ((TrapsAlert === 'MANUAL_TEST_EVENT')) {
             addEvent(message);
-           console.log("TrapsAlert MANUAL_TEST_EVENT:", message,alarm_manual_test_event,timeEventAlarm);
-
         }else if ((TrapsAlert === 'LFL_FAIL')) {
             addEvent(message);
-//            console.log("TrapsAlert LFL_FAIL:", message,alarm_lfl_fail,timeEventAlarm);
-
-        }else if (TrapsAlert === "LEL_OPERATE") {
-            message = message.replace("LEL_OPERATE", "LFL_OPERATE");
+        }else if ((TrapsAlert === 'LFL_OPERATE') || (TrapsAlert === 'LFL_OPERATE')) {
+            message = message.replace("LFL_OPERATE", "LFL_OPERATE");
             addEvent(message);
-            console.log("TrapsAlert changed to LFL_OPERATE:", message);
         }else if ((objectName === 'CLEAR_ALARM')) {
-//            console.log("CLEAR_ALARM:", message);
+            addEvent(message);
         }else if ((objectName === 'realDistanceA')) {
             console.log("realDistanceA:", message);
             realDistanceA = JsonObject.valueDistanceA;
@@ -705,7 +705,24 @@ Window {
             console.log("realDistanceC:", message);
             realDistanceC = JsonObject.valueDistanceC;
             realDistanceC = realDistanceC/1000;
-
+        }else if ((objectName === 'Network')) {
+            console.log("Network:", message);
+            ip_address                      = JsonObject.ip_address;
+            ip_gateway                      = JsonObject.ip_gateway;
+            ip_snmp                         = JsonObject.ip_snmp;
+            ip_timeserver                   = JsonObject.ip_timeserver;
+        }else if ((objectName === 'selectUser')) {
+            userMode = JsonObject.userType;
+            remoteMonitor = JsonObject.RemoteTOMonitor;
+        }else if ((objectName === 'dateRemote')) {
+            updateMonday = JsonObject.Monday;
+            updateTuesday = JsonObject.Tuesday;
+            updateWednesday = JsonObject.Wednesday;
+            updateThursday = JsonObject.Thursday;
+            updateFriday = JsonObject.Friday;
+            updateSaturday = JsonObject.Saturday;
+            updateSunday = JsonObject.Sunday;
+            console.log("dateRemote_qml:", message,JsonObject.Monday,JsonObject.Tuesday,JsonObject.Wednesday,JsonObject.Thursday,JsonObject.Friday,JsonObject.Saturday,JsonObject.Sunday);
         }
     }
 
@@ -899,6 +916,13 @@ Window {
         }
     }
 
+//    function addUserMode(message) {
+//        usermode = message
+//    }
+//    function addTextUserMode(message) {
+//        msg = message
+//    }
+
     function addEvent(message) {
         // try {
             var JsonObject = JSON.parse(message);
@@ -930,70 +954,6 @@ Window {
         // }
     }
 
-
-//    function addEvent(message) {
-//        try {
-//            var JsonObject = JSON.parse(message);
-//            console.log("[addEvent] Received:", JsonObject);
-
-//            if (!JsonObject.TrapsAlert || !JsonObject.time) {
-//                console.warn("[addEvent] Missing required fields.");
-//                return;
-//            }
-
-//            var fullTime = JsonObject.time;
-//            var datePart = fullTime.split(" ")[0] || "N/A";
-//            var timePart = fullTime.split(" ")[1] || "N/A";
-
-//            var newEvent = {
-//                datetEventandAlram: datePart,
-//                timeEventandAlram: timePart,
-//                logDetail: JsonObject.TrapsAlert,
-//                statusEventandAlram: JsonObject.state ? "ACTIVE" : "DEACTIVE"
-//            };
-
-//            eventAlarmLog.insert(0, newEvent); // ✅ Insert at the top
-//            eventAlarmHistoryLog.insert(0, newEvent);
-//            console.log(`[addEvent] Appended: ${JSON.stringify(newEvent)}`);
-//        } catch (error) {
-//            console.error("[addEvent] JSON Parse Error:", error);
-//        }
-//    }
-
-
-//    function processIncomingMessage(message) {
-//        try {
-//            var JsonObject = JSON.parse(message);
-//            if (JsonObject.objectName === "CLEAR_ALARM") {
-//                clearAlarmLog();
-//            } else {
-//                addEvent(message);
-//            }
-//        } catch (error) {
-//            console.error("JSON Parse Error:", error);
-//        }
-//    }
-//    function fliterRelayStart(checkfliter) {
-//        console.error("fliterRelayStart:", checkfliter);
-//        if (checkfliter) {
-//            fullEventData = [];
-//            for (var i = 0; i < eventAlarmLog.count; i++) {
-//                var item = eventAlarmLog.get(i);
-//                if (item.logDetail === "RELAY_START_EVENT") {
-//                    fullEventData.push(item);
-//                }
-//            }
-//            eventAlarmLog.clear();
-//            fullEventData.forEach(function(item) {
-//                eventAlarmLog.append(item);
-//            });
-//        } else {
-//            fullEventData.forEach(function(item) {
-//                eventAlarmLog.append(item);
-//            });
-//        }
-//    }
-
     function clearAlarmLog() {
         if (eventAlarmLog.count > 0 || fullEventData.length > 0) {
             console.log(`[clearAlarmLog] Found ${eventAlarmLog.count} items and ${fullEventData.length} cached items. Clearing...`);
@@ -1006,183 +966,185 @@ Window {
     }
 
     function fliterRelayStart(checkfliter) {
-            console.error("fliterRelayStart:", checkfliter);
-            if (fullEventData.length === 0) {
-                console.warn(" fullEventData is empty, initializing with eventAlarmLog.");
-                for (var i = 0; i < eventAlarmLog.count; i++) {
-                    let item = eventAlarmLog.get(i);
-                    fullEventData.push(JSON.parse(JSON.stringify(item))); // ✅ แปลงให้เป็น JSON Object
-                }
-            }
-
-            if (checkfliter) {
-                hiddenEventData = [];
-                var filteredData = [];
-                for (var i = 0; i < fullEventData.length; i++) {
-                    if (fullEventData[i].logDetail === "RELAY_START_EVENT") {
-                        filteredData.push(fullEventData[i]);
-                    } else {
-                        hiddenEventData.push(fullEventData[i]);
-                    }
-                }
-                console.log("Filtered Data:", filteredData);
-                console.log("Hidden Data (ซ่อนอยู่):", hiddenEventData);
-                eventAlarmLog.clear();
-                for (var j = 0; j < filteredData.length; j++) {
-                    eventAlarmLog.append(filteredData[j]);
-                }
-            } else {
-                console.log("Restoring hidden data:", hiddenEventData);
-                for (var k = 0; k < hiddenEventData.length; k++) {
-                    var item = hiddenEventData[k];
-
-                    if (item.logDetail !== undefined && item.datetEventandAlram !== undefined
-                        && item.timeEventandAlram !== undefined && item.statusEventandAlram !== undefined) {
-                        eventAlarmLog.append(item);
-                    } else {
-                        console.warn("⚠️ Skipping invalid data:", item);
-                    }
-                }
-                hiddenEventData = [];
-            }
-        }
-        function fliterPeriodicStart(checkfliter) {
-            console.error("fliterPeriodicStart:", checkfliter);
-
-            if (fullEventData.length === 0) {
-                console.warn("fullEventData is empty, initializing with eventAlarmLog.");
-                for (var i = 0; i < eventAlarmLog.count; i++) {
-                    fullEventData.push(JSON.parse(JSON.stringify(eventAlarmLog.get(i))));
-                }
-            }
-
-            if (checkfliter) {
-                hiddenEventData = [];
-                var filteredData = [];
-
-                for (var i = 0; i < fullEventData.length; i++) {
-                    if (fullEventData[i].logDetail === "PERIODIC_TEST_EVENT") {
-                        filteredData.push(fullEventData[i]);
-                    } else {
-                        hiddenEventData.push(fullEventData[i]);
-                    }
-                }
-
-                console.log("Filtered Data:", filteredData);
-                console.log("Hidden Data:", hiddenEventData);
-
-                eventAlarmLog.clear();
-                for (var j = 0; j < filteredData.length; j++) {
-                    eventAlarmLog.append(filteredData[j]);
-                }
-            } else {
-                console.log("Restoring hidden data:", hiddenEventData);
-
-                for (var k = 0; k < hiddenEventData.length; k++) {
-                    var item = hiddenEventData[k];
-
-                    if (item.logDetail !== undefined) {
-                        eventAlarmLog.append(item);
-                    } else {
-                        console.warn("Skipping invalid data:", item);
-                    }
-                }
-
-                hiddenEventData = [];
+        console.error("fliterRelayStart:", checkfliter);
+        if (fullEventData.length === 0) {
+            console.warn(" fullEventData is empty, initializing with eventAlarmLog.");
+            for (var i = 0; i < eventAlarmLog.count; i++) {
+                let item = eventAlarmLog.get(i);
+                fullEventData.push(JSON.parse(JSON.stringify(item))); // ✅ แปลงให้เป็น JSON Object
             }
         }
 
-        function fliterManualStart(checkfliter) {
-            console.error("fliterManualStart:", checkfliter);
-
-            if (fullEventData.length === 0) {
-                console.warn("fullEventData is empty, initializing with eventAlarmLog.");
-                for (var i = 0; i < eventAlarmLog.count; i++) {
-                    fullEventData.push(JSON.parse(JSON.stringify(eventAlarmLog.get(i))));
+        if (checkfliter) {
+            hiddenEventData = [];
+            var filteredData = [];
+            for (var i = 0; i < fullEventData.length; i++) {
+                if (fullEventData[i].logDetail === "RELAY_START_EVENT") {
+                    filteredData.push(fullEventData[i]);
+                } else {
+                    hiddenEventData.push(fullEventData[i]);
                 }
             }
+            console.log("Filtered Data:", filteredData);
+            console.log("Hidden Data (ซ่อนอยู่):", hiddenEventData);
+            eventAlarmLog.clear();
+            for (var j = 0; j < filteredData.length; j++) {
+                eventAlarmLog.append(filteredData[j]);
+            }
+        } else {
+            console.log("Restoring hidden data:", hiddenEventData);
+            for (var k = 0; k < hiddenEventData.length; k++) {
+                var item = hiddenEventData[k];
 
-            if (checkfliter) {
-                hiddenEventData = [];
-                var filteredData = [];
-
-                for (var i = 0; i < fullEventData.length; i++) {
-                    if (fullEventData[i].logDetail === "MANUAL_TEST_EVENT") {
-                        filteredData.push(fullEventData[i]);
-                    } else {
-                        hiddenEventData.push(fullEventData[i]);
-                    }
+                if (item.logDetail !== undefined && item.datetEventandAlram !== undefined
+                    && item.timeEventandAlram !== undefined && item.statusEventandAlram !== undefined) {
+                    eventAlarmLog.append(item);
+                } else {
+                    console.warn("⚠️ Skipping invalid data:", item);
                 }
+            }
+            hiddenEventData = [];
+        }
+    }
+    function fliterPeriodicStart(checkfliter) {
+        console.error("fliterPeriodicStart:", checkfliter);
 
-                console.log("Filtered Data:", filteredData);
-                console.log("Hidden Data (ซ่อนอยู่):", hiddenEventData);
-
-                eventAlarmLog.clear();
-                for (var j = 0; j < filteredData.length; j++) {
-                    eventAlarmLog.append(filteredData[j]);
-                }
-            } else {
-                console.log("Restoring hidden data:", hiddenEventData);
-
-                for (var k = 0; k < hiddenEventData.length; k++) {
-                    var item = hiddenEventData[k];
-
-                    if (item.logDetail !== undefined) {
-                        eventAlarmLog.append(item);
-                    } else {
-                        console.warn("Skipping invalid data:", item);
-                    }
-                }
-
-                hiddenEventData = [];
+        if (fullEventData.length === 0) {
+            console.warn("fullEventData is empty, initializing with eventAlarmLog.");
+            for (var i = 0; i < eventAlarmLog.count; i++) {
+                fullEventData.push(JSON.parse(JSON.stringify(eventAlarmLog.get(i))));
             }
         }
 
-        function fliterSurageStart(checkfliter) {
-            console.error("fliterSurageStart:", checkfliter);
+        if (checkfliter) {
+            hiddenEventData = [];
+            var filteredData = [];
 
-            if (fullEventData.length === 0) {
-                console.warn("fullEventData is empty, initializing with eventAlarmLog.");
-                for (var i = 0; i < eventAlarmLog.count; i++) {
-                    fullEventData.push(JSON.parse(JSON.stringify(eventAlarmLog.get(i))));
+            for (var i = 0; i < fullEventData.length; i++) {
+                if (fullEventData[i].logDetail === "PERIODIC_TEST_EVENT") {
+                    filteredData.push(fullEventData[i]);
+                } else {
+                    hiddenEventData.push(fullEventData[i]);
                 }
             }
 
-            if (checkfliter) {
-                hiddenEventData = [];
-                var filteredData = [];
+            console.log("Filtered Data:", filteredData);
+            console.log("Hidden Data:", hiddenEventData);
 
-                for (var i = 0; i < fullEventData.length; i++) {
-                    if (fullEventData[i].logDetail === "SURGE_START_EVENT") {
-                        filteredData.push(fullEventData[i]);
-                    } else {
-                        hiddenEventData.push(fullEventData[i]);
-                    }
+            eventAlarmLog.clear();
+            for (var j = 0; j < filteredData.length; j++) {
+                eventAlarmLog.append(filteredData[j]);
+            }
+        } else {
+            console.log("Restoring hidden data:", hiddenEventData);
+
+            for (var k = 0; k < hiddenEventData.length; k++) {
+                var item = hiddenEventData[k];
+
+                if (item.logDetail !== undefined) {
+                    eventAlarmLog.append(item);
+                } else {
+                    console.warn("Skipping invalid data:", item);
                 }
+            }
 
-                console.log("Filtered Data:", filteredData);
-                console.log("Hidden Data:", hiddenEventData);
+            hiddenEventData = [];
+        }
+    }
 
-                eventAlarmLog.clear();
-                for (var j = 0; j < filteredData.length; j++) {
-                    eventAlarmLog.append(filteredData[j]);
-                }
-            } else {
-                console.log("Restoring hidden data:", hiddenEventData);
+    function fliterManualStart(checkfliter) {
+        console.error("fliterManualStart:", checkfliter);
 
-                for (var k = 0; k < hiddenEventData.length; k++) {
-                    var item = hiddenEventData[k];
-
-                    if (item.logDetail !== undefined) {
-                        eventAlarmLog.append(item);
-                    } else {
-                        console.warn("Skipping invalid data:", item);
-                    }
-                }
-
-                hiddenEventData = [];
+        if (fullEventData.length === 0) {
+            console.warn("fullEventData is empty, initializing with eventAlarmLog.");
+            for (var i = 0; i < eventAlarmLog.count; i++) {
+                fullEventData.push(JSON.parse(JSON.stringify(eventAlarmLog.get(i))));
             }
         }
+
+        if (checkfliter) {
+            hiddenEventData = [];
+            var filteredData = [];
+
+            for (var i = 0; i < fullEventData.length; i++) {
+                if (fullEventData[i].logDetail === "MANUAL_TEST_EVENT") {
+                    filteredData.push(fullEventData[i]);
+                } else {
+                    hiddenEventData.push(fullEventData[i]);
+                }
+            }
+
+            console.log("Filtered Data:", filteredData);
+            console.log("Hidden Data (ซ่อนอยู่):", hiddenEventData);
+
+            eventAlarmLog.clear();
+            for (var j = 0; j < filteredData.length; j++) {
+                eventAlarmLog.append(filteredData[j]);
+            }
+        } else {
+            console.log("Restoring hidden data:", hiddenEventData);
+
+            for (var k = 0; k < hiddenEventData.length; k++) {
+                var item = hiddenEventData[k];
+
+                if (item.logDetail !== undefined) {
+                    eventAlarmLog.append(item);
+                } else {
+                    console.warn("Skipping invalid data:", item);
+                }
+            }
+
+            hiddenEventData = [];
+        }
+    }
+
+    function fliterSurageStart(checkfliter) {
+        console.error("fliterSurageStart:", checkfliter);
+
+        if (fullEventData.length === 0) {
+            console.warn("fullEventData is empty, initializing with eventAlarmLog.");
+            for (var i = 0; i < eventAlarmLog.count; i++) {
+                fullEventData.push(JSON.parse(JSON.stringify(eventAlarmLog.get(i))));
+            }
+        }
+
+        if (checkfliter) {
+            hiddenEventData = [];
+            var filteredData = [];
+
+            for (var i = 0; i < fullEventData.length; i++) {
+                if (fullEventData[i].logDetail === "SURGE_START_EVENT_A" || fullEventData[i].logDetail === "SURGE_START_EVENT_B" || fullEventData[i].logDetail === "SURGE_START_EVENT_C") {
+                    filteredData.push(fullEventData[i]);
+                } else {
+                    hiddenEventData.push(fullEventData[i]);
+                }
+            }
+
+            console.log("Filtered Data:", filteredData);
+            console.log("Hidden Data:", hiddenEventData);
+
+            eventAlarmLog.clear();
+            for (var j = 0; j < filteredData.length; j++) {
+                eventAlarmLog.append(filteredData[j]);
+            }
+        } else {
+            console.log("Restoring hidden data:", hiddenEventData);
+
+            for (var k = 0; k < hiddenEventData.length; k++) {
+                var item = hiddenEventData[k];
+
+                if (item.logDetail !== undefined) {
+                    eventAlarmLog.append(item);
+                } else {
+                    console.warn("Skipping invalid data:", item);
+                }
+            }
+
+            hiddenEventData = [];
+        }
+    }
+
+
 
     function appendNewDataTableA(message) {
         console.log("debug_for_mysqlTable_A", message);
@@ -1471,125 +1433,6 @@ Window {
 
         console.log("[clearAlarmLogIncrementally] Log cleared successfully!");
     }
-
-//    function appendNewMarginlistA(message) {
-//        var JsonObject = JSON.parse(message);
-//        var listMarginCount = parseInt(JsonObject.marginNo.replace("Margin", ""));
-//        var valueMarginA = JsonObject.valueOfMargin; // 300
-//        var unitMaginA = JsonObject.unit; // mV
-
-//        console.log("Appending to newlistMarginA: Count", listMarginCount, "Value:", valueMarginA, "Unit:", unitMaginA);
-
-//        if (newlistMarginA.count === 0 || newlistMarginA.count < listMarginCount) {
-//            console.log("Updating list: Adding Margin", listMarginCount);
-//            var found = false;
-//            for (var i = 0; i < newlistMarginA.count; i++) {
-//                if (newlistMarginA.get(i).list_marginA === JsonObject.marginNo) {
-//                    found = true;
-//                    newlistMarginA.set(i, {
-//                        "voltageIndex": i,
-//                        "list_marginA": JsonObject.marginNo,
-//                        "valueMarginA": valueMarginA,
-//                        "unitMaginA": unitMaginA
-//                    });
-//                    console.log("Updated existing entry:", JsonObject.marginNo);
-//                    break;
-//                }
-//            }
-
-//            if (!found) {
-//                newlistMarginA.append({
-//                    "voltageIndex": newlistMarginA.count,
-//                    "list_marginA": JsonObject.marginNo,
-//                    "valueMarginA": valueMarginA,
-//                    "unitMaginA": unitMaginA
-//                });
-//                console.log("Added new entry:", JsonObject.marginNo);
-//            }
-//        } else {
-//            console.log("No updates needed.");
-//        }
-//    }
-
-//    function appendNewMarginlistA(message) {
-//        var JsonObject = JSON.parse(message);
-//        var listMarginCount = parseInt(JsonObject.marginNo.replace("Margin", ""));
-//        var valueMarginA = JsonObject.valueOfMargin; // 300
-//        var unitMaginA = JsonObject.unit; // mV
-
-//        console.log("Appending to newlistMarginA: Count", listMarginCount, "Value:", valueMarginA, "Unit:", unitMaginA);
-
-//        if (newlistMarginA.count !== listMarginCount) {
-//            console.log("Mismatch detected. Clearing old list.");
-//            newlistMarginA.clear(); // ล้างรายการเก่า
-
-//            for (var i = 1; i <= listMarginCount; i++) {
-//                newlistMarginA.append({
-//                    "voltageIndex": i-1,
-//                    "list_marginA": "Margin" + i,
-//                    "valueMarginA": valueMarginA,
-//                    "unitMaginA": unitMaginA
-//                });
-//            }
-//        } else {
-//            console.log("No changes detected. Keeping current list.");
-//        }
-//    }
-
-//    function appendNewMarginlistA(message) {
-//        var JsonObject = JSON.parse(message);
-//        var listMarginA = JsonObject.marginNo; // MarginX
-//        var valueMarginA = JsonObject.valueOfMargin; // 300
-//        var unitMaginA = JsonObject.unit; // mV
-
-//        console.log("Appending to newlistMarginA:", listMarginA, valueMarginA, unitMaginA);
-
-//        newlistMarginA.append({
-//            "list_marginA": listMarginA,
-//            "valueMarginA": valueMarginA,
-//            "unitMaginA": unitMaginA
-//        });
-//    }
-
-//    function appendNewMarginlistA(message) {
-//          console.log("debug_for_MarginA", message);
-//          var JsonObject = JSON.parse(message);
-//          var commandName = JsonObject.objectName;
-//          var listMarginA = JsonObject.no;
-//          var numMarginA = JsonObject.marginNo;
-//          var valueMarginA = JsonObject.valueOfMargin;
-//          var unitMaginA = JsonObject.unit;
-
-//          console.log("Parsed JsonObject:", JsonObject,listMarginA);
-
-//          var getdeviceIndexA = getDeviceIndexA(listMarginA);
-
-//        if (getdeviceIndexA !== -1) { // ต้องเป็นค่าที่ถูกต้อง
-//            var existingItem = newlistMarginA.get(getdeviceIndexA);
-//            if (existingItem) { // ตรวจสอบว่ามีค่าอยู่จริง
-//                var existingIndexNum = existingItem.list_marginA; // เปลี่ยนจาก listMarginA เป็น list_marginA
-//                if (String(existingIndexNum) !== String(listMarginA)) {
-//                    console.log("Updating item:", listMarginA);
-//                    newlistMarginA.set(getdeviceIndexA, {
-//                        "list_marginA": listMarginA,
-//                        "valueMarginA": numMarginA,
-//                        "unitMaginA": valueMarginA,
-//                        "statusMaginA": unitMaginA
-//                    });
-//                }
-//            }
-//        } else {
-//            console.log("Item not found, adding new item:", listMarginA);
-//            newlistMarginA.append({
-//                "list_marginA": listMarginA,
-//                "valueMarginA": numMarginA,
-//                "unitMaginA": valueMarginA,
-//                "statusMaginA": unitMaginA
-//            });
-//        }
-
-//      }
-
 
     WebSocket {
         id: socketCPP

@@ -12,6 +12,11 @@ Item {
     property string currentField: ""
     property bool focustextInformation: inputPanel.visible
     property string textforinformation:  textInformation.text
+    property string ip_address_Network: ip_address
+    property string ip_gateway_Network: ip_gateway
+    property string ip_snmp_Network: ip_snmp
+    property string ip_timeserver_Network: ip_timeserver
+
     onFocustextInformationChanged: {
         if(focustextInformation == false){
             editsSNMPServer.color = "#000000"
@@ -95,7 +100,7 @@ Item {
                 Layout.preferredHeight: 40
                 placeholderText: qsTr("Current SNMP Server")
                 Layout.fillWidth: true
-                text: ip_snmp
+                text: ip_snmp_Network
                 readOnly: true // ป้องกันการแก้ไขโดยตรง
             }
 
@@ -155,7 +160,7 @@ Item {
                 Layout.preferredHeight: 40
                 placeholderText: qsTr("Current Time Sync Server")
                 Layout.fillWidth: true
-                text: ip_timeserver
+                text: ip_timeserver_Network
                 readOnly: true
             }
             TextField {
@@ -264,7 +269,7 @@ Item {
 
             TextField {
                 id: currentIPaddress
-                text: ip_address
+                text: ip_address_Network
                 horizontalAlignment: Text.AlignHCenter
                 Layout.fillWidth: true
                 Layout.leftMargin: 3
@@ -323,7 +328,7 @@ Item {
                 Layout.preferredHeight: 40
                 placeholderText: qsTr("Current GateWay")
                 Layout.fillWidth: true
-                text: ip_gateway
+                text: ip_gateway_Network
                 readOnly: true // เพื่อป้องกันการเปลี่ยนแปลงค่าจากผู้ใช้
             }
 

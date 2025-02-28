@@ -7,6 +7,8 @@ Item {
     height: 475
     property bool focustextInformation: inputPanel.visible
     property string textforinformation:  textInformation.text
+    visible: userLevelGlobalVars.count > 0 && (userLevelGlobalVars.get(0).userLevel >= 1 && userLevelGlobalVars.get(0).userLevel <= 3)
+
     onFocustextInformationChanged: {
         if(focustextInformation == false){
             textPhaseA.color = "#000000"
@@ -118,9 +120,17 @@ Item {
                     Layout.preferredWidth: 120
                     inputMethodHints: Qt.ImhFormattedNumbersOnly
                     placeholderText: qsTr("Text Field") ? valueThresholdA : qsTr("Text Field")
+                    readOnly: (userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
+                    background: Rectangle {
+                        color: (userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
+                               ? "#d3d3d3"
+                               : "#ffffff"
+                    border.color: "#bcbcbc"
+                    radius: 5
+                    }
                     focus: false
                     onFocusChanged: {
-                        if (focus) {
+                        if (focus && !textTime.readOnly) {
                             textPhaseA.focus = false
                             currentField = "textPhaseA";
                             inputPanel.visible = true;
@@ -155,9 +165,17 @@ Item {
                     Layout.preferredWidth: 120
                     inputMethodHints: Qt.ImhFormattedNumbersOnly
                     placeholderText: qsTr("Text Field") ?valueThresholdB : qsTr("Text Field")
+                    readOnly: (userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
+                    background: Rectangle {
+                        color: (userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
+                               ? "#d3d3d3"
+                               : "#ffffff"
+                    border.color: "#bcbcbc"
+                    radius: 5
+                    }
                     focus: false
                     onFocusChanged: {
-                        if (focus) {
+                        if (focus && !textTime.readOnly) {
                             textPhaseB.focus = false
                             currentField = "textPhaseB";
                             inputPanel.visible = true;
@@ -192,9 +210,17 @@ Item {
                     Layout.preferredWidth: 120
                     inputMethodHints: Qt.ImhFormattedNumbersOnly
                     placeholderText: qsTr("Text Field")? valueThresholdC :qsTr("Text Field")
+                    readOnly: (userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
+                    background: Rectangle {
+                        color: (userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
+                               ? "#d3d3d3"
+                               : "#ffffff"
+                    border.color: "#bcbcbc"
+                    radius: 5
+                    }
                     focus: false
                     onFocusChanged: {
-                        if (focus) {
+                        if (focus && !textTime.readOnly ) {
                             textPhaseC.focus = false
                             currentField = "textPhaseC";
                             inputPanel.visible = true;
