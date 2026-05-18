@@ -4,14 +4,22 @@ import QtQuick.Layouts 1.15
 import QtWebSockets 1.0
 import QtQuick.Extras 1.4
 Item {
-    width: 1024
-    height: 600
-    objectName: "Mainpage"
+
+    id: root
+    objectName: "MainPage"
+
     ContorlAndMonitor {
         id: contorlAndMonitor
-        x: 0
-        y: 0
+        anchors.fill: parent
     }
+//    width: 1024
+//    height: 600
+//    objectName: "Mainpage"
+//    ContorlAndMonitor {
+//        id: contorlAndMonitor
+//        x: 0
+//        y: 0
+//    }
 }
 
 /*##^##

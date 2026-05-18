@@ -76,7 +76,7 @@ ChatServer::~ChatServer()
 }
 
 void ChatServer::boardcasttomessaege(QString message) {
-    qDebug() << "boardcasttomessaege" << message;
+    qDebug() << "boardcasttomessaege:" << message;
 
     if (m_clients.isEmpty()) {
         qDebug() << "No clients connected. Broadcast skipped." << message;
@@ -298,19 +298,17 @@ void ChatServer::commandProcess(QString message, QWebSocket *pSender){
     QJsonDocument d = QJsonDocument::fromJson(message.toUtf8());
     QJsonObject command = d.object();
     QString getCommand =  QJsonValue(command["menuID"]).toString();
-//    qDebug() << "getCommand" << getCommand << message;
+    qDebug() << "getCommand:" << getCommand << message;
 
-    if (message.contains("web:channel"))
-    {
+    if (getCommand == "updateFirmware"){
+        qDebug() << "updateFirmware:" << message;
+        emit updatefireware(message);
+    }else if (message.contains("web:channel")){
         emit getChannelList(pSender);
-    }
-    else if (getCommand.contains("getCtrlinfoPage"))
-    {
+    }else if (getCommand.contains("getCtrlinfoPage")){
         int webchannelID = QJsonValue(command["channelID"]).toInt();
         emit getCtrlinfoPage(pSender, webchannelID);
-    }
-    else if (getCommand.contains("channelConfig"))
-    {
+    } else if (getCommand.contains("channelConfig")){
         int webchannelID = QJsonValue(command["channelID"]).toInt();
         QString radioA_IPAddr   = QJsonValue(command["radioA_IPAddr"]).toString();
         QString radioB_IPAddr   = QJsonValue(command["radioB_IPAddr"]).toString();
@@ -343,12 +341,7 @@ void ChatServer::commandProcess(QString message, QWebSocket *pSender){
     {
         QString value = QJsonValue(command["location"]).toString();
         emit setLocation(value);
-    }
-    else if (getCommand.contains("updateFirmware"))
-    {
-        emit updateFirmware();
-    }
-    else if (getCommand.contains("toggleGpioOut"))
+    }else if (getCommand.contains("toggleGpioOut"))
     {
         int gpioNum = QJsonValue(command["gpioNum"]).toInt();
         int gpioVal = QJsonValue(command["gpioVal"]).toInt();
@@ -401,20 +394,11 @@ void ChatServer::commandProcess(QString message, QWebSocket *pSender){
         qDebug()<< "getNetworkPage" << pSender;
         m_WebSocketClients << pSender;
         emit getNetworkPage(pSender);
-    }
-//    else if (getCommand.contains("getNetworkPage")) {
-//            qDebug() << "Matched condition 2";
-//            qDebug() << "getNetworkPage" << pSender;
-//            m_WebSocketClients << pSender;
-//            emit getNetworkPage(pSender);
-//      }
-    else if(getCommand.contains("getSwitchingRelay")){
+    }else if(getCommand.contains("getSwitchingRelay")){
         qDebug()<< "getSwitchingRelay" << pSender;
         m_WebSocketClients << pSender;
         emit getSwitchingPage(pSender);
-    }
-    else if (getCommand.contains("getCtrlinfoPage"))
-    {
+    }else if (getCommand.contains("getCtrlinfoPage")){
         bool hasConnect = false;
         Q_FOREACH (QWebSocket *webClient, m_WebSocketClients)
         {
@@ -428,38 +412,32 @@ void ChatServer::commandProcess(QString message, QWebSocket *pSender){
 
         int idInRole = QJsonValue(command["idInRole"]).toInt();
         emit getCtrlInfoPage(idInRole, pSender);
-    }
-    else {
-        if(message == "hello"){
+    }else if(message == "hello"){
             emit testMessage(message);
-        }
-        emit onNewMessage(message);
-//        qDebug() << "message:" << message;
-        if (message == "connect" ){
-            emit requectFromClient(message);
-        }else if (message == "getNetworkPage" ){
-            emit receiveRequestWS(message);
-        }else if (message == "getSystemPage" || getCommand.contains("getSystemPage") || getCommand == "getSystemPage") {
-            emit updateSystem(message);
-        }else if (message == "updateFirmware"){
-            emit updatefireware(message);
-        }else if (message == "updatesystem" || getCommand.contains("updatesystem") || getCommand == "updatesystem") {
-            qDebug() << "Update file to system:" << message;
-            emit uploadfireware(message);
-        }else if (message == "systembackup" || getCommand.contains("systembackup") || getCommand == "systembackup") {
-            qDebug() << "Update file to system:" << message;
-            emit systembackup(message);
-        }else if (message == "download" || getCommand.contains("download") || getCommand == "download") {
-            qDebug() << "download file to pc:" << message;
-            emit downloadFile(message);
-        }else if (message == "rebootSystem" || getCommand.contains("rebootSystem") || getCommand == "rebootSystem") {
-            qDebug() << "rebootSystem:" << message;
-            emit reboosystem(message);
-        }else if (message == "getMonitorPage" || getCommand.contains("getMonitorPage") || getCommand == "getMonitorPage") {
-            qDebug() << "getMonitorPage:" << message;
-            emit monitorPage(message);
-        }
+    }else if (message == "connect" ){
+        emit requectFromClient(message);
+    }else if (message == "getNetworkPage" ){
+        emit receiveRequestWS(message);
+    }else if (message == "getSystemPage" || getCommand.contains("getSystemPage") || getCommand == "getSystemPage") {
+        qDebug() << "getSystemPage:" << message;
+        emit updateSystem(message);
+    }else if (message == "updatesystem" || getCommand.contains("updatesystem") || getCommand == "updatesystem") {
+        qDebug() << "Update file to system:" << message;
+        emit uploadfireware(message);
+    }else if (message == "systembackup" || getCommand.contains("systembackup") || getCommand == "systembackup") {
+        qDebug() << "Update file to system:" << message;
+        emit systembackup(message);
+    }else if (message == "download" || getCommand.contains("download") || getCommand == "download") {
+        qDebug() << "download file to pc:" << message;
+        emit downloadFile(message);
+    }else if (message == "rebootSystem" || getCommand.contains("rebootSystem") || getCommand == "rebootSystem") {
+        qDebug() << "rebootSystem:" << message;
+        emit reboosystem(message);
+    }else if (message == "getMonitorPage" || getCommand.contains("getMonitorPage") || getCommand == "getMonitorPage") {
+        qDebug() << "getMonitorPage:" << message;
+        emit monitorPage(message);
     }
+
 }
 
 void ChatServer::processMessage(QString message)

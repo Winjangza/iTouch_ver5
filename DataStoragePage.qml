@@ -4,6 +4,7 @@ import QtQuick.Layouts 1.15
 import QtWebSockets 1.0
 import QtQuick.Extras 1.4
 import QtQuick.Controls 1.4
+import QtQuick.Controls.Styles 1.4
 
 Item {
     width: 1024
@@ -11,8 +12,8 @@ Item {
     TabView {
         anchors.fill: parent
         anchors.bottomMargin: 0
-        anchors.rightMargin: 0
-        anchors.leftMargin: 0
+        anchors.rightMargin: 8
+        anchors.leftMargin: 9
         anchors.topMargin: 59
         Tab{
             title: "PATTERN"
@@ -55,6 +56,24 @@ Item {
                 x: 194
                 y: 665
                 anchors.fill: parent
+            }
+        }
+        style: TabViewStyle {
+            tab: Rectangle {
+                implicitWidth: 252
+                implicitHeight: 65
+                color: styleData.selected ? "white" : "#d3d3d3"
+                border.color: "black"
+                radius: 5
+                Text {
+                    text: styleData.title
+                    anchors.centerIn: parent
+//                    font.bold: true
+                    font.pixelSize: 20
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+                    color: styleData.selected ? "black" : "#555"
+                }
             }
         }
     }

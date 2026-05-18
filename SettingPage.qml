@@ -10,6 +10,7 @@ Item {
     visible: true
     width: 1024
     height: 600
+
     TabView {
         anchors.fill: parent
         anchors.bottomMargin: 0
@@ -40,11 +41,14 @@ Item {
         Tab {
             title: "PARAMETER"
             Rectangle { color: "#e7e6e6" }
+
             SettingParameter {
                 id: settingParameter
                 x: 40
                 y: 92
                 anchors.fill: parent
+                inputPanelRef: inputPanel
+                textInformationRef: textInformation
             }
         }
         Tab {
@@ -82,72 +86,3 @@ Item {
 
 
 }
-
-
-
-
-//import QtQuick 2.0
-//import QtQuick.Controls 2.15
-//import QtQuick.Layouts 1.15
-
-//Item {
-//    visible: true
-//    width: 1024
-//    height: 600
-
-//        TabBar {
-//            id: tabBar
-//            x: 39
-//            y: 90
-//            width: 941
-//            height: 55
-//            Layout.preferredHeight: 60
-
-//            TabButton {
-//                width: 175
-//                height: 60
-//                text: qsTr("GENERAL")
-//                font.pointSize: 9
-//                onClicked: {
-//                }
-//            }
-
-//            TabButton {
-//                width: 175
-//                height: 60
-//                text: qsTr("DISPLAY")
-//                font.pointSize: 9
-//                onClicked: {
-//                }
-//            }
-
-//            TabButton {
-//                width: 175
-//                height: 60
-//                text: qsTr("PARAMETER")
-//                font.pointSize: 9
-//                onClicked: {
-//                }
-//            }
-
-//            TabButton {
-//                width: 175
-//                height: 60
-//                text: qsTr("NETWORK")
-//                font.pointSize: 9
-//                onClicked: {
-
-//                }
-//            }
-//        }
-
-
-//}
-
-
-
-/*##^##
-Designer {
-    D{i:0;formeditorZoom:1.33}
-}
-##^##*/

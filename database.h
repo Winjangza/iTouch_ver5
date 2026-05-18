@@ -6,6 +6,7 @@
 #include <QtSql>
 #include <QString>
 #include <QWebSocket>
+#include <QSqlRecord>
 class Database : public QObject
 {
     Q_OBJECT
@@ -28,13 +29,30 @@ public:
     QString logdata;
     int Serial_ID;
     bool isCheck = false;
+    QString USER;
+    QString IP_MASTER;
+    QString IP_SLAVE;
+    QString IP_SNMP;
+    QString IP_TIMERSERVER;
+    QString swversion;
 
+    QString dhcpmethodMonitor;
+    QString iPaddressMonitor;
+    QString subnetMonitor;
+    QString gatewayMonitor;
+    QString pridnsMonitor;
+    QString secdnsMonitor;
+    QString phyNameMonitor;
+    // optional: emit userMode กลับไปให้เว็บหลังอัปเดต
 signals:
     void audioFault(bool fault);
     void setupinitialize(QString);
     void databaseError();
     void eventmsg(QString);
     void cmdmsg(QString);
+    void sendtoServer(QString);
+    void sendtoMonitor(QString);
+
     void deletedmydatabase(QString);
     void updateTableDisplay(QString);
     void updatedataTableA(QString message);
@@ -64,6 +82,12 @@ signals:
     void sendUpdatedMarginListC(QString);
 //--------------------------------------------------------------------//
     void MydataBaseToCpp(QString);
+    void buttonStatusUpdated(QString);
+    void selectMasterMode(QString,QString,QString,QString,QString,QString);
+    void getupdateLocalNetwork(QString,QWebSocket* wClient);
+    void getUserMode(const QString &json, QWebSocket* wClient);
+//----------------------------------------------------------//
+    void databasesToCpp(QString);
 
 public slots:
     void getEventandAlarm(QString msg);
@@ -80,7 +104,6 @@ public slots:
     void updateTablePhaseA(QString);
     void updateTablePhaseB(QString);
     void updateTablePhaseC(QString);
-
     void edittingMysqlA(QString);
     void closeMySQL();
 
@@ -106,15 +129,14 @@ public slots:
     void getUpdateUserMode();
 
     void storeStatusAux(QString);
-    void getRawData(QString);
     void getPositionDistance(QString);
-
+    void initialCursorPosition();
+    void upDateCursorPosition(QString);
     void controlCursor(QString);
     void getChangeDistance(QString);
     void updateDistance(double);
     void taggingpoint(QString);
     void updataStatusTagging(int,bool);
-    void cleanDataInGraph(QString);
     void SettingNetworkSNMP(QString);
     void SettingDisplay(QString);
     void GetSettingDisplay();
@@ -124,7 +146,7 @@ public slots:
     void updataListOfMarginA(QString);
     void updataListOfMarginB(QString);
     void updataListOfMarginC(QString);
-
+    void selectMasterMode();
     ////////////////////pattern datastorage//////////////////////////
     void getdatapatternDataDb();
     void sortByName(bool ascending,const QString &categoryName);
@@ -132,10 +154,34 @@ public slots:
     void searchByName(const QString &name, const QString &categoryName);
     void searchByDate(const QString &date, const QString &categoryDate);
     void patternDataDb(QSqlQuery query);
+    void updateSwVersion(QString version);
+
     // void getdataStorage(QString &category);
 //    void emitEvent();
-
+    void GetStatusOfButtonHidding();
+    void UpdateStatusOfButtonHidding(QString);
+    void updateMasterMode(const QString &newUser, const QString &newIpMaster, const QString &newIpSlave,const QString &sw );
+    void updateDataBase();
+    void fetchUserModeInfo();
+    void updateDataBaseUSER();
+    bool tableExists(const QString &tableName);
+    void updateIpNetwork(const QString &newUser, const QString &newIpMaster, const QString &newIpSlave,const QString &snmp ,const QString &timeserver);
+    void recordZoomInOutValue(QString);
+    void getDataRecordZoomValue();
+    void checkDatabaseAndUpdate();
+    bool ensureDistanceDataTable();
+    void updateDataMaxMin(QString);
+    void getDataMaxMin();
+    void updateLocalNetwork(QString,QWebSocket* wClient);
+    void getLocalNetwork(QWebSocket* wClient);
+    void setTimeServerIP(const QString& ip);
+    void setLocation(const QString& ip);
+    void setSwVersion(const QString& ver);
+    void getLocalMonitor();
+//    void getzoomValueRecord();
 private:
+    void addMissingColumn(const QString &tableName, const QString &columnName, const QString &columnType);  // ✅ เพิ่มบรรทัดนี้
+    static constexpr bool kPlusIsPlainColumn = true;
     QSqlDatabase db;
     bool verifyMac();
     QString getPassword();
@@ -168,9 +214,12 @@ private:
     QString manualTest;
     QString lflfail;
     QString lfloperate;
+
+
 private slots:
     void reloadDatabase();
 //    void getEventandAlarm(QString msg);
+
 };
 
 #endif // DATABASE_H

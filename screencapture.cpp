@@ -20,25 +20,26 @@ QImage ImageProvider::requestImage(const QString &id, QSize *size, const QSize &
 
 void ImageProvider::makeScreenshot()
 {
-    QString fileName = QString::number(QDateTime::currentDateTime().toSecsSinceEpoch());
-    QQuickWindow *view = static_cast<QQuickWindow *>(sender());
-    static int pos = 0;
-    QImage img = view->grabWindow();
-    m_images.insert(pos,img);
+//    QString fileName = QString::number(QDateTime::currentDateTime().toSecsSinceEpoch());
+//    QQuickWindow *view = static_cast<QQuickWindow *>(sender());
+//    static int pos = 0;
+//    QImage img = view->grabWindow();
+//    m_images.insert(pos,img);
 
-    QVariant returnedValue;
-    QMetaObject::invokeMethod(view, "setImage",
-                              Q_RETURN_ARG(QVariant, returnedValue),
-                              Q_ARG(QVariant, pos++));
+//    QVariant returnedValue;
+//    QMetaObject::invokeMethod(view, "setImage",
+//                              Q_RETURN_ARG(QVariant, returnedValue),
+//                              Q_ARG(QVariant, pos++));
 
-    fileName = ("/home/pi/Picture/" + fileName + ".png");
-    QFile file(fileName);
-    if(file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
-        img.save(&file, "PNG");
-    }
-    else {
-        qDebug() << "Can't open file: " << fileName;
-    }
+//    fileName = ("/home/pi/Picture/" + fileName + ".png");
+//    QFile file(fileName);
+//    if(file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+//        img.save(&file, "PNG");
+//    }
+//    else {
+//        qDebug() << "Can't open file: " << fileName;
+//    }
+//    system("sync");
+//    qDebug() << "makeScreenshot";
 
-    qDebug() << "makeScreenshot";
 }

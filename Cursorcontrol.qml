@@ -3,25 +3,32 @@ import QtCharts 2.0
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.0
 import QtQml 2.2
+import QtQuick.VirtualKeyboard 2.4
 
 Item {
-    id: _item
     width: 369
     height: 220
-    property double totalDecrease: 0.0
+    property double totalDecrease: distanceCursor
     property bool focustextInformation: inputPanel.visible
     property string textforinformation:  textInformation.text
+    property double stepSize: 0.1
 
     onFocustextInformationChanged: {
         if(focustextInformation == false){
             rangeOfDistance.color = "#000000"
         }
     }
+    // onTextforinformationChanged: {
+    //     if(rangeOfDistance.color == "#ff0000"){
+    //         rangeOfDistance.text = textforinformation
+    //         console.log("onTextforinformationChanged",textforinformation)
+
+    //     }
+    // }
     onTextforinformationChanged: {
-        if(rangeOfDistance.color == "#ff0000"){
-            rangeOfDistance.text = textforinformation
+        if (currentField === "rangedistance" && rangeOfDistance.color === "#ff0000") {
+            distanceCursorStr = textforinformation
         }
-        console.log("onTextforinformationChanged",textforinformation)
     }
     Rectangle {
         id: rectangle
@@ -57,69 +64,99 @@ Item {
             height: 99
 
             RowLayout {
+                x: 128
+                y: 117
+                width: 212
+                height: 103
+
                 ToolButton {
                     id: patterntest
-                    visible: !(userLevelGlobalVars.get(0).userLevel === 3)
                     text: qsTr("PATTERN \n TEST")
+                    Layout.fillWidth: true
+                    visible: currentUserLevel !== 3
+
+                    property bool isPressed: false
+
                     contentItem: Image {
-                        anchors.fill: parent
-                        anchors.leftMargin: 6
-                        anchors.topMargin: 10
-                        anchors.bottomMargin: 10
-                        source: "images/pattern_unpress_test.png"
+                        width: 90
+                        height: 90
+                        source: patterntest.isPressed ? "images/pattern_press_test.png" : "images/pattern_unpress_test.png"
                         sourceSize.height: 90
                         sourceSize.width: 90
                         fillMode: Image.PreserveAspectFit
                         smooth: true
                     }
+
                     onClicked: {
-                        console.log("Pattern Test Clicked. Sending DAC Level:", patternLevel);
+                        isPressed = true;
+                        patternResetTimer.restart();
                         var pattern = `{"objectName":"PatternTest", "patternNum": ${patternLevel}}`;
                         qmlCommand(pattern);
+                        popupPatternPlot();
+                    }
+
+                    Timer {
+                        id: patternResetTimer
+                        interval: 3000
+                        repeat: false
+                        onTriggered: patterntest.isPressed = false
                     }
                 }
 
-                ToolButton {
-                    id: manualtest
-                    Layout.fillWidth: userLevelGlobalVars.get(0).userLevel === 3
-                    width: userLevelGlobalVars.get(0).userLevel === 3 ? undefined : 103
-                    text: qsTr("MANUAL \n TEST")
-                    flat: true
-                    highlighted: false
-                    contentItem: Image {
-                        anchors.fill: parent
-                        anchors.leftMargin: 6
-                        anchors.topMargin: 10
-                        anchors.bottomMargin: 10
-                        source: "images/manual_unpress_test.png"
-                        sourceSize.height: 90
-                        sourceSize.width: 90
-                        fillMode: Image.PreserveAspectFit
-                        smooth: true
+            }
+
+            ToolButton {
+                id: manualtest
+                text: qsTr("MANUAL \n TEST")
+                Layout.fillWidth: true
+                Layout.leftMargin: currentUserLevel === 3 ? -50 : 0
+
+                property bool isPressed: false
+
+                contentItem: Image {
+                    height: 90
+                    width: 103
+                    source: {
+                        if (currentUserLevel === 3) {
+                            return manualtest.isPressed ? "images/manual_level3_press.png" : "images/manual_level3.png";
+                        } else {
+                            return manualtest.isPressed ? "images/manual_press_test.png" : "images/manual_unpress_test.png";
+                        }
                     }
-                    onClicked: {
-                        console.log("Manual Test");
-                        var manual = '{"objectName":"ManualTest"}';
-                        qmlCommand(manual);
-                    }
+                    sourceSize.height: 90
+                    sourceSize.width: 90
+                    fillMode: Image.PreserveAspectFit
+                    smooth: true
+                }
+
+                onClicked: {
+                    isPressed = true;
+                    manualResetTimer.restart();
+                    var manual = '{"objectName":"ManualTest"}';
+                    qmlCommand(manual);
+                }
+
+                Timer {
+                    id: manualResetTimer
+                    interval: 1000
+                    repeat: false
+                    onTriggered: manualtest.isPressed = false;
                 }
             }
+
+
 
         }
 
         ColumnLayout {
-            anchors.left: parent.left
-            anchors.right: parent.right
-            anchors.top: parent.top
-            anchors.bottom: parent.bottom
-            anchors.leftMargin: 0
+            anchors.fill: parent
             anchors.rightMargin: 270
-            anchors.bottomMargin: 0
 
             ToolButton {
                 id: clearalarm
                 width: 90
                 height: 90
+//                visible: !(currentUserLevel=== 3)
                 text: qsTr("CLEAR \n ALARM")
                 Layout.fillHeight: true
                 Layout.fillWidth: true
@@ -140,11 +177,11 @@ Item {
                     }
                 }
                 onClicked: {
-                    console.log("CLEAR ALARM button clicked");
+//                    console.log("CLEAR ALARM button clicked");
                     clearAlarmLog();
-                    //                    clearAlarmEventLog();
-                    //                    var pattern = '{"objectName":"CLEAR_ALARM"}';
-                    //                    qmlCommand(pattern);
+//                    clearAlarmEventLog();
+//                    var pattern = '{"objectName":"CLEAR_ALARM"}';
+//                    qmlCommand(pattern);
                 }
             }
 
@@ -158,7 +195,6 @@ Item {
                 Layout.fillWidth: true
                 font.pointSize: 9
                 contentItem: Image {
-                    id: image
                     width: 150
                     height: 150
                     source: "images/button_clear.png"
@@ -168,23 +204,31 @@ Item {
                     Text {
                         id: cleardisplaybutton
                         x: 8
+                        y: 0
                         width: 74
+                        height: 49
+                        anchors.fill: parent
                         text: qsTr("CLEAR \n DISPLAY")
-                        anchors.left: parent.left
-                        anchors.right: parent.right
-                        anchors.top: parent.top
-                        anchors.bottom: parent.bottom
-                        anchors.topMargin: 9
                         font.pixelSize: 12
                         horizontalAlignment: Text.AlignHCenter
                         verticalAlignment: Text.AlignVCenter
                     }
                 }
                 onClicked: {
-                    console.log("CLEAR ALARM")
-                    contorlAndMonitor.cleardisplay();
-                    //                    var pattern = '{"objectName":"cleardisplay"}';
-                    //                    qmlCommand(pattern);
+                    contorlAndMonitor.cleardisplay();                    
+                    // updataStatusOfButtonA = true
+                    // updataStatusOfButtonB = true
+                    // updataStatusOfButtonC = true
+                    // updataStatusOfPatternA = true
+                    // updataStatusOfPatternB = true
+                    // updataStatusOfPatternC = true
+
+                    // updataStatusOfButtonA = false
+                    // updataStatusOfButtonB = false
+                    // updataStatusOfButtonC = false
+                    // updataStatusOfPatternA = false
+                    // updataStatusOfPatternB = false
+                    // updataStatusOfPatternC = false
                 }
             }
 
@@ -192,11 +236,11 @@ Item {
                 id: clearpattern
                 width: 90
                 height: 90
-                visible: !(userLevelGlobalVars.get(0).userLevel === 3)
                 text: qsTr("CLEAR \n PATTERN")
                 Layout.fillHeight: true
                 Layout.fillWidth: true
                 font.pointSize: 9
+                visible: !(currentUserLevel === 3)
                 contentItem: Image {
                     width: 150
                     height: 150
@@ -218,10 +262,7 @@ Item {
                     }
                 }
                 onClicked: {
-                    console.log("CLEAR ALARM")
                     contorlAndMonitor.clearpattern();
-                    //                    var pattern = '{"objectName":"clearpattern"}';
-                    //                    qmlCommand(pattern);
                 }
             }
         }
@@ -236,122 +277,148 @@ Item {
 
                 ToolButton {
                     id: cursorLeft
-                    highlighted: false
-                    flat: false
                     Layout.preferredHeight: 58
-                    //            icon.source: "images/leftArrow.png"
-                    //            icon.width: 45
-                    //            icon.height: 45
                     Layout.preferredWidth: 76
                     Layout.fillHeight: true
                     Layout.fillWidth: true
+
                     contentItem: Image {
                         anchors.fill: parent
                         source: "images/arrowLeft.png"
                         sourceSize.width: 237
                     }
 
-
                     Timer {
-                        id: holdTimer
+                        id: holdTimerLeft
                         interval: 100
                         repeat: true
-                        property double decrease: 0.1
-                        property double safeMargin: 41.53
-                        property double graphStartOffset: 95.25
-                        property double graphEndX: chartView.width - safeMargin
-                        property double totalDecrease: 0.0
                         onTriggered: {
-                            cursor.distance = Math.max(axisX.min, cursor.distance - decrease);
-                            cursor.x = graphStartOffset + ((cursor.distance - axisX.min) / (axisX.max - axisX.min)) * (graphEndX - graphStartOffset);
-
-                            totalDecrease += decrease;
-
-                            var decreaseValue = '{"objectName":"decreaseValue","decreaseValue": ' + cursor.distance.toFixed(2) + '}';
-                            console.log("decreaseValue:", cursor.distance.toFixed(2), cursor.x.toFixed(2), decreaseValue);
-                            qmlCommand(decreaseValue);
+                            moveCursorLeft();
                         }
                     }
 
                     MouseArea {
                         anchors.fill: parent
-                        onPressed: {
-                            holdTimer.start();
-                        }
-                        onReleased: {
-                            holdTimer.stop();
-                            console.log("Total decrease during hold:", totalDecrease.toFixed(2));
-                            totalDecrease = 0.0;
-                        }
+                        onPressed: holdTimerLeft.start()
+                        onReleased: holdTimerLeft.stop()
+                        onClicked: moveCursorLeft
                     }
-                }
 
+
+                }
                 TextField {
                     id: rangeOfDistance
                     Layout.fillHeight: true
                     Layout.fillWidth: true
-                    placeholderText: cursorposition ? cursor.distance.toFixed(2) : updateNewDistance
+
+                    text: (currentField === "rangedistance" && distanceCursorStr !== "")
+                          ? distanceCursorStr
+                          : cursor.initdistance.toFixed(2)
+
+                    onAccepted: {
+                        let val = parseFloat(rangeOfDistance.text)
+                        if (!isNaN(val)) {
+                            controlAndMonitor.updateCursorFromExternal(val)
+                        }
+                        Qt.inputMethod.hide()
+                        rangeOfDistance.focus = false
+                    }
+
+                    onEditingFinished: {
+                        let val = parseFloat(rangeOfDistance.text)
+                        if (!isNaN(val)) {
+                            controlAndMonitor.updateCursorFromExternal(val)
+                        }
+                        Qt.inputMethod.hide()
+                        rangeOfDistance.focus = false
+                    }
 
                     onFocusChanged: {
                         if (focus) {
-                            Qt.inputMethod.show();
-                            rangeOfDistance.focus = false;
-                            currentField = "rangedistance";
-                            inputPanel.visible = true;
-                            textInformation.visible = true;
-                            textInformation.text = "";
-                            textInformation.inputMethodHints = Qt.ImhFormattedNumbersOnly;
-                            textInformation.focus = true;
-                            rangeOfDistance.color = "#ff0000";
+                            Qt.inputMethod.show()
+                            currentField = "rangedistance"
+                            inputPanel.visible = true
+                            textInformation.visible = true
+                            distanceCursorStr = cursor.initdistance.toFixed(2)
+                            textInformation.text = distanceCursorStr
+                            textInformation.focus = true
+                            textInformation.inputMethodHints = Qt.ImhFormattedNumbersOnly
+                            rangeOfDistance.color = "#ff0000"
+                        } else {
+                            rangeOfDistance.color = "#000000"
+                            distanceCursorStr = ""
                         }
                     }
                 }
 
+//                TextField {
+//                    id: rangeOfDistance
+//                    Layout.fillHeight: true
+//                    Layout.fillWidth: true
+//                    text: distanceCursor? cursor.initdistance.toFixed(2) : distanceCursor
+
+//                    onFocusChanged: {
+//                        if (focus) {
+
+//                            Qt.inputMethod.show();
+//                            currentField = "rangedistance";
+//                            inputPanel.visible = true;
+//                            textInformation.visible = true;
+//                            textInformation.text = "";
+//                            textInformation.focus = true;
+//                            textInformation.inputMethodHints = Qt.ImhFormattedNumbersOnly;
+//                            rangeOfDistance.color = "#ff0000";
+//                        }
+//                    }
+//                }
+
+                // TextField {
+                //        id: rangeOfDistance
+                //        Layout.fillHeight: true
+                //        Layout.fillWidth: true
+                //        placeholderText: distanceCursor ? cursor.distance.toFixed(1) : distanceCursor
+
+                //        onFocusChanged: {
+                //             if (focus) {
+                //                 Qt.inputMethod.show();
+                //                 rangeOfDistance.focus = false;
+                //                 currentField = "rangedistance";
+                //                 inputPanel.visible = true;
+                //                 textInformation.visible = true;
+                //                 textInformation.text = "";
+                //                 textInformation.focus = true;
+                //                 textInformation.inputMethodHints = Qt.ImhFormattedNumbersOnly;
+                //                 rangeOfDistance.color = "#ff0000";
+                //             }
+                //         }
+                //    }
+
                 ToolButton {
                     id: cursorRight
                     Layout.preferredHeight: 58
-                    //            icon.source: "images/rightArrow.png"
-                    //            icon.width: 45
-                    //            icon.height: 45
                     Layout.preferredWidth: 76
                     Layout.fillHeight: true
                     Layout.fillWidth: true
-                    property bool isRight: false
+
                     contentItem: Image {
                         anchors.fill: parent
                         source: "images/arrowRigth.png"
                     }
+
                     Timer {
                         id: holdTimer2
                         interval: 100
                         repeat: true
-                        property double decrease: 0.1
-                        property double safeMargin: 41.53
-                        property double graphStartOffset: 95.25
-                        property double graphEndX: chartView.width - safeMargin
                         onTriggered: {
-                            cursor.distance = Math.max(axisX.min, cursor.distance + decrease);
-                            cursor.x = graphStartOffset + ((cursor.distance - axisX.min) / (axisX.max - axisX.min)) * (graphEndX - graphStartOffset);
-
-                            totalDecrease += decrease;
-
-                            var increaseValue = '{"objectName":"increaseValue","increaseValue": ' + cursor.distance.toFixed(2) + '}';
-                            console.log("decreaseValue:", cursor.distance.toFixed(2), cursor.x.toFixed(2), increaseValue);
-                            qmlCommand(increaseValue);
+                            moveCursorRight();
                         }
                     }
 
                     MouseArea {
-                        y: 19
                         anchors.fill: parent
-                        onPressed: {
-                            holdTimer2.start();
-                        }
-                        onReleased: {
-                            holdTimer2.stop();
-                            console.log("Total decrease during hold:", totalDecrease.toFixed(2));
-                            totalDecrease = 0.0;
-                        }
+                        onPressed: holdTimer2.start()
+                        onReleased: holdTimer2.stop()
+                        onClicked: moveCursorRight
                     }
                 }
             }
@@ -364,10 +431,11 @@ Item {
                 Layout.fillHeight: true
                 Layout.preferredHeight: 31
                 Layout.preferredWidth: 280
-                visible: !(userLevelGlobalVars.get(0).userLevel === 3)
-                // ตัวแปรเก็บค่า DAC Level
+                visible: !(currentUserLevel === 3)
+
+
                 property int patternLevel: 1
-                height: 30  // ค่าเริ่มต้น
+                height: 30
 
                 Slider {
                     id: sliderDACLevels
@@ -380,13 +448,13 @@ Item {
                     Layout.preferredHeight: 55
                     Layout.preferredWidth: 130
                     rotation: 0
-                    to: 30
+                    to: 20
                     from: 1
                     layer.textureMirroring: ShaderEffectSource.MirrorVertically
-                    value: patternLevel // ใช้ค่า buffer แทน
+                    value: patternLevel
 
                     onValueChanged: {
-                        patternLevel = value.toFixed(0); // อัปเดตค่า buffer
+                        patternLevel = value.toFixed(0);
                     }
                 }
 
@@ -399,7 +467,7 @@ Item {
                     anchors.topMargin: -8
                     anchors.rightMargin: -7
                     anchors.leftMargin: 131
-                    value: patternLevel // ใช้ค่า buffer
+                    value: patternLevel
                     to: 20
                     from: 1
                     layer.textureMirroring: ShaderEffectSource.MirrorVertically
@@ -411,16 +479,69 @@ Item {
                 }
             }
         }
-
+        
     }
 
+//    function moveCursorRight() {
+//        let stepSize = 0.1;
+//        let newDistance = cursor.initdistance + stepSize;
+//        newDistance = Math.min(newDistance, axisX.max);
 
+//        cursor.initdistance = newDistance;
 
+//        let plotX = chartView.plotArea.x;
+//        let plotW = chartView.plotArea.width;
+//        let percent = (cursor.initdistance - axisX.min) / (axisX.max - axisX.min);
+//        cursor.x = plotX + percent * plotW;
+
+//        let payload = `{"objectName":"increaseValue","increaseValue": ${cursor.initdistance.toFixed(2)}}`;
+//        qmlCommand(payload);
+
+//        console.log("Moved Right: distance =", cursor.initdistance.toFixed(2), "→ X =", cursor.x.toFixed(2));
+//    }
+
+    function moveCursorLeft() {
+        let step = 0.01; // ระยะที่จะเลื่อน (เช่น 1 km)
+        let newDistance = cursor.initdistance - step;
+        newDistance = Math.max(minAxisX, newDistance); // อย่าให้น้อยกว่าแกนซ้ายสุด
+        cursor.setCursorToDistance(newDistance);
+        console.log("Cursor moved left to", newDistance);
+    }
+    function moveCursorRight() {
+        let step = 0.01;
+        let newDistance = cursor.initdistance + step;
+        newDistance = Math.min(maxAxisX, newDistance);
+        cursor.setCursorToDistance(newDistance);
+        console.log("Cursor moved right to", newDistance);
+    }
+
+//    function moveCursorLeft() {
+//        let stepSize = 0.1;
+//        let newDistance = cursor.initdistance - stepSize;
+//        newDistance = Math.max(newDistance, axisX.min);
+
+//        cursor.initdistance = newDistance;
+
+//        let plotX = chartView.plotArea.x;
+//        let plotW = chartView.plotArea.width;
+//        let percent = (cursor.initdistance - axisX.min) / (axisX.max - axisX.min);
+//        cursor.x = plotX + percent * plotW;
+
+//        let payload = `{"objectName":"decreaseValue","decreaseValue": ${cursor.initdistance.toFixed(2)}}`;
+//        qmlCommand(payload);
+
+//        console.log("Moved Left: distance =", cursor.initdistance.toFixed(2), "→ X =", cursor.x.toFixed(2));
+//    }
+
+    function popupPatternPlot(){
+        remotepopUp.remoteMessage = "PATTERN START"
+        remotePopup.open();
+    }
 
 }
 
 /*##^##
 Designer {
-    D{i:0;formeditorZoom:4}D{i:6}D{i:8}D{i:15}
+    D{i:0;formeditorZoom:2}
 }
 ##^##*/

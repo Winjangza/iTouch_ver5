@@ -1,4 +1,4 @@
-import QtQuick 2.0
+import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.0
 import QtWebSockets 1.0
@@ -8,6 +8,7 @@ import QtQuick.VirtualKeyboard 2.15
 import QtQuick.VirtualKeyboard.Styles 2.15
 import QtQuick.VirtualKeyboard.Settings 2.15
 import QtQuick3D 1.15
+import QtQuick.Controls.Material 2.4
 Item {
     id: settingGeneralRoot
     width: 1000
@@ -31,17 +32,26 @@ Item {
     property bool focustextInformation: inputPanel.visible
     property string textforinformation:  textInformation.text
     property bool handwritingInputPanelActive: false
-    property bool lflFail: false
-    property bool lflOperate: false
+    property bool lflFail: statusLFLFails
+    property bool lflOperate: statusLFLOperates
 
     property double voltageInfoSetting: voltageInfo
     property string substationInfoSetting: substationInfo
     property string directionInfoSetting: directionInfo
-    property int linenoInfoSetting: linenoInfo
+    property string linenoInfoSetting: linenoInfo
 
     property string userModeSelect: userMode
 
-    visible: userLevelGlobalVars.count > 0 && (userLevelGlobalVars.get(0).userLevel >= 1 && userLevelGlobalVars.get(0).userLevel <= 3)
+    property bool isReadOnlyLevel: userLevelGlobalVars.count === 0 || userLevelGlobalVars.get(0).userLevel !== 1
+    property var numpointofLFL: numPointOfLFL
+    property bool isReadOnly: currentUserLevel !== 1
+//    property bool isReadOnly: currentUserLevel === 1 || currentUserLevel === 2 || currentUserLevel === 3
+//    onUserModeSelectChanged: {
+//        userModeSelect = userMode
+//        console.log("onUserModeSelectChanged",userMode,userModeSelect)
+
+//    }
+//    visible: userLevelGlobalVars.count > 0 && (currentUserLevel >= 1 && currentUserLevel <= 3)
 
     onFocustextInformationChanged: {
         if(focustextInformation == false){
@@ -49,8 +59,7 @@ Item {
             valueSubstation.color = "#000000"
             valueDirection.color = "#000000"
             valueLineNo.color = "#000000"
-            textTime.color = "#000000"
-        }
+            textTime.color = "#000000"        }
     }
     onTextforinformationChanged: {
         if(valueVoltage.color == "#ff0000"){
@@ -67,7 +76,7 @@ Item {
         }
         if(textTime.color == "#ff0000"){
             textTime.text = textforinformation
-        }        
+        }
         console.log("onTextforinformationChanged",textforinformation,valueVoltage.text,valueVoltage.color,substationInfoSetting)
     }
 
@@ -81,6 +90,18 @@ Item {
         anchors.topMargin: 0
     }
 
+//    // เพิ่ม PopupWarningPeriodic
+//    PopupWarningPeriodic {
+//        id: warningPopup
+//        anchors.centerIn: parent
+//        popupinterlockPeriodic: interlockPeriodic  // รับค่าจาก main.qml
+//    }
+
+//    // ฟังก์ชันสำหรับเรียก Popup จากภายนอก
+//    function showWarningPopup(message) {
+//        warningPopup.show(message)
+//    }
+
     Rectangle {
         id: modesetting
         color: "#00f2f2f2"
@@ -91,31 +112,36 @@ Item {
         anchors.topMargin: 15
 
         ColumnLayout {
+            id: modeSelector
             x: 14
             y: 47
+            spacing: 10
 
+            // Mode selection rectangles (Master, Slave, Standalone)
             Rectangle {
                 id: selectMaster
-                color: (userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
-                       ? (userModeSelect === "MASTER" ? "#d3d3d3" : "#f2f2f2")
-                       : (userModeSelect === "MASTER" ? "#00FF00" : "#f2f2f2")
                 radius: 5
                 border.color: "#b7b7b7"
                 border.width: 1
                 Layout.preferredHeight: 40
                 Layout.preferredWidth: 40
 
+                color: settingGeneralRoot.isReadOnly
+                       ? (settingGeneralRoot.userModeSelect === "MASTER" ? "#d3d3d3" : "#f2f2f2")
+                       : (settingGeneralRoot.userModeSelect === "MASTER" ? "#00FF00" : "#f2f2f2")
+
                 MouseArea {
                     anchors.fill: parent
                     preventStealing: true
                     propagateComposedEvents: false
-                    enabled: !(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
+                    enabled: !settingGeneralRoot.isReadOnly
                     onClicked: {
-                        if (userModeSelect !== "MASTER") {
-                            userModeSelect = "MASTER";
-                            var SelectMaster = '{"objectName":"selectUsers","userType": "MASTER"}';
-                            console.log("selectMaster:", SelectMaster);
-                            qmlCommand(SelectMaster);
+                        if (settingGeneralRoot.userModeSelect !== "MASTER") {
+                            settingGeneralRoot.userModeSelect = "MASTER"
+                            var SelectMasterPLC = '{"objectName":"selectUsers","userType":"MASTER"}'
+                            var SelectMasterLocal = '{"menuID":"updateUserMode","userType":"MASTER"}'
+                            console.log("selectMaster:", SelectMasterPLC, SelectMasterLocal)
+                            qmlCommand(SelectMasterPLC)
                         }
                     }
                 }
@@ -123,38 +149,134 @@ Item {
 
             Rectangle {
                 id: selectSlaves
-                color: (userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
-                       ? (userModeSelect === "SLAVE" ? "#d3d3d3" : "#f2f2f2")
-                       : (userModeSelect === "SLAVE" ? "#00FF00" : "#f2f2f2")
                 radius: 5
                 border.color: "#a6a6a6"
                 border.width: 1
                 Layout.preferredHeight: 40
                 Layout.preferredWidth: 40
 
+                color: settingGeneralRoot.isReadOnly
+                       ? (settingGeneralRoot.userModeSelect === "SLAVE" ? "#d3d3d3" : "#f2f2f2")
+                       : (settingGeneralRoot.userModeSelect === "SLAVE" ? "#00FF00" : "#f2f2f2")
+
                 MouseArea {
                     anchors.fill: parent
                     preventStealing: true
                     propagateComposedEvents: false
-                    enabled: !(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
+                    enabled: !settingGeneralRoot.isReadOnly
                     onClicked: {
-                        if (userModeSelect !== "SLAVE") {
-                            userModeSelect = "SLAVE";
-                            var SelectSlave = '{"objectName":"selectUsers","userType": "SLAVE"}';
-                            console.log("selectSlave:", SelectSlave);
-                            qmlCommand(SelectSlave);
+                        if (settingGeneralRoot.userModeSelect !== "SLAVE") {
+                            settingGeneralRoot.userModeSelect = "SLAVE"
+                            var SelectSlavePLC = '{"objectName":"selectUsers","userType":"SLAVE"}'
+                            var SelectSlaveLocal = '{"menuID":"updateUserMode","userType":"SLAVE"}'
+                            console.log("selectSlave:", SelectSlavePLC, SelectSlaveLocal)
+                            qmlCommand(SelectSlavePLC)
                         }
                     }
                 }
             }
-        }
 
+            Rectangle {
+                id: selectStandAlone
+                radius: 5
+                border.color: "#a6a6a6"
+                border.width: 1
+                Layout.preferredHeight: 40
+                Layout.preferredWidth: 40
+
+                color: settingGeneralRoot.isReadOnly
+                       ? (settingGeneralRoot.userModeSelect === "STANDALONE" ? "#d3d3d3" : "#f2f2f2")
+                       : (settingGeneralRoot.userModeSelect === "STANDALONE" ? "#00FF00" : "#f2f2f2")
+
+                MouseArea {
+                    anchors.fill: parent
+                    preventStealing: true
+                    propagateComposedEvents: false
+                    enabled: !settingGeneralRoot.isReadOnly
+                    onClicked: {
+                        if (settingGeneralRoot.userModeSelect !== "STANDALONE") {
+                            settingGeneralRoot.userModeSelect = "STANDALONE"
+                            var SelectStandalonePLC = '{"objectName":"selectUsers","userType":"STANDALONE"}'
+                            var SelectStandaloneLocal = '{"menuID":"updateUserMode","userType":"STANDALONE"}'
+                            console.log("selectStandalone:", SelectStandalonePLC, SelectStandaloneLocal)
+                            qmlCommand(SelectStandalonePLC)
+                        }
+                    }
+                }
+            }
+
+//            // เพิ่มส่วน Storage ใต้ mode selection
+//            Rectangle {
+//                id: storageContainer
+//                Layout.preferredHeight: 60
+//                Layout.preferredWidth: 140
+//                Layout.topMargin: 20
+//                color: "transparent"
+
+//                ColumnLayout {
+//                    anchors.fill: parent
+//                    spacing: 5
+
+//                    // Text "Storage"
+//                    Text {
+//                        text: qsTr("Storage")
+//                        font.pixelSize: 13
+//                        font.bold: true
+//                        color: "#333333"
+//                    }
+
+//                    // Container สำหรับแถบ storage
+//                    Rectangle {
+//                        Layout.preferredHeight: 30
+//                        Layout.preferredWidth: 140
+//                        color: "#e0e0e0"
+//                        radius: 4
+//                        border.color: "#b0b0b0"
+//                        border.width: 1
+
+//                        // แถบแสดงพื้นที่ที่ใช้ไป (สีฟ้า)
+//                        Rectangle {
+//                            id: storageUsedBar
+//                            height: parent.height
+//                            width: parent.width * storageUsedPercentage // เช่น 0.75 สำหรับ 75%
+//                            color: "#2196F3"
+//                            radius: 3
+
+//                            // ค่าเปอร์เซ็นต์พื้นที่ใช้ (ตัวอย่าง - ควรเชื่อมกับข้อมูลจริง)
+//                            property real storageUsedPercentage: 0.65 // 65% (ตัวอย่าง)
+//                        }
+
+//                        // ข้อความแสดงพื้นที่ใช้/ทั้งหมด
+//                        Text {
+//                            anchors.centerIn: parent
+//                            text: storageUsedText
+//                            font.pixelSize: 11
+//                            font.bold: true
+//                            color: "#000000"
+
+//                            // ข้อความตัวอย่าง (ควรเชื่อมกับข้อมูลจริง)
+//                            property string storageUsedText: "32.5/50.0 GB"
+//                        }
+//                    }
+
+//                    // หรืออีกแบบ: แยกเป็นสองบรรทัด
+//                    Text {
+//                        text: storageDetailText
+//                        font.pixelSize: 11
+//                        color: "#666666"
+
+//                        // ข้อความตัวอย่างแบบสองบรรทัด (ใช้ \n เพื่อขึ้นบรรทัดใหม่)
+//                        property string storageDetailText: "used: 32.5 GB\nfull: 50.0 GB"
+//                    }
+//                }
+//            }
+        }
 
         ColumnLayout {
             x: 62
             y: 47
             width: 50
-            height: 85
+            height: 140
 
             Text {
                 id: mastertext
@@ -167,8 +289,215 @@ Item {
                 text: qsTr("SLAVE")
                 font.pixelSize: 13
             }
+
+            Text {
+                id: standalonetext
+                text: qsTr("STANDALONE")
+                font.pixelSize: 13
+            }
         }
     }
+//    Rectangle {
+//        id: modesetting
+//        color: "#00f2f2f2"
+//        border.color: "#00ffffff"
+//        border.width: 1
+//        anchors.fill: parent
+//        anchors.rightMargin: 840
+//        anchors.topMargin: 15
+//        ColumnLayout {
+//            id: modeSelector
+//            x: 14
+//            y: 47
+//            spacing: 10
+
+//            // ❌ ลบ property ซ้ำออก
+//            // property string userModeSelect: "MASTER"
+//            // property bool isReadOnly: false
+
+//            Rectangle {
+//                id: selectMaster
+//                radius: 5
+//                border.color: "#b7b7b7"
+//                border.width: 1
+//                Layout.preferredHeight: 40
+//                Layout.preferredWidth: 40
+
+//                // ✅ binding สีตรง ๆ ไม่ต้อง handler
+//                color: settingGeneralRoot.isReadOnly
+//                       ? (settingGeneralRoot.userModeSelect === "MASTER" ? "#d3d3d3" : "#f2f2f2")
+//                       : (settingGeneralRoot.userModeSelect === "MASTER" ? "#00FF00" : "#f2f2f2")
+
+//                MouseArea {
+//                    anchors.fill: parent
+//                    preventStealing: true
+//                    propagateComposedEvents: false
+//                    enabled: !settingGeneralRoot.isReadOnly
+//                    onClicked: {
+//                        if (settingGeneralRoot.userModeSelect !== "MASTER") {
+//                            settingGeneralRoot.userModeSelect = "MASTER"
+
+//                            var SelectMasterPLC = '{"objectName":"selectUsers","userType":"MASTER"}'
+//                            var SelectMasterLocal = '{"menuID":"updateUserMode","userType":"MASTER"}'
+
+//                            console.log("selectMaster:", SelectMasterPLC,SelectMasterLocal)
+//                            qmlCommand(SelectMasterPLC)
+
+//                        }
+//                    }
+//                }
+//            }
+
+//            Rectangle {
+//                id: selectSlaves
+//                radius: 5
+//                border.color: "#a6a6a6"
+//                border.width: 1
+//                Layout.preferredHeight: 40
+//                Layout.preferredWidth: 40
+
+//                color: settingGeneralRoot.isReadOnly
+//                       ? (settingGeneralRoot.userModeSelect === "SLAVE" ? "#d3d3d3" : "#f2f2f2")
+//                       : (settingGeneralRoot.userModeSelect === "SLAVE" ? "#00FF00" : "#f2f2f2")
+
+//                MouseArea {
+//                    anchors.fill: parent
+//                    preventStealing: true
+//                    propagateComposedEvents: false
+//                    enabled: !settingGeneralRoot.isReadOnly
+//                    onClicked: {
+//                        if (settingGeneralRoot.userModeSelect !== "SLAVE") {
+//                            settingGeneralRoot.userModeSelect = "SLAVE"
+
+//                            var SelectSlavePLC = '{"objectName":"selectUsers","userType":"SLAVE"}'
+//                            var SelectSlaveLocal = '{"menuID":"updateUserMode","userType":"SLAVE"}'
+
+//                            console.log("selectSlave:", SelectSlavePLC,SelectSlaveLocal)
+//                            qmlCommand(SelectSlavePLC)
+
+
+//                        }
+//                    }
+//                }
+//            }
+
+//            Rectangle {
+//                id: selectStandAlone
+//                radius: 5
+//                border.color: "#a6a6a6"
+//                border.width: 1
+//                Layout.preferredHeight: 40
+//                Layout.preferredWidth: 40
+
+//                color: settingGeneralRoot.isReadOnly
+//                       ? (settingGeneralRoot.userModeSelect === "STANDALONE" ? "#d3d3d3" : "#f2f2f2")
+//                       : (settingGeneralRoot.userModeSelect === "STANDALONE" ? "#00FF00" : "#f2f2f2")
+
+//                MouseArea {
+//                    anchors.fill: parent
+//                    preventStealing: true
+//                    propagateComposedEvents: false
+//                    enabled: !settingGeneralRoot.isReadOnly
+//                    onClicked: {
+//                        if (settingGeneralRoot.userModeSelect !== "STANDALONE") {
+//                            settingGeneralRoot.userModeSelect = "STANDALONE"
+//                            var SelectStandalonePLC = '{"objectName":"selectUsers","userType":"STANDALONE"}'
+//                            var SelectStandaloneLocal = '{"menuID":"updateUserMode","userType":"STANDALONE"}'
+
+//                            console.log("selectStandalone:", SelectStandalonePLC,SelectStandaloneLocal)
+//                            qmlCommand(SelectStandalonePLC)
+
+
+//                        }
+//                    }
+//                }
+//            }
+
+//        }
+////        ColumnLayout {
+////            x: 14
+////            y: 47
+////            Rectangle {
+////                id: selectMaster
+////                color: isReadOnly
+////                       ? (userModeSelect === "MASTER" ? "#d3d3d3" : "#f2f2f2")
+////                       : (userModeSelect === "MASTER" ? "#00FF00" : "#f2f2f2")
+////                radius: 5
+////                border.color: "#b7b7b7"
+////                border.width: 1
+////                Layout.preferredHeight: 40
+////                Layout.preferredWidth: 40
+
+////                MouseArea {
+////                    anchors.fill: parent
+////                    preventStealing: true
+////                    propagateComposedEvents: false
+////                    enabled: !isReadOnly
+////                    onClicked: {
+////                        if (userModeSelect !== "MASTER") {
+////                            userModeSelect = "MASTER";
+////                            var SelectMaster = '{"objectName":"selectUsers","userType": "MASTER"}';
+////                            console.log("selectMaster:", SelectMaster);
+////                            qmlCommand(SelectMaster);
+////                        }
+////                    }
+////                }
+////            }
+
+////            Rectangle {
+////                id: selectSlaves
+////                color: isReadOnly
+////                       ? (userModeSelect === "SLAVE" ? "#d3d3d3" : "#f2f2f2")
+////                       : (userModeSelect === "SLAVE" ? "#00FF00" : "#f2f2f2")
+////                radius: 5
+////                border.color: "#a6a6a6"
+////                border.width: 1
+////                Layout.preferredHeight: 40
+////                Layout.preferredWidth: 40
+
+////                MouseArea {
+////                    anchors.fill: parent
+////                    preventStealing: true
+////                    propagateComposedEvents: false
+////                    enabled: !isReadOnly
+////                    onClicked: {
+////                        if (userModeSelect !== "SLAVE") {
+////                            userModeSelect = "SLAVE";
+////                            var SelectSlave = '{"objectName":"selectUsers","userType": "SLAVE"}';
+////                            console.log("selectSlave:", SelectSlave);
+////                            qmlCommand(SelectSlave);
+////                        }
+////                    }
+////                }
+////            }
+////        }
+
+
+//        ColumnLayout {
+//            x: 62
+//            y: 47
+//            width: 50
+//            height: 140
+
+//            Text {
+//                id: mastertext
+//                text: qsTr("MASTER")
+//                font.pixelSize: 13
+//            }
+
+//            Text {
+//                id: slavetext
+//                text: qsTr("SLAVE")
+//                font.pixelSize: 13
+//            }
+
+//            Text {
+//                id: standalonetext
+//                text: qsTr("STANDALONE")
+//                font.pixelSize: 13
+//            }
+//        }
+//    }
 
     Rectangle {
         id: infosetting
@@ -190,29 +519,29 @@ Item {
             Layout.fillHeight: false
             Layout.fillWidth: true
             font.pointSize: 11
-            placeholderText: qsTr("Enter Voltage") ? voltageInfoSetting : qsTr("Enter Voltage")
-            readOnly: (userLevelGlobalVars.get(0).userLevel === 3)
+            placeholderText:  voltageInfoSetting || qsTr("Enter Voltage")
+            readOnly: !(currentUserLevel === 1)
             background: Rectangle {
-                color: ( userLevelGlobalVars.get(0).userLevel === 3)
+                color: ( currentUserLevel === 3)
                        ? "#d3d3d3"
                        : "#ffffff"
-            border.color: "#bcbcbc"
-            radius: 5
+                border.color: "#bcbcbc"
+                radius: 5
             }
             // inputMethodHints: Qt.ImhFormattedNumbersOnly
             focus: false
+            activeFocusOnTab: false
             onFocusChanged: {
-                if (focus && !textTime.readOnly ) {
-                    valueVoltage.focus = false
-                    currentField = "valueVoltage";
-                    inputPanel.visible = true;
-                    textInformation.visible = true;
-                    textInformation.placeholderText = qsTr("Enter Voltage");
-                    textInformation.inputMethodHints = Qt.ImhFormattedNumbersOnly;
-                    textInformation.text = "";
-                    textInformation.focus = true;
+                if (focus && !valueVoltage.readOnly) {
+                    focus = false
+                    currentField = "valueVoltages"
+                    inputPanel.visible = true
+                    textInformation.visible = true
+                    textInformation.placeholderText = qsTr("Enter Voltage")
+                    textInformation.inputMethodHints = Qt.ImhFormattedNumbersOnly
+                    textInformation.text = ""
+                    textInformation.focus = true
                     valueVoltage.color = "#ff0000"
-
                 }
             }
         }
@@ -236,28 +565,31 @@ Item {
             Layout.fillWidth: true
             Layout.preferredHeight: 40
             font.pointSize: 11
-            placeholderText: qsTr("Enter Substation") ? substationInfoSetting : qsTr("Enter Substation")
-            readOnly: (userLevelGlobalVars.get(0).userLevel === 3)
+            placeholderText: substationInfoSetting || qsTr("Enter Substation")
+            readOnly: !(currentUserLevel === 1)
             background: Rectangle {
-                color: ( userLevelGlobalVars.get(0).userLevel === 3)
+                color: ( currentUserLevel === 3)
                        ? "#d3d3d3"
                        : "#ffffff"
-            border.color: "#bcbcbc"
-            radius: 5
+                border.color: "#bcbcbc"
+                radius: 5
             }
             // inputMethodHints: Qt.ImhFormattedNumbersOnly
             focus: false
+            activeFocusOnTab: false
             onFocusChanged: {
-                if (focus  && !textTime.readOnly) {
-                    valueSubstation.focus = false
-                    currentField = "valueSubstation";
-                    inputPanel.visible = true;
-                    textInformation.visible = true;
-                    textInformation.placeholderText = qsTr("Enter Substation");
-                    textInformation.inputMethodHints = Qt.ImhPreferUppercase;
-                    textInformation.text = "";
-                    textInformation.focus = true;
-                    valueSubstation.color = "#ff0000"
+                if (focus && !valueSubstation.readOnly) {
+                    Qt.callLater(function() {
+                        focus = false
+                        currentField = "valueSubstation"
+                        inputPanel.visible = true
+                        textInformation.visible = true
+                        textInformation.placeholderText = qsTr("Enter Substation")
+                        textInformation.inputMethodHints = Qt.ImhPreferUppercase
+                        textInformation.text = ""
+                        textInformation.focus = true
+                        valueSubstation.color = "#ff0000"
+                    })
                 }
             }
         }
@@ -281,28 +613,31 @@ Item {
             Layout.fillWidth: true
             Layout.preferredHeight: 40
             font.pointSize: 11
-            placeholderText: qsTr("Enter DIRECTION") ? directionInfoSetting :  qsTr("Enter DIRECTION")
-            readOnly: (userLevelGlobalVars.get(0).userLevel === 3)
+            placeholderText: directionInfoSetting || qsTr("Enter DIRECTION")
+            readOnly: !(currentUserLevel === 1)
             background: Rectangle {
-                color: ( userLevelGlobalVars.get(0).userLevel === 3)
+                color: ( currentUserLevel === 3)
                        ? "#d3d3d3"
                        : "#ffffff"
-            border.color: "#bcbcbc"
-            radius: 5
+                border.color: "#bcbcbc"
+                radius: 5
             }
             // inputMethodHints: Qt.ImhFormattedNumbersOnly
             focus: false
+            activeFocusOnTab: false
             onFocusChanged: {
-                if (focus && !textTime.readOnly) {
-                    valueDirection.focus = false
-                    currentField = "valueDirection";
-                    inputPanel.visible = true;
-                    textInformation.visible = true;
-                    textInformation.placeholderText = qsTr("Enter Direction");
-                    textInformation.inputMethodHints = Qt.ImhPreferUppercase;
-                    textInformation.text = "";
-                    textInformation.focus = true;
-                    valueDirection.color = "#ff0000"
+                if (focus && !valueDirection.readOnly) {
+                    Qt.callLater(function() {
+                        focus = false
+                        currentField = "valueDirection"
+                        inputPanel.visible = true
+                        textInformation.visible = true
+                        textInformation.placeholderText = qsTr("Enter Direction")
+                        textInformation.inputMethodHints = Qt.ImhPreferUppercase
+                        textInformation.text = ""
+                        textInformation.focus = true
+                        valueDirection.color = "#ff0000"
+                    })
                 }
             }
         }
@@ -326,32 +661,33 @@ Item {
             Layout.fillWidth: true
             Layout.preferredHeight: 40
             font.pointSize: 11
-            placeholderText: qsTr("Enter Number") ? linenoInfoSetting : qsTr("Enter Number")
-            readOnly: (userLevelGlobalVars.get(0).userLevel === 3)
+            placeholderText: linenoInfoSetting === "" ? qsTr("Enter Number") : linenoInfoSetting
+            readOnly: currentUserLevel !== 1
             background: Rectangle {
-                color: ( userLevelGlobalVars.get(0).userLevel === 3)
-                       ? "#d3d3d3"
-                       : "#ffffff"
-            border.color: "#bcbcbc"
-            radius: 5
+                color: currentUserLevel === 3 ? "#d3d3d3" : "#ffffff"
+                border.color: "#bcbcbc"
+                radius: 5
             }
-            // inputMethodHints: Qt.ImhFormattedNumbersOnly
-            focus: false
-            onFocusChanged: {
-                if (focus && !textTime.readOnly) {
-                    valueLineNo.focus = false
-                    currentField = "valueLineNo";
-                    inputPanel.visible = true;
-                    textInformation.visible = true;
-                    textInformation.placeholderText = qsTr("Enter Number");
-                    textInformation.inputMethodHints = Qt.ImhFormattedNumbersOnly;
-                    textInformation.text = "";
-                    textInformation.focus = true;
-                    valueLineNo.color = "#ff0000"
 
+            focus: false
+            activeFocusOnTab: false
+            onFocusChanged: {
+                if (focus && !valueLineNo.readOnly) {
+                    Qt.callLater(function() {
+                        focus = false
+                        currentField = "valueLineNo"
+                        inputPanel.visible = true
+                        textInformation.visible = true
+                        textInformation.placeholderText = qsTr("Enter Number")
+                        textInformation.inputMethodHints = Qt.ImhFormattedNumbersOnly
+                        textInformation.text = ""
+                        textInformation.focus = true
+                        valueLineNo.color = "#ff0000"
+                    })
                 }
             }
         }
+
 
         Text {
             id: substation1
@@ -383,9 +719,9 @@ Item {
             anchors.rightMargin: 262
             Rectangle {
                 id: checkMonday
-                color:(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
-                    ?( isActive ? "#d3d3d3" : "#f2f2f2")
-                    :( isActive ? "#00FF00" : "#f2f2f2")
+                color: isReadOnlyLevel
+                       ? (isActive ? "#d3d3d3" : "#f2f2f2")
+                       : (isActive ? "#00FF00" : "#f2f2f2")
                 radius: 5
                 border.color: "#bcbcbc"
                 border.width: 1
@@ -396,7 +732,7 @@ Item {
 
                 MouseArea {
                     anchors.fill: parent
-                    enabled: !(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
+                    enabled: !isReadOnlyLevel
                     onClicked: {
                         checkMonday.isActive = !checkMonday.isActive;
                         var SelectDate = '{"objectName":"date", "Monday": ' + checkMonday.isActive + '}';
@@ -414,9 +750,9 @@ Item {
 
             Rectangle {
                 id: checkTuesday
-                color:(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
-                    ?( isActive ? "#d3d3d3" : "#f2f2f2")
-                    :( isActive ? "#00FF00" : "#f2f2f2")
+                color: isReadOnlyLevel
+                       ? (isActive ? "#d3d3d3" : "#f2f2f2")
+                       : (isActive ? "#00FF00" : "#f2f2f2")
                 radius: 5
                 border.color: "#bcbcbc"
                 border.width: 1
@@ -425,7 +761,7 @@ Item {
                 property bool isActive: selectTuesday
                 MouseArea {
                     anchors.fill: parent
-                    enabled: !(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
+                    enabled: !isReadOnlyLevel
                     onClicked: {
                         checkTuesday.isActive = !checkTuesday.isActive;
                         var SelectDate = '{"objectName":"date", "Tuesday": ' + checkTuesday.isActive + '}';
@@ -440,9 +776,9 @@ Item {
 
             Rectangle {
                 id: checkWednesday
-                color:(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
-                    ?( isActive ? "#d3d3d3" : "#f2f2f2")
-                    :( isActive ? "#00FF00" : "#f2f2f2")
+                color: isReadOnlyLevel
+                       ? (isActive ? "#d3d3d3" : "#f2f2f2")
+                       : (isActive ? "#00FF00" : "#f2f2f2")
                 radius: 5
                 border.color: "#bcbcbc"
                 border.width: 1
@@ -451,7 +787,7 @@ Item {
                 property bool isActive: selectWednesday
                 MouseArea {
                     anchors.fill: parent
-                    enabled: !(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
+                    enabled: !isReadOnlyLevel
                     onClicked: {
                         checkWednesday.isActive = !checkWednesday.isActive;
                         var SelectDate = '{"objectName":"date", "Wednesday": ' + checkWednesday.isActive + '}';
@@ -466,9 +802,9 @@ Item {
 
             Rectangle {
                 id: checkThursday
-                color:(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
-                    ?( isActive ? "#d3d3d3" : "#f2f2f2")
-                    :( isActive ? "#00FF00" : "#f2f2f2")
+                color: isReadOnlyLevel
+                       ? (isActive ? "#d3d3d3" : "#f2f2f2")
+                       : (isActive ? "#00FF00" : "#f2f2f2")
                 radius: 5
                 border.color: "#bcbcbc"
                 border.width: 1
@@ -477,7 +813,7 @@ Item {
                 property bool isActive: selectThursday
                 MouseArea {
                     anchors.fill: parent
-                    enabled: !(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
+                    enabled: !isReadOnlyLevel
                     onClicked: {
                         checkThursday.isActive = !checkThursday.isActive;
                         var SelectDate = '{"objectName":"date", "Thursday": ' + checkThursday.isActive + '}';
@@ -492,9 +828,9 @@ Item {
 
             Rectangle {
                 id: checkFriday
-                color:(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
-                    ?( isActive ? "#d3d3d3" : "#f2f2f2")
-                    :( isActive ? "#00FF00" : "#f2f2f2")
+                color: isReadOnlyLevel
+                       ? (isActive ? "#d3d3d3" : "#f2f2f2")
+                       : (isActive ? "#00FF00" : "#f2f2f2")
                 radius: 5
                 border.color: "#bcbcbc"
                 border.width: 1
@@ -503,7 +839,7 @@ Item {
                 property bool isActive: selectFriday
                 MouseArea {
                     anchors.fill: parent
-                    enabled: !(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
+                    enabled: !isReadOnlyLevel
                     onClicked: {
                         checkFriday.isActive = !checkFriday.isActive;
                         var SelectDate = '{"objectName":"date", "Friday": ' + checkFriday.isActive + '}';
@@ -518,9 +854,9 @@ Item {
 
             Rectangle {
                 id: checkSaturday
-                color:(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
-                    ?( isActive ? "#d3d3d3" : "#f2f2f2")
-                    :( isActive ? "#00FF00" : "#f2f2f2")
+                color: isReadOnlyLevel
+                       ? (isActive ? "#d3d3d3" : "#f2f2f2")
+                       : (isActive ? "#00FF00" : "#f2f2f2")
                 radius: 5
                 border.color: "#bcbcbc"
                 border.width: 1
@@ -529,7 +865,7 @@ Item {
                 property bool isActive: selectSaturday
                 MouseArea {
                     anchors.fill: parent
-                    enabled: !(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
+                    enabled: !isReadOnlyLevel
                     onClicked: {
                         checkSaturday.isActive = !checkSaturday.isActive;
                         var SelectDate = '{"objectName":"date", "Saturday": ' + checkSaturday.isActive + '}';
@@ -544,9 +880,9 @@ Item {
 
             Rectangle {
                 id: checkSunday
-                color:(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
-                    ?( isActive ? "#d3d3d3" : "#f2f2f2")
-                    :( isActive ? "#00FF00" : "#f2f2f2")
+                color: isReadOnlyLevel
+                       ? (isActive ? "#d3d3d3" : "#f2f2f2")
+                       : (isActive ? "#00FF00" : "#f2f2f2")
                 radius: 5
                 border.color: "#bcbcbc"
                 border.width: 1
@@ -555,7 +891,7 @@ Item {
                 property bool isActive: selectSunday
                 MouseArea {
                     anchors.fill: parent
-                    enabled: !(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
+                    enabled: !isReadOnlyLevel
                     onClicked: {
                         checkSunday.isActive = !checkSunday.isActive;
                         var SelectDate = '{"objectName":"date", "Sunday": ' + checkSunday.isActive + '}';
@@ -638,31 +974,33 @@ Item {
                 horizontalAlignment: Text.AlignHCenter
                 Layout.preferredHeight: 35
                 Layout.preferredWidth: 100
-                placeholderText: qsTr("Text Time")
-                readOnly: (userLevelGlobalVars.count > 0 &&
-                           (userLevelGlobalVars.get(0).userLevel === 2 ||
-                            userLevelGlobalVars.get(0).userLevel === 3))
+                text: time
+                placeholderText: qsTr("Enter Time")
+                readOnly:currentUserLevel !== 1
                 background: Rectangle {
                     color: (userLevelGlobalVars.count > 0 &&
-                            (userLevelGlobalVars.get(0).userLevel === 2 ||
-                             userLevelGlobalVars.get(0).userLevel === 3))
-                           ? "#d3d3d3"  // ถ้า userLevel 2 หรือ 3 ให้พื้นหลังสีเทา
-                           : "#ffffff"  // กรณีอื่นให้พื้นหลังสีขาว
+                            (currentUserLevel === 2 ||
+                             currentUserLevel === 3))
+                           ? "#d3d3d3"
+                           : "#ffffff"
                     border.color: "#bcbcbc"
                     radius: 5
                 }
                 focus: false
+                activeFocusOnTab: false
                 onFocusChanged: {
                     if (focus && !textTime.readOnly) {
-                        textTime.focus = false;
-                        currentField = "textTime";
-                        inputPanel.visible = true;
-                        textInformation.visible = true;
-                        textInformation.placeholderText = qsTr("Enter Time");
-                        textInformation.inputMethodHints = Qt.ImhFormattedNumbersOnly;
-                        textInformation.text = textTime.text;
-                        textInformation.focus = true;
-                        color = "#ff0000";
+                        Qt.callLater(function() {
+                            textTime.focus = false;
+                            currentField = "textTime";
+                            inputPanel.visible = true;
+                            textInformation.visible = true;
+                            textInformation.placeholderText = qsTr("Enter Time");
+                            textInformation.inputMethodHints = Qt.ImhFormattedNumbersOnly;
+                            textInformation.text = textTime.text;
+                            textInformation.focus = true;
+                            color = "#ff0000";
+                        })
                     }
                 }
             }
@@ -687,37 +1025,36 @@ Item {
             anchors.right: parent.right
             anchors.leftMargin: 10
             anchors.rightMargin: 241
-            // color: (userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
+            // color: (currentUserLevel === 2 || currentUserLevel === 3)
             //        ? (userModeSelect === "MASTER" ? "#d3d3d3" : "#f2f2f2")
             //        : (userModeSelect === "MASTER" ? "#00FF00" : "#f2f2f2")
             Rectangle {
                 id: checklflfail
-                color: (userLevelGlobalVars.get(0).userLevel === 3)
-                        ? (checklflfail.isActive ? "#d3d3d3" : "#f2f2f2")
-                        : (checklflfail.isActive ? "#00FF00" : "#f2f2f2")
+                color:(currentUserLevel === 3)?( statusLFLFails ? "#d3d3d3" : "#f2f2f2"):( statusLFLFails ? "#00FF00" : "#f2f2f2")
                 radius: 5
                 border.color: "#b7b7b7"
                 border.width: 1
                 Layout.preferredHeight: 40
                 Layout.preferredWidth: 40
-                property bool isActive: false
+                property bool isActive: lflFail
                 property bool lflFail: false
+
                 MouseArea {
                     anchors.fill: parent
                     anchors.leftMargin: -4
                     anchors.rightMargin: 4
                     anchors.topMargin: 0
                     anchors.bottomMargin: 0
-                    enabled: !(userLevelGlobalVars.get(0).userLevel === 3)
+                    enabled: currentUserLevel !== 3
                     onClicked: {
-                        console.log("Before Click | isActive:", checklflfail.isActive, "| lflFail:", lflFail);
+                        console.log("Before Click | isActive:", checklflfail.isActive, "| lflFail:", lflFail, "statusLFLFails:", statusLFLFails);
 
-                        checklflfail.isActive = !checklflfail.isActive;
-                        lflFail = checklflfail.isActive;
+                        statusLFLFails = !statusLFLFails;
+                        // lflFail = checklflfail.isActive;
 
-                        console.log("After Click | isActive:", checklflfail.isActive, "| lflFail:", lflFail);
+                        console.log("After Click | isActive:", checklflfail.isActive, "| lflFail:", lflFail, "color:", color);
 
-                        var CheckStatusFail = '{"objectName":"statusFail","LFLFAIL":'+checklflfail.isActive+'}';
+                        var CheckStatusFail = '{"objectName":"statusFail","LFLFAIL":' + statusLFLFails + '}';
                         qmlCommand(CheckStatusFail);
                     }
                 }
@@ -725,37 +1062,28 @@ Item {
 
             Rectangle {
                 id: checkoperate
-                color: (userLevelGlobalVars.get(0).userLevel === 3)
-                        ? (checkoperate.isActive  ? "#d3d3d3" : "#f2f2f2")
-                        : (checkoperate.isActive  ? "#00FF00" : "#f2f2f2")
+                color: (currentUserLevel === 3)
+                       ? (statusLFLOperates ? "#d3d3d3" : "#f2f2f2")
+                       : (statusLFLOperates ? "#00FF00" : "#f2f2f2")
                 radius: 5
                 border.color: "#a6a6a6"
                 border.width: 1
                 Layout.preferredHeight: 40
                 Layout.preferredWidth: 40
-                property bool isActive: false
+                property bool isActive: lflOperate
                 property bool lflOperate: false
 
                 MouseArea {
-                    anchors.left: parent.left
-                    anchors.right: parent.right
-                    anchors.top: parent.top
-                    anchors.bottom: parent.bottom
-                    anchors.leftMargin: 0
-                    anchors.rightMargin: 40
-                    anchors.topMargin: 0
-                    anchors.bottomMargin: 40
-                    rotation: -132.797
-                    enabled: !(userLevelGlobalVars.get(0).userLevel === 3)
+                    anchors.fill: parent
+                    enabled: currentUserLevel !== 3
                     onClicked: {
                         console.log("Before Click | isActive:", checkoperate.isActive, "| lflOperate:", lflOperate);
 
-                        checkoperate.isActive = !checkoperate.isActive;
-                        lflOperate = checkoperate.isActive;
+                        statusLFLOperates = !statusLFLOperates;
 
                         console.log("After Click | isActive:", checkoperate.isActive, "| lflOperate:", lflOperate);
 
-                        var CheckStatusOperate = '{"objectName":"statusOperate","LFLOPERATE":'+checkoperate.isActive+'}';
+                        var CheckStatusOperate = '{"objectName":"statusOperate","LFLOPERATE":' + statusLFLOperates + '}';
                         qmlCommand(CheckStatusOperate);
                     }
                 }
@@ -786,6 +1114,59 @@ Item {
                 Layout.preferredWidth: 73
             }
         }
+
+        Rectangle {
+            id: lflConfigBox
+            width: 241
+            height: 177
+            color: isReadOnly ? "#f2f2f2" : "#ffffff"
+            radius: 8
+            border.color: isReadOnly ? "#d3d3d3" : "#a6a6a6"
+            border.width: 1
+            property bool isReadOnly: typeof currentUserLevel !== "undefined" &&
+                                      (currentUserLevel === 2 || currentUserLevel === 3)
+            x: 0
+            y: 247
+
+            ColumnLayout {
+                anchors.fill: parent
+                anchors.margins: 12
+
+                Text {
+                    id: rangeOfLFLText
+                    text: qsTr("CONFIGURATION OF LFL")
+                    font.pixelSize: 16
+                    horizontalAlignment: Text.AlignLeft
+                    verticalAlignment: Text.AlignVCenter
+                    font.bold: false
+                    Layout.fillHeight: true
+                }
+
+                SpinBox {
+                    id: rangeOfLFL
+                    from: 1
+                    to: 10
+                    value: numpointofLFL
+                    enabled: !isReadOnlyLevel
+                }
+
+                Button {
+                    id: buttonSentLFL
+                    text: qsTr("Point of LFL")
+                    enabled: !isReadOnlyLevel
+                    onClicked: {
+                        var rangeoflfl = '{"objectName":"LineFail","rangeoflfl": '+rangeOfLFL.value +'}';
+                        qmlCommand(rangeoflfl);
+                    }
+                }
+            }
+
+            MouseArea {
+                anchors.fill: parent
+                enabled: false
+            }
+        }
+
         anchors.rightMargin: 0
     }
 
@@ -840,76 +1221,14 @@ Item {
         id: __materialLibrary__
     }
 
-
-
-
-    //    InputPanel {
-    //        id: inputPanel
-    //        y: 244
-    //        height: 231
-    //        visible: false
-    //        anchors.left: parent.left
-    //        anchors.right: parent.right
-    //        anchors.rightMargin: 0
-    //        anchors.leftMargin: 0
-
-    //        Component.onCompleted: {
-    //            visible = false;
-    //            textInformation.visible = false;
-    //        }
-
-    //        TextField {
-    //            id: textInformation
-    //            anchors.fill: parent
-    //            anchors.rightMargin: 0
-    //            anchors.bottomMargin: 293
-    //            anchors.leftMargin: 0
-    //            anchors.topMargin: -104
-    //            placeholderText: qsTr("Text Field")
-    //            visible: false
-    //            inputMethodHints: Qt.ImhFormattedNumbersOnly
-    //            font.pointSize: 12
-
-    //            Component.onCompleted: {
-    //                focus = false;
-    //            }
-
-
-    //            Keys.onReturnPressed: {
-    //                if (text.trim() !== "") {
-    //                    if (currentField === "valueVoltage") {
-    //                        valueVoltage.text = text;
-    //                        var Voltage = '{"objectName":"valueVoltage","Voltage": '+valueVoltage.text+'}'
-    //                        qmlCommand(Voltage);
-    //                        console.log("Voltage Entered:", text, Voltage);
-    //                    } else if (currentField === "valueSubstation") {
-    //                        valueSubstation.text = text;
-    //                        var Substation = '{"objectName":"valueSubstation","Substation": '+valueSubstation.text+'}'
-    //                        qmlCommand(Substation);
-    //                        console.log("Substation Entered:", text,Substation);
-    //                    } else if (currentField === "valueDirection") {
-    //                        valueDirection.text = text;
-    //                        var Direction = '{"objectName":"valueDirection","Direction": '+valueDirection.text+'}'
-    //                        qmlCommand(Direction);
-    //                        console.log("Direction Entered:", text,Direction);
-    //                    } else if (currentField === "valueLineNo") {
-    //                        valueLineNo.text = text;
-    //                        var LineNo = '{"objectName":"valueLineNo","LineNo": '+valueLineNo.text+'}'
-    //                        qmlCommand(LineNo);
-    //                        console.log("Line No Entered:", text,LineNo);
-    //                    }else if (currentField === "textTime") {
-    //                        textTime.text = text;
-    //                        var Time = '{"objectName":"textTime","Time": '+textTime.text+'}'
-    //                        qmlCommand(Time);
-    //                        console.log("Time Entered:", text,Time);
-    //                    }
-    //                }
-    //                inputPanel.visible = false;
-    //                visible = false;
-    //            }
-    //        }
-    //    }
-
 }
 
 
+
+
+
+/*##^##
+Designer {
+    D{i:0;formeditorZoom:0.5}
+}
+##^##*/

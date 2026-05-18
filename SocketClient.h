@@ -11,12 +11,13 @@
 class SocketClient : public QObject
 {
     Q_OBJECT
-public:
+public :
     explicit SocketClient(QObject *parent = Q_NULLPTR);
     void createConnection(int softphoneID, int channelIdInRole, QString ipaddress, quint16 port);
     void createConnection(QString ipaddress, quint16 port);
     bool isConnected = false;
     QWebSocket m_webSocket;
+    void disconnectFromServer();
 
 Q_SIGNALS:
     void closed(int channelIdInRole, QString ipaddress);
@@ -25,6 +26,10 @@ Q_SIGNALS:
     void SocketClientError();
     void Connected();
     void newCommandProcess(QString);
+    void disconnected(QWebSocket *);
+
+public slots:
+    void sendMessage(QString);
 
 private Q_SLOTS:
 
@@ -32,7 +37,7 @@ private Q_SLOTS:
     void onDisconnected();
     void onTextMessageReceived(QString message);
     void onError(QAbstractSocket::SocketError error);
-    void sendMessage(QString);
+
 
 private:
 

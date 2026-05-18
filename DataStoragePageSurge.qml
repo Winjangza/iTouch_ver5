@@ -23,7 +23,11 @@ Item {
 
     property string selectedFilename: ""
     property string selectedEventDatetime: ""
-    visible: userLevelGlobalVars.count > 0 && (userLevelGlobalVars.get(0).userLevel >= 1 && userLevelGlobalVars.get(0).userLevel <= 3)
+//    visible: userLevelGlobalVars.count > 0 && (userLevelGlobalVars.get(0).userLevel >= 1 && userLevelGlobalVars.get(0).userLevel <= 3)
+    property int contorlAndMonitorPercentPlot: contorlAndMonitor.percentPlot
+    property bool isEditableUser: userLevelGlobalVars.count > 0 &&
+                                  (userLevelGlobalVars.get(0).userLevel === 1 || userLevelGlobalVars.get(0).userLevel === 2)
+
     onFocustextInformationChanged: {
         if(focustextInformation == false){
             fileNamePattern.color = "#000000"
@@ -36,7 +40,9 @@ Item {
         console.log("onTextforinformationChanged",textforinformation)
 
     }
-
+    function isReadOnlyUser() {
+        return currentUserLevel === 3
+    }
 
     // Column {
     //     anchors.top: progressContainer.bottom
@@ -72,27 +78,30 @@ Item {
 
             Rectangle {
                 id: progressContainer
-                x: 23
-                y: 46
-                width: 184
-                height: 23
+                x: 59
+                y: 42
+                width: 243
+                height: 42
                 radius: height / 2
-                border.color: "#E0E0E0"
+                border.color: "#000000"
+                border.width: 2
                 color: "#E1E1E1"
                 clip: true
 
-                property bool isVisible: true
-                opacity: isVisible ? 1 : 0
+                Layout.alignment: Qt.AlignHCenter | Qt.AlignTop
+                Layout.topMargin: 10
+
+                opacity: (contorlAndMonitorPercentPlot > 0 && contorlAndMonitorPercentPlot < 100) ? 1 : 0
 
                 Behavior on opacity {
-                    NumberAnimation { duration: 300 }
+                    NumberAnimation { duration: 100 }
                 }
 
                 Rectangle {
                     id: progressIndicator
-                    x: 0
-                    width: 100
+                    width: progressContainer.width * (contorlAndMonitorPercentPlot / 100.0)
                     height: parent.height
+                    color: "#3bc425"
                     radius: height / 2
                     border.color: "#E0E0E0"
                     gradient: Gradient {
@@ -100,15 +109,18 @@ Item {
                         GradientStop { position: 1.0; color: "#3BC425" }
                     }
                     anchors.verticalCenter: parent.verticalCenter
+                }
 
-                    SequentialAnimation on x {
-                        running: progressContainer.isVisible
-                        loops: Animation.Infinite
-                        PropertyAnimation { from: -progressIndicator.width; to: progressContainer.width; duration: 800; easing.type: Easing.InOutQuad }
-                    }
-                    y: -46
+                Text {
+                    anchors.centerIn: parent
+                    text: contorlAndMonitorPercentPlot + "%"
+                    color: "black"
+                    font.pixelSize: 12
+                    visible: contorlAndMonitorPercentPlot > 0 && contorlAndMonitorPercentPlot < 100
                 }
             }
+
+
 
             RowLayout {
                 y: 90
@@ -131,7 +143,6 @@ Item {
                                 filename: selectedFilename,
                                 event_datetime: selectedEventDatetime
                             });
-                            dataStoragePageSurgeSearch.clearTableRequested();
                             console.log(ButtonpatternData);
                             qmlCommand(ButtonpatternData);
                         } else {
@@ -161,7 +172,8 @@ Item {
                     id: toolButtonDelete
                     text: qsTr("DELETE")
                     Layout.preferredWidth: 30
-                    visible: !(userLevelGlobalVars.get(0).userLevel === 3)
+                    visible: isEditableUser
+
                     onClicked: {
                         if (selectedFilename !== "" && selectedEventDatetime !== "") {
                             var ButtonpatternData = JSON.stringify({
@@ -199,7 +211,7 @@ Item {
             }
 
             TextField {
-                id: fileNamePattern
+                id: fileNameSurge
                 height: 40
                 anchors.top: parent.top
                 anchors.leftMargin: 15
@@ -214,29 +226,28 @@ Item {
                 hoverEnabled: false
                 placeholderText: "File Name"
                 placeholderTextColor: "#797676"
-                color: "#000000"
                 anchors.left: parent.left
                 anchors.right: parent.right
+                readOnly: isReadOnlyUser()
+                color: isReadOnlyUser() ? "#d3d3d3" : "#ffffff"
 
                 background: Rectangle {
                     radius: 8
-                    color: "#F5F5F5"
-                    border.color: "#000"
-                    border.width: 2
-                }
+                    color: isReadOnlyUser() ? "#d3d3d3" : "#ffffff"
+                    border.color: "#bcbcbc"
 
+                }
                 onFocusChanged: {
-                    if (focus) {
-                        Qt.inputMethod.show();
-                        fileNamePattern.background.border.color = "#000";
-                        fileNamePattern.focus = false;
-                        currentField = "newFileNamePattern";
+                    if (focus && !fileNameSurge.readOnly ) {
+                        fileNameSurge.focus = false;
+                        currentField = "newFileNameSurge";
                         inputPanel.visible = true;
                         textInformation.visible = true;
-                        textInformation.text = "";
+                        textInformation.placeholderText = "";
                         textInformation.inputMethodHints = Qt.ImhPreferUppercase;
+                        textInformation.text = "";
                         textInformation.focus = true;
-                        fileNamePattern.color = "#ff0000";
+                        fileNameSurge.color = "#ff0000";
                     }
                 }
             }

@@ -38,6 +38,8 @@ Item {
                 if (validPlotdata.length > 0) {
                     axisY.min = Math.min.apply(null, validPlotdata);
                     axisY.max = Math.max.apply(null, validPlotdata);
+                    axisY.min = 0;//Math.min.apply(null, validPlotdata);
+                    axisY.max = Math.max.apply(null, validPlotdata)+200;
                 }
             } else {
                 console.log("Mismatch in data length or data is missing");

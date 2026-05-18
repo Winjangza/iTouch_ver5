@@ -7,6 +7,8 @@ CONFIG += link_pkgconfig
 QT += serialbus
 QT += virtualkeyboard
 QT += charts qml quick
+CONFIG += c++17
+DEFINES += QT_DEPRECATED_WARNINGS
 #TARGET = VNCiTouch
 
 static {
@@ -15,16 +17,20 @@ static {
 }
 # You can make your code fail to compile if it uses deprecated APIs.
 # In order to do so, uncomment the following line.
-#DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
-#DEFINES += QT_NO_DEBUG_OUTPUT
+#DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000
+# disables all the APIs deprecated before Qt 6.0.0
+DEFINES += QT_NO_DEBUG_OUTPUT
 SOURCES += \
         ChatServer.cpp \
+        FileDownloader.cpp \
         NetworkMng.cpp \
         SocketClient.cpp \
         database.cpp \
         main.cpp \
         mainwindows.cpp \
-        screencapture.cpp
+        peerws.cpp \
+        screencapture.cpp \
+        webserver.cpp
 
 RESOURCES += qml.qrc
 
@@ -49,8 +55,11 @@ DISTFILES += \
 
 HEADERS += \
     ChatServer.h \
+    FileDownloader.h \
     NetworkMng.h \
     SocketClient.h \
     database.h \
     mainwindows.h \
-    screencapture.h
+    peerws.h \
+    screencapture.h \
+    webserver.h

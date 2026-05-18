@@ -63,7 +63,6 @@
 #include <QThread>
 
 #include <iostream>
-#include <sstream>
 #include <fstream>
 #include <dirent.h>
 #include <string.h>

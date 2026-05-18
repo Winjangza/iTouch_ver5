@@ -1,17 +1,18 @@
 import QtQuick 2.0
 import QtQuick.Controls 2.15
-import QtQuick.Layouts 1.15
+import QtQuick.Layouts 1.0
 import QtWebSockets 1.0
 import QtQuick.Extras 1.4
-import QtQuick.Controls 1.4
+import QtQml 2.2
 import QtQuick.VirtualKeyboard 2.15
 import QtQuick.VirtualKeyboard.Styles 2.15
 import QtQuick.VirtualKeyboard.Settings 2.15
-import QtGraphicalEffects 1.0
-
+import QtQuick3D 1.15
 Item {
+    id: item1
     width: 630
     height: 400
+    property alias rectangle: rectangle
     property var rowsData: []
     property int selectedRow: -1
     property bool keyboardVisible: false
@@ -20,14 +21,16 @@ Item {
     property int originalY: 325
     property bool focustextInformation: inputPanel.visible
     property string textforinformation:  textInformation.text
-    property bool tablestatus: statusB
-    property int tablenumber: numberB
-    property double tabledistance: distanceB
-    property string tabledetail: detailB
-    property string tablephase: phaseB
-    property int tablenumlist: num_listB
+    property bool tablestatus: statusA
+    property int tablenumber: numberA
+    property double tabledistance: distanceA
+    property string tabledetail: detailA
+    property string tablephase: phaseA
+    property int tablenumlist: num_listA
     property int selectedRowIndex: -1
-//    property var checkedStates: false
+    property bool checked: statusA
+
+    //    property var checkedStates: false
 
     onFocustextInformationChanged: {
         if(focustextInformation == false){
@@ -60,131 +63,41 @@ Item {
         border.color: "#ffffff"
         anchors.fill: parent
         anchors.rightMargin: 0
-        anchors.bottomMargin: 0
+        anchors.bottomMargin: 134
         anchors.leftMargin: 0
-        anchors.topMargin: 0
-        TableView {
-            id: recordDatabase
+        anchors.topMargin: 34
+
+        ListView {
+            id: listViewTaggingB
+            model: newlistdatatebleA
             anchors.fill: parent
-            anchors.rightMargin: 0
-            anchors.topMargin: 0
-            anchors.bottomMargin: 140
-            clip: true
-            model: newlistdatatebleB
-            TableViewColumn { role: "list_statusB"; title: "SELECT"; width: 100;
-                delegate: Rectangle {
-                    id: checkBoxDelegate
-                    color: "#00000000"
-                    property bool isChecked: false
-                    width: parent.width
-                    height: parent.height
-                    Rectangle {
-                        id: colorBox
-                        width: 35
-                        height: width
-                        border.width: 3
-                        anchors.verticalCenter: parent.verticalCenter
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        color: checkBoxDelegate.isChecked ? "#90cf59":"#ffffff"
-                        MouseArea {
-                            anchors.fill: parent
-                            onClicked: {
-                                checkBoxDelegate.isChecked = !checkBoxDelegate.isChecked
-                                console.log("checkBox ",checkBoxDelegate.isChecked ,newlistdatatebleB.num_listB, newlistdatatebleB.numberB, numberB , tablenumber)
-                                setpropertyCheckB(checkBoxDelegate.isChecked)
-                            }
-                        }
-                    }
-                }
-            }
-            TableViewColumn { role: "list_numberB"; title: "NO."; width: 80 }
-            TableViewColumn { role: "list_distanceB"; title: "DISTANCE"; width: 150 }
-            TableViewColumn { role: "list_detailB"; title: "DETAIL"; width: 300}
-            // TableViewColumn { role: "num_list"; title: "Number"; width: 150}
+            anchors.bottomMargin: 0
 
-            onClicked: {
-                console.log("TableView",newlistdatatebleB.get(row).num_listB)
-                setpropertyIDTableB(newlistdatatebleB.get(row).num_listB)
+            delegate: CheckBoxTagging {
+                width: listViewTaggingB.width
+                height: (model.list_phaseA ?? "") === "B" ? 50 : 0
+                visible: (model.list_phaseA ?? "") === "B"
+                phase:model.list_phaseA
+                taggingID: model.list_numberA ?? 0
+                                                 checked: model.list_statusA ?? false
+                                                                                distance: model.list_distanceA ?? 0.0
+                                                                                                                  detail: model.list_detailA ?? ""
+                                                                                                                                                listIndex: model.num_listA
             }
         }
     }
 
-    Row {
-        x: 8
-        y: 299
 
-        Column {
-
-            Text { id: distanceText ; text: "DISTANCE(KM)" }
-
-            TextField {
-                id: distanceField
-                property color color: "#ffffff"
-                horizontalAlignment: Text.AlignHCenter
-                Layout.fillWidth: true
-                Layout.preferredHeight: 40
-                font.pointSize: 11
-                placeholderText: qsTr("Enter DISTANCE")
-                width: 150
-                height: 35
-                focus: false
-                onFocusChanged: {
-                    if (focus) {
-                        distanceField.focus = false;
-                        currentField = "distanceField";
-                        inputPanel.visible = true;
-                        textInformation.visible = true;
-                        textInformation.text = qsTr("Enter DISTANCE") ? editDistanceB : qsTr("Enter DISTANCE");
-                        textInformation.inputMethodHints = Qt.ImhFormattedNumbersOnly;
-                        textInformation.focus = true;
-                        distanceField.color = "#ff0000";
-                    }
-                }
-            }
-        }
-
-        Column {
-
-            Text { id: detailText; text: "DETAIL" }
-
-            TextField {
-                id: detailField
-                property color color: "#ffffff"
-                horizontalAlignment: Text.AlignHCenter
-                Layout.fillWidth: true
-                Layout.preferredHeight: 40
-                font.pointSize: 11
-                placeholderText: qsTr("Enter DETAIL")
-                width: 300
-                height: 35
-                focus: false
-                onFocusChanged: {
-                    if (focus) {
-                        detailField.focus = false;
-                        currentField = "detailField";
-                        inputPanel.visible = true;
-                        textInformation.visible = true;
-                        textInformation.text = qsTr("Enter DETAIL") ? editDetailB : qsTr("Enter DETAIL");
-                        textInformation.inputMethodHints = Qt.ImhPreferUppercase;
-                        textInformation.text = "";
-                        textInformation.focus = true;
-                        detailField.color = "#ff0000";
-                    }
-                }
-            }
-        }
-    }
 
     RowLayout {
         x: 8
-        y: 367
+        y: 348
 
         Button {
             text: "NEW"
             onClicked: {
                 console.log("Type of distanceField.text:", typeof distanceField.text);
                 console.log("Type of detailField.text:", typeof detailField.text);
-
                 var distanceValue = parseFloat(distanceField.text);
                 var detailValue = detailField.text;
 
@@ -193,44 +106,260 @@ Item {
                 } else {
                     console.log("Valid Distance input");
                 }
-
-                var dataTagging = '{"objectName":"getDistanceDetailA","Distance": ' + distanceValue + ',"Detail": "' + detailValue + '", "PHASE": "B"}';
+                var dataTagging = '{"objectName":"getDistanceDetailB","Distance": '+ distanceInfoSetting+',"Detail": "'+detailInfoSetting+'", "PHASE": "B"}';
                 console.log("getDistanceDetail:", dataTagging);
                 qmlCommand(dataTagging);
-
             }
         }
 
         Button {
             text: "EDIT"
+            enabled: selectedRowIndex !== -1
             onClicked: {
-                console.log("edit:", checkedStates, newlistdatatebleB.num_listB,num_listB,numberB);
-                if (checkedStates === true) {
-                    var numListB = num_listB;
-                    var editPhaseB = '{"objectName":"editDataPhaseB","checkedStates":'+checkedStates +', "num_listB":'+newlistdatatebleB.num_listB +', "PHASE": "B"}';
-                    console.log("editDataPhaseB", editPhaseB, num_listB);
-                    qmlCommand(editPhaseB);
+                var rowIndex = getSelectedModelIndexB()
+                if (rowIndex !== -1 && newlistdatatebleA.count > rowIndex) {
+                    var selectedItem = newlistdatatebleA.get(rowIndex)
+                    var selectedDistance = selectedItem.list_distanceA
+                    var selectedDetail = selectedItem.list_detailA
+
+                    console.log("✏️ Editing Row B: dbNo =", selectedRowIndex,
+                                "modelIndex =", rowIndex,
+                                "Distance:", selectedDistance,
+                                "Detail:", selectedDetail)
+
+                    distanceField.text = selectedDistance.toString()
+                    detailField.text = selectedDetail
+                } else {
+                    console.warn("⚠️ No valid row selected for edit! dbNo =", selectedRowIndex)
                 }
             }
         }
+
 
         Button {
             text: "SAVE"
-            onClicked: console.log("Save button clicked.")
-        }
-
-        Button {
-            text: "DELETE"
+            enabled: selectedRowIndex !== -1 && distanceField.text.trim() !== "" && detailField.text.trim() !== ""
             onClicked: {
-                console.log("Deleted:", checkedStates, newlistdatatebleB.num_listB, num_listB, numberB);
-                if (checkedStates === true) {
-                    // var numList = parseInt(newlistdatateble.num_list);
-                    var numListB = num_listB;
-                    var delectmySQL = '{"objectName":"delectmysqlA","checkedStates":'+checkedStates +',"num_listB":'+newlistdatatebleA.num_listB +'}';
-                    console.log("delectmySQLA", delectmySQL, numListA);
-//                    qmlCommand(delectmySQL);
+                var rowIndex = getSelectedModelIndexB()
+                if (rowIndex !== -1 && distanceField.text.trim() !== "" && detailField.text.trim() !== "") {
+                    var selectedItem = newlistdatatebleA.get(rowIndex)
+                    var saveData = JSON.stringify({
+                        objectName: "saveDataTaging",
+                        num_listA: selectedItem.num_listA,
+                        Distance: distanceField.text,
+                        Detail: detailField.text,
+                        PHASE: "B"
+                    })
+                    console.log("SAVE Data B:", saveData)
+                    qmlCommand(saveData)
+                } else {
+                    console.warn("No valid row selected or missing required fields!")
                 }
             }
         }
-     }
-  }
+
+
+
+        Button {
+            text: "DELETE"
+            enabled: selectedRowIndex !== -1
+            onClicked: {
+                if (selectedRowIndex !== -1) {
+                    deletedMytaggingB(selectedRowIndex)
+                    selectedRowIndex = -1
+                } else {
+                    console.warn("⚠️ No row selected for deletion!")
+                }
+            }
+        }
+
+    }
+
+
+    RowLayout {
+        anchors.fill: parent
+        spacing: 0
+        anchors.bottomMargin: 367
+
+        Rectangle {
+            id: rectangle1
+            color: "#ffffff"
+            radius: 0
+            border.width: 1
+            Layout.fillHeight: true
+            Layout.fillWidth: true
+            Text {
+                id: name1
+                text: qsTr("SELECT")
+                anchors.fill: parent
+                verticalAlignment: Text.AlignVCenter
+                anchors.leftMargin: 8
+            }
+        }
+
+        Rectangle {
+            id: rectangle2
+            color: "#ffffff"
+            border.width: 1
+            Layout.fillHeight: true
+            Layout.fillWidth: true
+            Text {
+                id: name2
+                text: qsTr("NO")
+                anchors.fill: parent
+                verticalAlignment: Text.AlignVCenter
+                anchors.leftMargin: 8
+            }
+        }
+
+        Rectangle {
+            id: rectangle3
+            color: "#ffffff"
+            border.width: 1
+            Layout.fillHeight: true
+            Layout.fillWidth: true
+            Text {
+                id: name3
+                text: qsTr("DISTANCE")
+                anchors.fill: parent
+                verticalAlignment: Text.AlignVCenter
+                anchors.leftMargin: 8
+                anchors.bottomMargin: 0
+            }
+        }
+
+        Rectangle {
+            id: rectangle4
+            color: "#ffffff"
+            border.width: 1
+            Layout.fillHeight: true
+            Layout.fillWidth: true
+            Text {
+                id: name4
+                text: qsTr("DETAIL")
+                anchors.fill: parent
+                verticalAlignment: Text.AlignVCenter
+                anchors.leftMargin: 8
+            }
+        }
+    }
+
+    Column {
+        x: 0
+        y: 272
+        width: 233
+        height: 80
+
+        Text { id: distanceText ; text: "DISTANCE(KM)" }
+
+        TextField {
+            id: distanceField
+            y: 76
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.leftMargin: 8
+            anchors.rightMargin: 50
+            horizontalAlignment: Text.AlignHCenter
+            Layout.fillHeight: false
+            Layout.fillWidth: true
+            font.pointSize: 11
+            placeholderText: distanceInfoSetting || qsTr("Enter DISTANCE")
+            readOnly: !(currentUserLevel === 1)
+
+            background: Rectangle {
+                color: (currentUserLevel === 3)
+                       ? "#d3d3d3"
+                       : "#ffffff"
+                border.color: "#bcbcbc"
+                radius: 5
+            }
+
+            focus: false
+            activeFocusOnTab: false
+
+            onFocusChanged: {
+                if (focus && !distanceField.readOnly) {
+                    focus = false
+                    currentField = "distanceFieldTagging"
+                    inputPanel.visible = true
+                    textInformation.visible = true
+                    textInformation.placeholderText = qsTr("Enter DISTANCE")
+                    textInformation.inputMethodHints = Qt.ImhFormattedNumbersOnly
+                    textInformation.text = ""
+                    textInformation.focus = true
+                    distanceField.color = "#ff0000"
+                }
+            }
+        }
+    }
+
+    Column {
+        x: 239
+        y: 272
+        width: 340
+        height: 80
+
+        Text { id: detailText; text: "DETAIL" }
+
+        TextField {
+            id: detailField
+            y: 126
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.leftMargin: 8
+            anchors.rightMargin: 8
+            horizontalAlignment: Text.AlignHCenter
+            Layout.fillHeight: false
+            Layout.fillWidth: true
+            Layout.preferredWidth: 400
+            font.pointSize: 11
+            placeholderText: detailInfoSetting || qsTr("Enter DETAIL")
+            readOnly: !(currentUserLevel === 1)
+
+            background: Rectangle {
+                color: (currentUserLevel === 3)
+                       ? "#d3d3d3"
+                       : "#ffffff"
+                border.color: "#bcbcbc"
+                radius: 5
+            }
+
+            focus: false
+            activeFocusOnTab: false
+
+            onFocusChanged: {
+                if (focus && !detailField.readOnly) {
+                    focus = false
+                    currentField = "detailFieldTagging"
+                    inputPanel.visible = true
+                    textInformation.visible = true
+                    textInformation.placeholderText = qsTr("Enter DETAIL")
+                    textInformation.inputMethodHints = Qt.ImhPreferUppercase
+                    textInformation.text = ""
+                    textInformation.focus = true
+                    detailField.color = "#ff0000"
+                }
+            }
+        }
+    }
+    function getSelectedModelIndexB() {
+        if (selectedRowIndex === -1)
+            return -1
+        return getDeviceIndexByPhase(selectedRowIndex, "B")
+    }
+    Component.onCompleted: {
+        lockPageWhileTagging = true
+        console.log("Tagging page entered -> lockPageWhileTagging = true")
+    }
+
+    Component.onDestruction: {
+        lockPageWhileTagging = false
+        console.log("Tagging page left -> lockPageWhileTagging = false")
+    }
+}
+
+/*##^##
+Designer {
+    D{i:0;formeditorZoom:1.66}
+}
+##^##*/

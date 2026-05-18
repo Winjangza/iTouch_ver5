@@ -46,6 +46,8 @@ void SocketClient::createConnection(QString ipaddress, quint16 port)
         qDebug() << "WebSocket server:" << url;
     m_url = iGateSocketServerUrl;
     m_ipaddress = ipaddress;
+    qDebug() << "m_ipaddress:" << m_ipaddress << m_url;
+
     m_webSocket.open(QUrl(iGateSocketServerUrl));
 }
 //! [createConnection]
@@ -67,8 +69,18 @@ void SocketClient::onTextMessageReceived(QString message)
 //! [onTextMessageReceived]
 
 void SocketClient::sendMessage(QString msg){
-    qDebug() << "send socket:"<< msg;
-    m_webSocket.sendTextMessage(msg);
+    QJsonDocument d = QJsonDocument::fromJson(msg.toUtf8());
+    QJsonObject command = d.object();
+    QString getCommand =  QJsonValue(command["objectName"]).toString().trimmed();
+    QString menuID =  QJsonValue(command["menuID"]).toString().trimmed();
+    if(msg!=""){
+        qDebug() << "send socket:"<< msg;
+        m_webSocket.sendTextMessage(msg);
+    }else if(getCommand == "ButtonPattern"){
+        qDebug() << "sendMessage:"<< msg;
+        m_webSocket.sendTextMessage(msg);
+    }
+
 }
 
 void SocketClient::onDisconnected()
@@ -77,6 +89,8 @@ void SocketClient::onDisconnected()
     qDebug() << m_ipaddress << "WebSocket disconnected";
     emit closed(m_socketID, m_ipaddress);
     emit SocketClientError();
+    QWebSocket *pClient = qobject_cast<QWebSocket *>(sender());
+    emit disconnected(pClient);
 }
 
 void SocketClient::onError(QAbstractSocket::SocketError error)
@@ -84,4 +98,15 @@ void SocketClient::onError(QAbstractSocket::SocketError error)
     qDebug() << "Connecting Error: ";
     isConnected = false;
 //    emit SocketClientError();
+}
+void SocketClient::disconnectFromServer() {
+    if (m_webSocket.state() == QAbstractSocket::ConnectedState ||
+        m_webSocket.state() == QAbstractSocket::ConnectingState)
+    {
+        qDebug() << "Closing WebSocket connection to" << m_ipaddress;
+        m_webSocket.close();   // triggers onDisconnected()
+        isConnected = false;
+    } else {
+        qDebug() << "WebSocket already disconnected";
+    }
 }

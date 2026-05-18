@@ -3,8 +3,12 @@ import QtQuick.Layouts 1.0
 import QtQuick.Controls 2.15
 
 Item {
+    id: rootSnmp
     width: 400
-    height: 460
+    height: 460   
+    property int snmpUserLevel: userLevelGlobalVars.count > 0 ? userLevelGlobalVars.get(0).userLevel : 3
+    property bool canEditSnmp: snmpUserLevel === 1 || snmpUserLevel === 2
+    property bool isReadOnlyLevel: !canEditSnmp
     property bool selectPLCDoError      :plc_do_error
     property bool selectPLCDiError      :plc_di_error
     property bool selectPhaseAError     :internal_phase_A_error
@@ -22,6 +26,35 @@ Item {
     property bool selectManualTest      :manual_test_event
     property bool selectLFLfail         :lfl_fail
     property bool selectLFLOperate      :lfl_operate
+//    property bool isReadOnlyLevel: userLevelGlobalVars.count === 0 ||
+//                                   userLevelGlobalVars.get(0).userLevel === 2 ||
+//                                   userLevelGlobalVars.get(0).userLevel === 3
+//    property bool isReadOnlyLevel: {
+//        if (userLevelGlobalVars.count <= 0)
+//            return true
+//        const lvl = userLevelGlobalVars.get(0).userLevel
+//        return lvl === 3
+//    }
+    function snmpBoxColor(isActive) {
+        if (!canEditSnmp)
+            return "#b7b7b7"
+        return isActive ? "#00FF00" : "#ffffff"
+    }
+
+    function toggleSnmp(rectItem, keyName) {
+        if (!canEditSnmp)
+            return
+
+        rectItem.isActive = !rectItem.isActive
+
+        var payload = { "objectName": "SNMPenable" }
+        payload[keyName] = rectItem.isActive
+
+        var json = JSON.stringify(payload)
+        qmlCommand(json)
+        console.log("Current status SNMP:", json, "userLevel =", snmpUserLevel)
+    }
+
     Rectangle {
         id: rectangle
         color: "#e7e6e6"
@@ -60,529 +93,392 @@ Item {
                     anchors.rightMargin: -92
                     id: contentContainer
 
-
                     RowLayout {
-
                         Rectangle {
                             id: plcDoError
-                            color:(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
-                                ?( isActive ? "#d3d3d3" : "#f2f2f2")
-                                :( isActive ? "#00FF00" : "#f2f2f2")
+                            color: rootSnmp.snmpBoxColor(isActive)
                             radius: 3
                             border.width: 1
                             Layout.preferredHeight: 35
                             Layout.preferredWidth: 35
                             property bool isActive: selectPLCDoError
+
                             MouseArea {
                                 anchors.fill: parent
-                                enabled: !(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
-                                onClicked: {
-                                    plcDoError.isActive = !plcDoError.isActive;
-                                    var SelectSNMP = '{"objectName":"SNMPenable", "plcDoError": ' + plcDoError.isActive + '}';
-                                    qmlCommand(SelectSNMP);
-                                    console.log("Current status SNMP: " + SelectSNMP, selectPLCDoError);
-                                }
+                                enabled: rootSnmp.canEditSnmp
+                                onClicked: rootSnmp.toggleSnmp(plcDoError, "plcDoError")
                             }
                         }
 
                         Text {
-                            id: plcDo
                             text: qsTr("PLC DO ERROR")
                             font.pixelSize: 14
                         }
                     }
 
                     RowLayout {
-
                         Rectangle {
                             id: plcDiError
-                            color:(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
-                                ?( isActive ? "#d3d3d3" : "#f2f2f2")
-                                :( isActive ? "#00FF00" : "#f2f2f2")
+                            color: rootSnmp.snmpBoxColor(isActive)
                             radius: 3
                             border.width: 1
                             Layout.preferredHeight: 35
                             Layout.preferredWidth: 35
-                            property bool isActive: selectPLCDiError  // ใช้ selectPhaseAError ให้เป็นค่าของ isActive
+                            property bool isActive: selectPLCDiError
+
                             MouseArea {
                                 anchors.fill: parent
-                                enabled: !(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
-                                onClicked: {
-                                    plcDiError.isActive = !plcDiError.isActive;
-                                    var SelectSNMP = '{"objectName":"SNMPenable", "plcDiError": ' + plcDiError.isActive + '}';
-                                    qmlCommand(SelectSNMP);
-                                    console.log("Current status SNMP: " + SelectSNMP, selectPhaseAError);
-                                }
+                                enabled: rootSnmp.canEditSnmp
+                                onClicked: rootSnmp.toggleSnmp(plcDiError, "plcDiError")
                             }
                         }
 
                         Text {
-                            id: plcDi
                             text: qsTr("PLC DI ERROR")
                             font.pixelSize: 14
                         }
                     }
 
                     RowLayout {
-
                         Rectangle {
                             id: hispeedPhaseA
-                            color:(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
-                                ?( isActive ? "#d3d3d3" : "#f2f2f2")
-                                :( isActive ? "#00FF00" : "#f2f2f2")
+                            color: rootSnmp.snmpBoxColor(isActive)
                             radius: 3
                             border.width: 1
                             Layout.preferredHeight: 35
                             Layout.preferredWidth: 35
                             property bool isActive: selectModbusErrorA
+
                             MouseArea {
                                 anchors.fill: parent
-                                enabled: !(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
-                                onClicked: {
-                                    hispeedPhaseA.isActive = !hispeedPhaseA.isActive;
-                                    var SelectSNMP = '{"objectName":"SNMPenable", "hispeedPhaseA": ' + hispeedPhaseA.isActive + '}';
-                                    qmlCommand(SelectSNMP);
-                                    console.log("Current status SNMP: " + SelectSNMP, selectModbusErrorA);
-                                }
+                                enabled: rootSnmp.canEditSnmp
+                                onClicked: rootSnmp.toggleSnmp(hispeedPhaseA, "hispeedPhaseA")
                             }
                         }
 
                         Text {
-                            id: text3
                             text: qsTr("MODULE HI-SPEED PHASE A ERROR")
                             font.pixelSize: 14
                         }
                     }
 
                     RowLayout {
-
                         Rectangle {
                             id: hispeedPhaseB
-                            color:(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
-                                ?( isActive ? "#d3d3d3" : "#f2f2f2")
-                                :( isActive ? "#00FF00" : "#f2f2f2")
+                            color: rootSnmp.snmpBoxColor(isActive)
                             radius: 3
                             border.width: 1
                             Layout.preferredHeight: 35
                             Layout.preferredWidth: 35
                             property bool isActive: selectModbusErrorB
+
                             MouseArea {
                                 anchors.fill: parent
-                                enabled: !(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
-                                onClicked: {
-                                    hispeedPhaseB.isActive = !hispeedPhaseB.isActive;
-                                    var SelectSNMP = '{"objectName":"SNMPenable", "hispeedPhaseB": ' + hispeedPhaseB.isActive + '}';
-                                    qmlCommand(SelectSNMP);
-                                    console.log("Current status SNMP: " + SelectSNMP, selectModbusErrorB);
-                                }
+                                enabled: rootSnmp.canEditSnmp
+                                onClicked: rootSnmp.toggleSnmp(hispeedPhaseB, "hispeedPhaseB")
                             }
                         }
 
                         Text {
-                            id: text4
                             text: qsTr("MODULE HI-SPEED PHASE B ERROR")
                             font.pixelSize: 14
                         }
                     }
 
                     RowLayout {
-
                         Rectangle {
                             id: hispeedPhaseC
-                            color:(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
-                                ?( isActive ? "#d3d3d3" : "#f2f2f2")
-                                :( isActive ? "#00FF00" : "#f2f2f2")
+                            color: rootSnmp.snmpBoxColor(isActive)
                             radius: 3
                             border.width: 1
                             Layout.preferredHeight: 35
                             Layout.preferredWidth: 35
                             property bool isActive: selectModbusErrorC
+
                             MouseArea {
                                 anchors.fill: parent
-                                enabled: !(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
-                                onClicked: {
-                                    hispeedPhaseC.isActive = !hispeedPhaseC.isActive;
-                                    var SelectSNMP = '{"objectName":"SNMPenable", "hispeedPhaseC": ' + hispeedPhaseC.isActive + '}';
-                                    qmlCommand(SelectSNMP);
-                                    console.log("Current status SNMP: " + SelectSNMP, selectModbusErrorC);
-                                }
+                                enabled: rootSnmp.canEditSnmp
+                                onClicked: rootSnmp.toggleSnmp(hispeedPhaseC, "hispeedPhaseC")
                             }
                         }
 
                         Text {
-                            id: text5
                             text: qsTr("MODULE HI-SPEED PHASE C ERROR")
                             font.pixelSize: 14
                         }
                     }
 
                     RowLayout {
-
                         Rectangle {
                             id: commuPhaseA
-                            color:(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
-                                ?( isActive ? "#d3d3d3" : "#f2f2f2")
-                                :( isActive ? "#00FF00" : "#f2f2f2")
+                            color: rootSnmp.snmpBoxColor(isActive)
                             radius: 3
                             border.width: 1
                             Layout.preferredHeight: 35
                             Layout.preferredWidth: 35
                             property bool isActive: selectPhaseAError
+
                             MouseArea {
                                 anchors.fill: parent
-                                enabled: !(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
-                                onClicked: {
-                                    commuPhaseA.isActive = !commuPhaseA.isActive;
-                                    var SelectSNMP = '{"objectName":"SNMPenable", "commuPhaseA": ' + commuPhaseA.isActive + '}';
-                                    qmlCommand(SelectSNMP);
-                                    console.log("Current status SNMP: " + SelectSNMP, selectPhaseAError);
-                                }
+                                enabled: rootSnmp.canEditSnmp
+                                onClicked: rootSnmp.toggleSnmp(commuPhaseA, "commuPhaseA")
                             }
                         }
 
                         Text {
-                            id: text15
                             text: qsTr("INTERNAL COMMUNICATION PHASE A ERROR")
                             font.pixelSize: 14
                         }
                     }
 
                     RowLayout {
-
                         Rectangle {
                             id: commuPhaseB
-                            color:(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
-                                ?( isActive ? "#d3d3d3" : "#f2f2f2")
-                                :( isActive ? "#00FF00" : "#f2f2f2")
+                            color: rootSnmp.snmpBoxColor(isActive)
                             radius: 3
                             border.width: 1
                             Layout.preferredHeight: 35
                             Layout.preferredWidth: 35
                             property bool isActive: selectPhaseBError
+
                             MouseArea {
                                 anchors.fill: parent
-                                enabled: !(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
-                                onClicked: {
-                                    commuPhaseB.isActive = !commuPhaseB.isActive;
-                                    var SelectSNMP = '{"objectName":"SNMPenable", "commuPhaseB": ' + commuPhaseB.isActive + '}';
-                                    qmlCommand(SelectSNMP);
-                                    console.log("Current status SNMP: " + SelectSNMP, selectPhaseBError);
-                                }
+                                enabled: rootSnmp.canEditSnmp
+                                onClicked: rootSnmp.toggleSnmp(commuPhaseB, "commuPhaseB")
                             }
                         }
 
                         Text {
-                            id: text16
                             text: qsTr("INTERNAL COMMUNICATION PHASE B ERROR")
                             font.pixelSize: 14
                         }
                     }
 
                     RowLayout {
-
                         Rectangle {
                             id: commuPhaseC
-                            color:(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
-                                ?( isActive ? "#d3d3d3" : "#f2f2f2")
-                                :( isActive ? "#00FF00" : "#f2f2f2")
+                            color: rootSnmp.snmpBoxColor(isActive)
                             radius: 3
                             border.width: 1
                             Layout.preferredHeight: 35
                             Layout.preferredWidth: 35
                             property bool isActive: selectPhaseCError
+
                             MouseArea {
                                 anchors.fill: parent
-                                enabled: !(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
-                                onClicked: {
-                                    commuPhaseC.isActive = !commuPhaseC.isActive;
-                                    var SelectSNMP = '{"objectName":"SNMPenable", "commuPhaseC": ' + commuPhaseC.isActive + '}';
-                                    qmlCommand(SelectSNMP);
-                                    console.log("Current status SNMP: " + SelectSNMP, selectPhaseCError);
-                                }
+                                enabled: rootSnmp.canEditSnmp
+                                onClicked: rootSnmp.toggleSnmp(commuPhaseC, "commuPhaseC")
                             }
                         }
 
                         Text {
-                            id: text17
                             text: qsTr("INTERNAL COMMUNICATION PHASE C ERROR")
                             font.pixelSize: 14
                         }
                     }
 
                     RowLayout {
-
                         Rectangle {
                             id: gpsModule
-                            color:(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
-                                ?( isActive ? "#d3d3d3" : "#f2f2f2")
-                                :( isActive ? "#00FF00" : "#f2f2f2")
+                            color: rootSnmp.snmpBoxColor(isActive)
                             radius: 3
                             border.width: 1
                             Layout.preferredHeight: 35
                             Layout.preferredWidth: 35
                             property bool isActive: selectGPSModule
+
                             MouseArea {
                                 anchors.fill: parent
-                                enabled: !(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
-                                onClicked: {
-                                    gpsModule.isActive = !gpsModule.isActive;
-                                    var SelectSNMP = '{"objectName":"SNMPenable", "gpsModule": ' + gpsModule.isActive + '}';
-                                    qmlCommand(SelectSNMP);
-                                    console.log("Current status SNMP: " + SelectSNMP, selectGPSModule);
-                                }
+                                enabled: rootSnmp.canEditSnmp
+                                onClicked: rootSnmp.toggleSnmp(gpsModule, "gpsModule")
                             }
                         }
 
                         Text {
-                            id: text6
                             text: qsTr("GPS MODULE FAIL")
                             font.pixelSize: 14
                         }
                     }
 
                     RowLayout {
-
                         Rectangle {
                             id: systemInti
-                            color:(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
-                                ?( isActive ? "#d3d3d3" : "#f2f2f2")
-                                :( isActive ? "#00FF00" : "#f2f2f2")
+                            color: rootSnmp.snmpBoxColor(isActive)
                             radius: 3
                             border.width: 1
                             Layout.preferredHeight: 35
                             Layout.preferredWidth: 35
                             property bool isActive: selectSystemInit
+
                             MouseArea {
                                 anchors.fill: parent
-                                enabled: !(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
-                                onClicked: {
-                                    systemInti.isActive = !systemInti.isActive;
-                                    var SelectSNMP = '{"objectName":"SNMPenable", "systemInti": ' + systemInti.isActive + '}';
-                                    qmlCommand(SelectSNMP);
-                                    console.log("Current status SNMP: " + SelectSNMP, selectGPSModule);
-                                }
+                                enabled: rootSnmp.canEditSnmp
+                                onClicked: rootSnmp.toggleSnmp(systemInti, "systemInti")
                             }
                         }
 
                         Text {
-                            id: text7
                             text: qsTr("SYSTEM INITIAL")
                             font.pixelSize: 14
                         }
                     }
 
                     RowLayout {
-
                         Rectangle {
                             id: commuError
-                            color:(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
-                                ?( isActive ? "#d3d3d3" : "#f2f2f2")
-                                :( isActive ? "#00FF00" : "#f2f2f2")
+                            color: rootSnmp.snmpBoxColor(isActive)
                             radius: 3
                             border.width: 1
                             Layout.preferredHeight: 35
                             Layout.preferredWidth: 35
                             property bool isActive: selectCommuError
+
                             MouseArea {
                                 anchors.fill: parent
-                                enabled: !(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
-                                onClicked: {
-                                    commuError.isActive = !commuError.isActive;
-                                    var SelectSNMP = '{"objectName":"SNMPenable", "commuError": ' + commuError.isActive + '}';
-                                    qmlCommand(SelectSNMP);
-                                    console.log("Current status SNMP: " + SelectSNMP, commuError);
-                                }
+                                enabled: rootSnmp.canEditSnmp
+                                onClicked: rootSnmp.toggleSnmp(commuError, "commuError")
                             }
                         }
 
                         Text {
-                            id: text8
                             text: qsTr("COMMUNICATION ERROR")
                             font.pixelSize: 14
                         }
                     }
 
                     RowLayout {
-
                         Rectangle {
                             id: relayStart
-                            color:(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
-                                ?( isActive ? "#d3d3d3" : "#f2f2f2")
-                                :( isActive ? "#00FF00" : "#f2f2f2")
+                            color: rootSnmp.snmpBoxColor(isActive)
                             radius: 3
                             border.width: 1
                             Layout.preferredHeight: 35
                             Layout.preferredWidth: 35
                             property bool isActive: selectRelayStart
+
                             MouseArea {
                                 anchors.fill: parent
-                                enabled: !(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
-                                onClicked: {
-                                    relayStart.isActive = !relayStart.isActive;
-                                    var SelectSNMP = '{"objectName":"SNMPenable", "relayStart": ' + relayStart.isActive + '}';
-                                    qmlCommand(SelectSNMP);
-                                    console.log("Current status SNMP: " + SelectSNMP, relayStart);
-                                }
+                                enabled: rootSnmp.canEditSnmp
+                                onClicked: rootSnmp.toggleSnmp(relayStart, "relayStart")
                             }
                         }
 
                         Text {
-                            id: text10
                             text: qsTr("RELAY START EVENT")
                             font.pixelSize: 14
                         }
                     }
 
                     RowLayout {
-
                         Rectangle {
                             id: surageStart
-                            color:(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
-                                ?( isActive ? "#d3d3d3" : "#f2f2f2")
-                                :( isActive ? "#00FF00" : "#f2f2f2")
+                            color: rootSnmp.snmpBoxColor(isActive)
                             radius: 3
                             border.width: 1
                             Layout.preferredHeight: 35
                             Layout.preferredWidth: 35
                             property bool isActive: selectSurageStart
+
                             MouseArea {
                                 anchors.fill: parent
-                                enabled: !(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
-                                onClicked: {
-                                    surageStart.isActive = !surageStart.isActive;
-                                    var SelectSNMP = '{"objectName":"SNMPenable", "surageStart": ' + surageStart.isActive + '}';
-                                    qmlCommand(SelectSNMP);
-                                    console.log("Current status SNMP: " + SelectSNMP, selectSurageStart);
-                                }
+                                enabled: rootSnmp.canEditSnmp
+                                onClicked: rootSnmp.toggleSnmp(surageStart, "surageStart")
                             }
                         }
 
                         Text {
-                            id: text11
                             text: qsTr("SURGE START EVENT")
                             font.pixelSize: 14
                         }
                     }
 
                     RowLayout {
-
                         Rectangle {
                             id: preiodicStart
-                            color:(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
-                                ?( isActive ? "#d3d3d3" : "#f2f2f2")
-                                :( isActive ? "#00FF00" : "#f2f2f2")
+                            color: rootSnmp.snmpBoxColor(isActive)
                             radius: 3
                             border.width: 1
                             Layout.preferredHeight: 35
                             Layout.preferredWidth: 35
                             property bool isActive: selectPeriodicStart
+
                             MouseArea {
                                 anchors.fill: parent
-                                enabled: !(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
-                                onClicked: {
-                                    preiodicStart.isActive = !preiodicStart.isActive;
-                                    var SelectSNMP = '{"objectName":"SNMPenable", "preiodicStart": ' + preiodicStart.isActive + '}';
-                                    qmlCommand(SelectSNMP);
-                                    console.log("Current status SNMP: " + SelectSNMP, selectPeriodicStart);
-                                }
+                                enabled: rootSnmp.canEditSnmp
+                                onClicked: rootSnmp.toggleSnmp(preiodicStart, "preiodicStart")
                             }
                         }
 
                         Text {
-                            id: text9
                             text: qsTr("PERIODIC TEST EVENT")
                             font.pixelSize: 14
                         }
                     }
 
                     RowLayout {
-
                         Rectangle {
                             id: manualTest
-                            color:(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
-                                ?( isActive ? "#d3d3d3" : "#f2f2f2")
-                                :( isActive ? "#00FF00" : "#f2f2f2")
+                            color: rootSnmp.snmpBoxColor(isActive)
                             radius: 3
                             border.width: 1
                             Layout.preferredHeight: 35
                             Layout.preferredWidth: 35
                             property bool isActive: selectManualTest
+
                             MouseArea {
                                 anchors.fill: parent
-                                enabled: !(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
-                                onClicked: {
-                                    manualTest.isActive = !manualTest.isActive;
-                                    var SelectSNMP = '{"objectName":"SNMPenable", "manualTest": ' + manualTest.isActive + '}';
-                                    qmlCommand(SelectSNMP);
-                                    console.log("Current status SNMP: " + SelectSNMP, selectManualTest);
-                                }
+                                enabled: rootSnmp.canEditSnmp
+                                onClicked: rootSnmp.toggleSnmp(manualTest, "manualTest")
                             }
                         }
 
                         Text {
-                            id: text13
                             text: qsTr("MANUAL TEST EVENT")
                             font.pixelSize: 14
                         }
                     }
 
                     RowLayout {
-
                         Rectangle {
                             id: lflfail
-                            color:(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
-                                ?( isActive ? "#d3d3d3" : "#f2f2f2")
-                                :( isActive ? "#00FF00" : "#f2f2f2")
+                            color: rootSnmp.snmpBoxColor(isActive)
                             radius: 3
                             border.width: 1
                             Layout.preferredHeight: 35
                             Layout.preferredWidth: 35
                             property bool isActive: selectLFLfail
+
                             MouseArea {
                                 anchors.fill: parent
-                                enabled: !(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
-                                onClicked: {
-                                    lflfail.isActive = !lflfail.isActive;
-                                    var SelectSNMP = '{"objectName":"SNMPenable", "lflfail": ' + lflfail.isActive + '}';
-                                    qmlCommand(SelectSNMP);
-                                    console.log("Current status SNMP: " + SelectSNMP, selectLFLfail);
-                                }
+                                enabled: rootSnmp.canEditSnmp
+                                onClicked: rootSnmp.toggleSnmp(lflfail, "lflfail")
                             }
                         }
 
                         Text {
-                            id: text14
                             text: qsTr("LFL FAIL")
                             font.pixelSize: 14
                         }
                     }
 
                     RowLayout {
-
                         Rectangle {
                             id: lfloperate
-                            color:(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
-                                ?( isActive ? "#d3d3d3" : "#f2f2f2")
-                                :( isActive ? "#00FF00" : "#f2f2f2")
+                            color: rootSnmp.snmpBoxColor(isActive)
                             radius: 3
                             border.width: 1
                             Layout.preferredHeight: 35
                             Layout.preferredWidth: 35
                             property bool isActive: selectLFLOperate
+
                             MouseArea {
                                 anchors.fill: parent
-                                enabled: !(userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
-                                onClicked: {
-                                    lfloperate.isActive = !lfloperate.isActive;
-                                    var SelectSNMP = '{"objectName":"SNMPenable", "lfloperate": ' + lfloperate.isActive + '}';
-                                    qmlCommand(SelectSNMP);
-                                    console.log("Current status SNMP: " + SelectSNMP, selectLFLOperate);
-                                }
+                                enabled: rootSnmp.canEditSnmp
+                                onClicked: rootSnmp.toggleSnmp(lfloperate, "lfloperate")
                             }
                         }
 
                         Text {
-                            id: text12
                             text: qsTr("LFL OPERATE")
                             font.pixelSize: 14
                         }

@@ -1,0 +1,1837 @@
+diff --git a/media/pp/FE82-3B71/update_iTouch/iTouch_ver5/ContorlAndMonitor.qml b/media/pp/FE82-3B71/iTouch_28082025/iTouch_ver5/ContorlAndMonitor.qml
+index 776b2b9..604c4f0 100755
+--- a/media/pp/FE82-3B71/update_iTouch/iTouch_ver5/ContorlAndMonitor.qml
++++ b/media/pp/FE82-3B71/iTouch_28082025/iTouch_ver5/ContorlAndMonitor.qml
+@@ -41,10 +41,7 @@ Item {
+             }
+             console.log("PlotdataA Length:", plotdataA.length);
+             console.log("DistanceA Length:", distanceA.length);
+-
+-            // ✅ Ensure series is cleared before appending
+             seriesRawA.clear();
+-
+             var hasValidPoints = false;
+             for (var i = 0; i < plotdataA.length; i++) {
+                 if (isFinite(plotdataA[i]) && isFinite(distanceA[i])) {
+@@ -54,146 +51,16 @@ Item {
+                     console.warn(`Skipping invalid point: distanceA[${i}] = ${distanceA[i]}, plotdataA[${i}] = ${plotdataA[i]}`);
+                 }
+             }
+-
+             if (!hasValidPoints) {
+                 console.warn("No valid points found to plot!");
+                 return;
+             }
+-
+             adjustAxes(distanceA, [plotdataA]);
+-
+-//            var closestX = null;
+-//            var closestY = null;
+-//            var closestIndex = -1;
+-//            var minDiff = Number.MAX_VALUE;
+-
+-//            for (var i = 0; i < distanceA.length; i++) {
+-//                var diff = Math.abs(distanceA[i] - pointerX_graphA);
+-//                if (diff < minDiff) {
+-//                    minDiff = diff;
+-//                    closestIndex = i;
+-//                }
+-//            }
+-
+-//            if (closestIndex !== -1) {
+-//                closestX = distanceA[closestIndex];
+-//                closestY = plotdataA[closestIndex];
+-//            }
+-
+-//            console.log("Closest match for tagging:", pointerX_graphA, "->", closestX);
+-//            console.log("Mapped Y value:", closestY,numberOfTagging);
+-//            updateListModelWithClosestData(closestX,closestY);
+-//            if (isFinite(closestX) && isFinite(closestY)) {
+-//                updateListModelWithClosestData(closestX, closestY,numberOfTagging)
+-////             setTimeout(Qt.callLater, 0, updateListModelWithClosestData, closestX, closestY,numberOfTagging);
+-//            } else {
+-//                console.warn("Closest point is invalid! Skipping tagging.");
+-//                return;
+-//            }
+-
+-//            setTimeout(Qt.callLater, 0, updateListModelWithClosestData, closestX, closestY,numberOfTagging);
+-
+         } catch (e) {
+             console.error("Error in onPlotdataAChanged:", e);
+         }
+     }
+ 
+-
+-
+-//    function updateListModelWithClosestData(closestX, closestY) {
+-//        console.error("updateListModelWithClosestData:",closestX, closestY);
+-
+-//        if (newlistdatatebleA.count === 0) {
+-//            console.warn("No data in newlistdatatebleA! Skipping update.");
+-//            return;
+-//        }
+-//        console.log("Updating ListModel with closest values:", closestX, closestY, "TaggingID:", numberOfTagging);
+-//        for (var i = 0; i < newlistdatatebleA.count; i++) {
+-//            console.log("Check_count_newlistdatatebleA:", newlistdatatebleA.count,numberOfTagging);
+-
+-//            if (newlistdatatebleA.get(i).list_numberA === numberOfTagging) {
+-//                newlistdatatebleA.setProperty(i, "ampiltudeVol", closestY);
+-//                console.log("Updated newlistdatatebleA:", i, "ampiltudeVol:", closestY);
+-//                break;
+-//            }
+-//        }
+-//    }
+-
+-//    onPlotdataAChanged: {
+-//        try {
+-//            if (!plotdataA || !distanceA || plotdataA.length !== distanceA.length) {
+-//                console.error("Data is missing or lengths do not match!");
+-//                return;
+-//            }
+-//            console.log("PlotdataA Length:", plotdataA.length);
+-//            console.log("DistanceA Length:", distanceA.length);
+-//            seriesRawA.clear();
+-//            var hasValidPoints = false;
+-//            for (var i = 0; i < plotdataA.length; i++) {
+-//                if (isFinite(plotdataA[i]) && isFinite(distanceA[i])) {
+-//                    seriesRawA.append(distanceA[i], plotdataA[i]);
+-//                    hasValidPoints = true;
+-//                } else {
+-//                    console.warn(`Skipping invalid point: distanceA[${i}] = ${distanceA[i]}, plotdataA[${i}] = ${plotdataA[i]}`);
+-//                }
+-//            }
+-//            if (!hasValidPoints) {
+-//                console.warn("No valid points found to plot!");
+-//                return;
+-//            }
+-//            adjustAxes(distanceA, [plotdataA]);
+-//            var targetX = pointerX_graphA;
+-//            var closestIndex = 0;
+-//            var minDiff = Number.MAX_VALUE;
+-//            for (var i = 0; i < distanceA.length; i++) {
+-//                var diff = Math.abs(distanceA[i] - targetX);
+-//                if (diff < minDiff) {
+-//                    minDiff = diff;
+-//                    closestIndex = i;
+-//                }
+-//            }
+-//            var closestX = distanceA[closestIndex];
+-//            var closestY = plotdataA[closestIndex];
+-//            console.log("Closest match for tagging:", targetX, "->", closestX);
+-//            console.log("Mapped Y value:", closestY);
+-
+-//            if (isFinite(closestX) && isFinite(closestY)) {
+-//                setTimeout(Qt.callLater, 0, showGraphPoint, closestX, closestY);
+-//            } else {
+-//                console.warn("Closest point is invalid! Skipping tagging.");
+-//            }
+-
+-//            for (var i = 0; i < newlistdatatebleA.count; i++) {
+-//                if (newlistdatatebleA.get(i).list_numberA === numberOfTagging) {
+-//                    newlistdatatebleA.setProperty(i, "list_statusA", checked);
+-//                    newlistdatatebleA.setProperty(i, "ampiltudeVol", closestY);
+-//                    console.log("Updated newlistdatatebleA:", i, "list_statusA:", checked, "ampiltudeVol:", closestY);
+-//                    break;
+-//                }
+-//            }
+-
+-//        } catch (e) {
+-//            console.error("Error in onPlotdataAChanged:", e);
+-//        }
+-//    }
+-
+-
+-//    onPlotdataAChanged: {
+-//        try {
+-//            if (plotdataA && distanceA && plotdataA.length === distanceA.length) {
+-//                seriesRawA.clear();
+-//                for (var i = 0; i < plotdataA.length; i++) {
+-//                    if (isFinite(plotdataA[i]) && isFinite(distanceA[i])) {
+-//                        seriesRawA.append(distanceA[i], plotdataA[i]);
+-//                    }
+-
+-//                }
+-//                adjustAxes(distanceA, [plotdataA]);
+-//                axisY.min = 0;
+-//            }
+-//        } catch (e) {
+-//        }
+-//    }
+ //     สำหรับ RawDataB
+     onPlotdataBChanged: {
+         try {
+@@ -301,8 +168,10 @@ Item {
+         var maxY = Math.max.apply(null, allYValues);
+         axisY.min = 0;//minY;
+         axisY.max = maxY+200;
++
++        scatterModel.clear();
++        newListDataTaggingTables = !newListDataTaggingTables
+     }
+-    // ฟังก์ชันแสดงจุดบนกราฟ
+     function clearGraphDataPhaseA() {
+         distanceA = [];
+         plotdataA = [];
+@@ -408,40 +277,6 @@ Item {
+     }
+ 
+ 
+-//    onNewListDataTaggingChanged: {
+-//        if(newlistdatatebleA.count === scatterModel.count){
+-//            return
+-//        }
+-//        console.log("Component_onCompleted_newlistdatatebleA:", newlistdatatebleA.count,newlistdatatebleA.get(i).ampiltudeVol);
+-//        for (var i = 0; i < newlistdatatebleA.count; i++) {
+-////            scatter1.append(newlistdatatebleA.get(i).list_distanceA,10000);
+-//            var mappedPos = chartView.mapToPosition(Qt.point(newlistdatatebleA.get(i).list_distanceA, newlistdatatebleA.get(i).ampiltudeVol), scatter1);
+-//            console.log("mappedPos:", mappedPos.x,mappedPos.y);
+-//            scatterModel.append({
+-//                "x": mappedPos.x,
+-//                "y": newlistdatatebleA.get(i).ampiltudeVol,//mappedPos.y
+-//                "text" : newlistdatatebleA.get(i).list_numberA,
+-//                "status":newlistdatatebleA.get(i).list_statusA
+-//            });
+-//        }
+-//    }
+-//    onNewListDataTaggingChanged: {
+-//        if(newlistdatatebleA.count === scatterModel.count){
+-//            return
+-//        }
+-//        console.log("Component_onCompleted_newlistdatatebleA:", newlistdatatebleA.count,newlistdatatebleA.get(i).ampiltudeVol);
+-//        for (var i = 0; i < newlistdatatebleA.count; i++) {
+-////            scatter1.append(newlistdatatebleA.get(i).list_distanceA,10000);
+-//            var mappedPos = chartView.mapToPosition(Qt.point(newlistdatatebleA.get(i).list_distanceA, newlistdatatebleA.get(i).ampiltudeVol), scatter1);
+-//            console.log("mappedPos:", mappedPos.x,mappedPos.y);
+-//            scatterModel.append({
+-//                "x": mappedPos.x,
+-//                "y": newlistdatatebleA.get(i).ampiltudeVol,//mappedPos.y
+-//                "text" : newlistdatatebleA.get(i).list_numberA,
+-//                "status":newlistdatatebleA.get(i).list_statusA
+-//            });
+-//        }
+-//    }
+     // กราฟ
+     ChartView {
+         id: chartView
+@@ -473,6 +308,7 @@ Item {
+             }
+         }
+ 
++
+ //        onOpenGLChanged: {
+ //            if (openGL) {
+ //                console.log("OpenGL is enabled for faster rendering.");
+diff --git a/media/pp/FE82-3B71/update_iTouch/iTouch_ver5/ContorlAndMonitor.qml.autosave b/media/pp/FE82-3B71/update_iTouch/iTouch_ver5/ContorlAndMonitor.qml.autosave
+deleted file mode 100755
+index 618e576..0000000
+--- a/media/pp/FE82-3B71/update_iTouch/iTouch_ver5/ContorlAndMonitor.qml.autosave
++++ /dev/null
+@@ -1,688 +0,0 @@
+-import QtQuick 2.7
+-import QtCharts 2.0
+-import QtQuick.Controls 2.15
+-
+-Item {
+-    width: 1024
+-    height: 600
+-    id: controlAndMonitor
+-    property var distanceA: distanceRawA //x
+-    property var plotdataA: voltageRawA //y
+-    property var distanceB: distanceRawB
+-    property var plotdataB: voltageRawB
+-    property var distanceC: distanceRawC
+-    property var plotdataC: voltageRawC
+-    property var distancepatternA: distancePatternA
+-    property var plotdatapatternA: voltagePatternA
+-    property var distancepatternB: distancePatternB
+-    property var plotdatapatternB: voltagePatternB
+-    property var distancepatternC: distancePatternC
+-    property var plotdatapatternC: voltagePatternC
+-    property int timestep: 0
+-    property double movetoleft: cursorleft
+-    property var pointerX_graphA: distancePointA
+-    property var pointerY_graphA: 0
+-    property int globalNum: 0
+-    property int numberOfTagging: numOfTagging
+-    property var globalMaxY : 4095;
+-    property var globalMinY : 0;
+-    property int lengthOfVoltageA: plotdataA.length
+-    property var testX_graphA : plotDataAX1;
+-    property var testY_graphA : plotDataAY1;
+-    property bool newListDataTagging:newListDataTaggingTables
+-//    property bool checked:list_statusA
+-
+-//     สำหรับ RawDataA
+-    onPlotdataAChanged: {
+-        try {
+-            if (!plotdataA || !distanceA || plotdataA.length !== distanceA.length) {
+-                console.error("Data is missing or lengths do not match!");
+-                return;
+-            }
+-            console.log("PlotdataA Length:", plotdataA.length);
+-            console.log("DistanceA Length:", distanceA.length);
+-            seriesRawA.clear();
+-            var hasValidPoints = false;
+-            for (var i = 0; i < plotdataA.length; i++) {
+-                if (isFinite(plotdataA[i]) && isFinite(distanceA[i])) {
+-                    seriesRawA.append(distanceA[i], plotdataA[i]);
+-                    hasValidPoints = true;
+-                } else {
+-                    console.warn(`Skipping invalid point: distanceA[${i}] = ${distanceA[i]}, plotdataA[${i}] = ${plotdataA[i]}`);
+-                }
+-            }
+-            if (!hasValidPoints) {
+-                console.warn("No valid points found to plot!");
+-                return;
+-            }
+-            adjustAxes(distanceA, [plotdataA]);
+-
+-//            var closestX = null;
+-//            var closestY = null;
+-//            var closestIndex = -1;
+-//            var minDiff = Number.MAX_VALUE;
+-
+-//            for (var i = 0; i < distanceA.length; i++) {
+-//                var diff = Math.abs(distanceA[i] - pointerX_graphA);
+-//                if (diff < minDiff) {
+-//                    minDiff = diff;
+-//                    closestIndex = i;
+-//                }
+-//            }
+-
+-//            if (closestIndex !== -1) {
+-//                closestX = distanceA[closestIndex];
+-//                closestY = plotdataA[closestIndex];
+-//            }
+-
+-//            console.log("Closest match for tagging:", pointerX_graphA, "->", closestX);
+-//            console.log("Mapped Y value:", closestY,numberOfTagging);
+-//            updateListModelWithClosestData(closestX,closestY);
+-//            if (isFinite(closestX) && isFinite(closestY)) {
+-//                updateListModelWithClosestData(closestX, closestY,numberOfTagging)
+-////             setTimeout(Qt.callLater, 0, updateListModelWithClosestData, closestX, closestY,numberOfTagging);
+-//            } else {
+-//                console.warn("Closest point is invalid! Skipping tagging.");
+-//                return;
+-//            }
+-
+-//            setTimeout(Qt.callLater, 0, updateListModelWithClosestData, closestX, closestY,numberOfTagging);
+-
+-        } catch (e) {
+-            console.error("Error in onPlotdataAChanged:", e);
+-        }
+-    }
+-
+-
+-
+-//    function updateListModelWithClosestData(closestX, closestY) {
+-//        console.error("updateListModelWithClosestData:",closestX, closestY);
+-
+-//        if (newlistdatatebleA.count === 0) {
+-//            console.warn("No data in newlistdatatebleA! Skipping update.");
+-//            return;
+-//        }
+-//        console.log("Updating ListModel with closest values:", closestX, closestY, "TaggingID:", numberOfTagging);
+-//        for (var i = 0; i < newlistdatatebleA.count; i++) {
+-//            console.log("Check_count_newlistdatatebleA:", newlistdatatebleA.count,numberOfTagging);
+-
+-//            if (newlistdatatebleA.get(i).list_numberA === numberOfTagging) {
+-//                newlistdatatebleA.setProperty(i, "ampiltudeVol", closestY);
+-//                console.log("Updated newlistdatatebleA:", i, "ampiltudeVol:", closestY);
+-//                break;
+-//            }
+-//        }
+-//    }
+-
+-//    onPlotdataAChanged: {
+-//        try {
+-//            if (!plotdataA || !distanceA || plotdataA.length !== distanceA.length) {
+-//                console.error("Data is missing or lengths do not match!");
+-//                return;
+-//            }
+-//            console.log("PlotdataA Length:", plotdataA.length);
+-//            console.log("DistanceA Length:", distanceA.length);
+-//            seriesRawA.clear();
+-//            var hasValidPoints = false;
+-//            for (var i = 0; i < plotdataA.length; i++) {
+-//                if (isFinite(plotdataA[i]) && isFinite(distanceA[i])) {
+-//                    seriesRawA.append(distanceA[i], plotdataA[i]);
+-//                    hasValidPoints = true;
+-//                } else {
+-//                    console.warn(`Skipping invalid point: distanceA[${i}] = ${distanceA[i]}, plotdataA[${i}] = ${plotdataA[i]}`);
+-//                }
+-//            }
+-//            if (!hasValidPoints) {
+-//                console.warn("No valid points found to plot!");
+-//                return;
+-//            }
+-//            adjustAxes(distanceA, [plotdataA]);
+-//            var targetX = pointerX_graphA;
+-//            var closestIndex = 0;
+-//            var minDiff = Number.MAX_VALUE;
+-//            for (var i = 0; i < distanceA.length; i++) {
+-//                var diff = Math.abs(distanceA[i] - targetX);
+-//                if (diff < minDiff) {
+-//                    minDiff = diff;
+-//                    closestIndex = i;
+-//                }
+-//            }
+-//            var closestX = distanceA[closestIndex];
+-//            var closestY = plotdataA[closestIndex];
+-//            console.log("Closest match for tagging:", targetX, "->", closestX);
+-//            console.log("Mapped Y value:", closestY);
+-
+-//            if (isFinite(closestX) && isFinite(closestY)) {
+-//                setTimeout(Qt.callLater, 0, showGraphPoint, closestX, closestY);
+-//            } else {
+-//                console.warn("Closest point is invalid! Skipping tagging.");
+-//            }
+-
+-//            for (var i = 0; i < newlistdatatebleA.count; i++) {
+-//                if (newlistdatatebleA.get(i).list_numberA === numberOfTagging) {
+-//                    newlistdatatebleA.setProperty(i, "list_statusA", checked);
+-//                    newlistdatatebleA.setProperty(i, "ampiltudeVol", closestY);
+-//                    console.log("Updated newlistdatatebleA:", i, "list_statusA:", checked, "ampiltudeVol:", closestY);
+-//                    break;
+-//                }
+-//            }
+-
+-//        } catch (e) {
+-//            console.error("Error in onPlotdataAChanged:", e);
+-//        }
+-//    }
+-
+-
+-//    onPlotdataAChanged: {
+-//        try {
+-//            if (plotdataA && distanceA && plotdataA.length === distanceA.length) {
+-//                seriesRawA.clear();
+-//                for (var i = 0; i < plotdataA.length; i++) {
+-//                    if (isFinite(plotdataA[i]) && isFinite(distanceA[i])) {
+-//                        seriesRawA.append(distanceA[i], plotdataA[i]);
+-//                    }
+-
+-//                }
+-//                adjustAxes(distanceA, [plotdataA]);
+-//                axisY.min = 0;
+-//            }
+-//        } catch (e) {
+-//        }
+-//    }
+-//     สำหรับ RawDataB
+-    onPlotdataBChanged: {
+-        try {
+-            if (plotdataB && distanceB && plotdataB.length === distanceB.length) {
+-                seriesRawB.clear();
+-                for (var i = 0; i < plotdataB.length; i++) {
+-                    if (isFinite(plotdataB[i]) && isFinite(distanceB[i])) {
+-                        seriesRawB.append(distanceB[i], plotdataB[i]);
+-                    } else {
+-                    }
+-                }
+-                adjustAxes(distanceB, [plotdataB]); // Adjust the axes for series2
+-                axisY.min = 0;
+-            } else {
+-            }
+-        } catch (e) {
+-        }
+-    }
+-    // สำหรับ RawDataC
+-    onPlotdataCChanged: {
+-        try {
+-            if (plotdataC && distanceC && plotdataC.length === distanceC.length) {
+-                seriesRawC.clear();
+-                for (var i = 0; i < plotdataC.length; i++) {
+-                    if (isFinite(plotdataC[i]) && isFinite(distanceC[i])) {
+-                        seriesRawC.append(distanceC[i], plotdataC[i]);
+-                    } else {
+-                    }
+-                }
+-                adjustAxes(distanceC, [plotdataC]);
+-                axisY.min = 0;
+-            } else {
+-            }
+-        } catch (e) {
+-        }
+-    }
+-
+-    // สำหรับ distancepatternA
+-    onPlotdatapatternAChanged: {
+-        try {
+-            if (plotdatapatternA && distancepatternA && plotdatapatternA.length === distancepatternA.length) {
+-                series1.clear();
+-
+-                for (var i = 0; i < plotdatapatternA.length; i++) {
+-                    if (isFinite(plotdatapatternA[i]) && isFinite(distancepatternA[i])) {
+-                        series1.append(distancepatternA[i], plotdatapatternA[i]);
+-                    }
+-                }
+-                adjustAxes(distancepatternA, [plotdatapatternA]);
+-                axisY.min = 0;
+-            } else {
+-            }
+-        } catch (e) {
+-        }
+-    }
+-
+-    // สำหรับ distancepatternB
+-    onPlotdatapatternBChanged: {
+-        try {
+-            if (plotdatapatternB && distancepatternB && plotdatapatternB.length === distancepatternB.length) {
+-                series2.clear();
+-                for (var i = 0; i < plotdatapatternB.length; i++) {
+-                    if (isFinite(plotdatapatternB[i]) && isFinite(distancepatternB[i])) {
+-                        series2.append(distancepatternB[i], plotdatapatternB[i]);
+-                    }
+-                }
+-                adjustAxes(distancepatternB, [plotdatapatternB]); // Adjust the axes
+-                axisY.min = 0;
+-            } else {
+-            }
+-        } catch (e) {
+-        }
+-    }
+-
+-    // สำหรับ distancepatternC
+-    onPlotdatapatternCChanged: {
+-        try {
+-            if (plotdatapatternC && distancepatternC && plotdatapatternC.length === distancepatternC.length) {
+-                series3.clear(); // Clear existing data for series3
+-                for (var i = 0; i < plotdatapatternC.length; i++) {
+-                    if (isFinite(plotdatapatternC[i]) && isFinite(distancepatternC[i])) {
+-                        series3.append(distancepatternC[i], plotdatapatternC[i]);
+-                    }
+-                }
+-                adjustAxes(distancepatternC, [plotdatapatternC]); // Adjust the axes
+-                axisY.min = 0;
+-            } else {
+-            }
+-        } catch (e) {
+-        }
+-    }
+-
+-    // ฟังก์ชันสำหรับปรับแกน
+-    function adjustAxes(distanceArray, plotArrays) {
+-//        var minX = Math.min.apply(null, distanceArray);
+-        var maxX = Math.max.apply(null, distanceArray);
+-        axisX.min = 0//minX;
+-        axisX.max = maxX;
+-
+-        var allYValues = [];
+-        for (var i = 0; i < plotArrays.length; i++) {
+-            allYValues = allYValues.concat(plotArrays[i]);
+-        }
+-//        var minY = Math.min.apply(null, allYValues);
+-        var maxY = Math.max.apply(null, allYValues);
+-        axisY.min = 0;//minY;
+-        axisY.max = maxY+200;
+-    }
+-    // ฟังก์ชันแสดงจุดบนกราฟ
+-    function clearGraphDataPhaseA() {
+-        distanceA = [];
+-        plotdataA = [];
+-    }
+-    function clearGraphDataPhaseB() {
+-        distanceB = [];
+-        plotdataB = [];
+-    }
+-    function clearGraphDataPhaseC() {
+-        distanceC = [];
+-        plotdataC = [];
+-    }
+-    function clearGraphPatternPhaseA() {
+-        distancepatternA = [];
+-        plotdatapatternA = [];
+-    }
+-    function clearGraphPatternPhaseB() {
+-        distancepatternB = [];
+-        plotdatapatternB = [];
+-    }
+-    function clearGraphPatternPhaseC() {
+-        distancepatternC = [];
+-        plotdatapatternC = [];
+-    }
+-    function replotDataA() {
+-        distanceA=distanceRawA
+-        plotdataA =voltageRawA
+-    }
+-    function replotDataB() {
+-        distanceB =distanceRawB
+-        plotdataB =voltageRawB
+-    }
+-    function replotDataC() {
+-        distanceC =distanceRawC
+-        plotdataC =voltageRawC
+-    }
+-    function replotPatternA() {
+-        distancepatternA = distancePatternA
+-        plotdatapatternA = voltagePatternA
+-    }
+-    function replotPatternB() {
+-        distancepatternB = distancePatternB
+-        plotdatapatternB = voltagePatternB
+-    }
+-    function replotPatternC() {
+-        distancepatternC = distancePatternC
+-        plotdatapatternC = voltagePatternC
+-    }
+-    function cleardisplay() {
+-        seriesRawA.clear();
+-        seriesRawB.clear();
+-        seriesRawC.clear();
+-        series1.clear();
+-        series2.clear();
+-        series3.clear();
+-        distanceA.splice(0, distanceA.length);
+-        plotdataA.splice(0, plotdataA.length);
+-        distanceB.splice(0, distanceB.length);
+-        plotdataB.splice(0, plotdataB.length);
+-        distanceC.splice(0, distanceC.length);
+-        plotdataC.splice(0, plotdataC.length);
+-        distancepatternA.splice(0, distancepatternA.length);
+-        plotdatapatternA.splice(0, plotdatapatternA.length);
+-        distancepatternB.splice(0, distancepatternB.length);
+-        plotdatapatternB.splice(0, plotdatapatternB.length);
+-        distancepatternC.splice(0, distancepatternC.length);
+-        plotdatapatternC.splice(0, plotdatapatternC.length);
+-    }
+-
+-
+-    function clearpattern() {
+-        distancepatternA = [];
+-        plotdatapatternA = [];
+-        distancepatternB = [];
+-        plotdatapatternB = [];
+-        distancepatternC = [];
+-        plotdatapatternC = [];
+-    }
+-
+-    onNewListDataTaggingChanged:
+-    {
+-        if(newlistdatatebleA.count === scatterModel.count){
+-            return
+-        }
+-        console.log("onNewListDataTaggingChanged:", newlistdatatebleA.count);
+-
+-        for (var i = 0; i < newlistdatatebleA.count; i++) {
+-            var mappedPos = chartView.mapToPosition(Qt.point(newlistdatatebleA.get(i).list_distanceA, newlistdatatebleA.get(i).ampiltudeVol), scatter1);
+-            var rawX = mappedPos.x;
+-            var rawY = mappedPos.y;
+-            var rawNumber = newlistdatatebleA.get(i).list_numberA;
+-
+-            console.log(`Processing_item_listModel${i}: RawX=${rawX}, RawY=${rawY}, Number=${rawNumber}`);
+-
+-            scatterModel.append({
+-                "x": rawX,
+-                "y": rawY,
+-                "text": rawNumber,
+-                "status": newlistdatatebleA.get(i).list_statusA,
+-                "phaseABC" : newlistdatatebleA.get(i).list_phaseA
+-            });
+-        }
+-    }
+-
+-
+-//    onNewListDataTaggingChanged: {
+-//        if(newlistdatatebleA.count === scatterModel.count){
+-//            return
+-//        }
+-//        console.log("Component_onCompleted_newlistdatatebleA:", newlistdatatebleA.count,newlistdatatebleA.get(i).ampiltudeVol);
+-//        for (var i = 0; i < newlistdatatebleA.count; i++) {
+-////            scatter1.append(newlistdatatebleA.get(i).list_distanceA,10000);
+-//            var mappedPos = chartView.mapToPosition(Qt.point(newlistdatatebleA.get(i).list_distanceA, newlistdatatebleA.get(i).ampiltudeVol), scatter1);
+-//            console.log("mappedPos:", mappedPos.x,mappedPos.y);
+-//            scatterModel.append({
+-//                "x": mappedPos.x,
+-//                "y": newlistdatatebleA.get(i).ampiltudeVol,//mappedPos.y
+-//                "text" : newlistdatatebleA.get(i).list_numberA,
+-//                "status":newlistdatatebleA.get(i).list_statusA
+-//            });
+-//        }
+-//    }
+-//    onNewListDataTaggingChanged: {
+-//        if(newlistdatatebleA.count === scatterModel.count){
+-//            return
+-//        }
+-//        console.log("Component_onCompleted_newlistdatatebleA:", newlistdatatebleA.count,newlistdatatebleA.get(i).ampiltudeVol);
+-//        for (var i = 0; i < newlistdatatebleA.count; i++) {
+-////            scatter1.append(newlistdatatebleA.get(i).list_distanceA,10000);
+-//            var mappedPos = chartView.mapToPosition(Qt.point(newlistdatatebleA.get(i).list_distanceA, newlistdatatebleA.get(i).ampiltudeVol), scatter1);
+-//            console.log("mappedPos:", mappedPos.x,mappedPos.y);
+-//            scatterModel.append({
+-//                "x": mappedPos.x,
+-//                "y": newlistdatatebleA.get(i).ampiltudeVol,//mappedPos.y
+-//                "text" : newlistdatatebleA.get(i).list_numberA,
+-//                "status":newlistdatatebleA.get(i).list_statusA
+-//            });
+-//        }
+-//    }
+-    // กราฟ
+-    ChartView {
+-        id: chartView
+-        anchors.fill: parent
+-        anchors.topMargin: 44
+-        anchors.bottomMargin: 213
+-        backgroundColor: "#000000"
+-        legend.labelColor: "white"
+-        legend.visible: false
+-
+-        property bool openGL: true
+-        ScatterSeries {
+-            id: scatter1
+-            axisX: axisX
+-            axisY: axisY
+-            visible: false
+-        }
+-
+-        Repeater {
+-            model: scatterModel
+-            delegate: PointerTagging {
+-                number: model.text
+-                dataReceived: model.status
+-                phase: phaseABC
+-                width: 50
+-                height: 50
+-                x: model.x
+-                y: model.y
+-            }
+-        }
+-
+-//        onOpenGLChanged: {
+-//            if (openGL) {
+-//                console.log("OpenGL is enabled for faster rendering.");
+-//            } else {
+-//                console.log("OpenGL is disabled. Rendering may be slower.");
+-//            }
+-//            seriesRawA.useOpenGL = openGL;
+-//        }
+-
+-
+-        ValueAxis {
+-            id: axisX
+-            min: 0
+-            max: 100
+-            tickCount: 10
+-            titleText: "<font color='#ffffff'>Distance (Km)</font>"
+-            titleFont.bold: true
+-            titleFont.pixelSize: 16
+-            labelsVisible: true
+-            gridVisible: false
+-            color: "#ffffff"
+-            labelsColor: "#ffffff"
+-            labelsFont.pixelSize: 14
+-        }
+-
+-        ValueAxis {
+-            id: axisY
+-            min: 0 // Ensure Y-axis starts at 0
+-            max: 4096
+-            titleText: "<font color='#ffffff'>Voltage (mV)</font>"
+-            titleFont.bold: true
+-            titleFont.pixelSize: 16
+-            labelsVisible: true
+-            gridVisible: false
+-            color: "#ffffff"
+-            labelsColor: "#ffffff"
+-            labelsFont.pixelSize: 14
+-        }
+-
+-        // Phase A
+-        LineSeries {
+-            id: series1
+-            axisX: axisX
+-            axisY: axisY
+-//            name: "Pattern A"
+-            color: "#f7cbac"
+-            width: 3
+-
+-        }
+-        LineSeries {
+-            id: series2
+-            axisX: axisX
+-            axisY: axisY
+-//            name: "Pattern B"
+-            color: "#bc9121"
+-            width: 3
+-        }
+-        // Phase C
+-        LineSeries {
+-            id: series3
+-            axisX: axisX
+-            axisY: axisY
+-//            name: "Pattern C"
+-            color: "#bed6ed"
+-            width: 3
+-        }
+-
+-        // Phase Data A
+-        LineSeries {
+-            id: seriesRawA
+-            axisX: axisX
+-            axisY: axisY
+-            color: "#fd2d1d"
+-            width: 3
+-//            useOpenGL: chartView.openGL
+-        }
+-
+-        // Phase Data B
+-        LineSeries {
+-            id: seriesRawB
+-            axisX: axisX
+-            axisY: axisY
+-//            name: "Data B"
+-            color: "#fcff3b"
+-            width: 3
+-        }
+-        // Phase Data C
+-        LineSeries {
+-            id: seriesRawC
+-            axisX: axisX
+-            axisY: axisY
+-//            name: "Data C"
+-            color: "#0088ff"
+-            width: 3
+-        }
+-
+-        Rectangle {
+-            id: cursor
+-            width: 1
+-            height: 20 // chart.height
+-            color: "#ffffff"
+-            anchors.top: chartView.top
+-            anchors.bottom: chartView.bottom
+-            anchors.bottomMargin: 72
+-            x: chartView.width / 2
+-            y: chartView.height
+-            property double distance: 0.0
+-            property double voltage: 0.0 // แก้ไขการรับรู้ของค่า voltage
+-
+-            Component.onCompleted: {
+-                cursor.distance = axisX.min + (cursor.x / chartView.width) * (axisX.max - axisX.min );
+-                cursor.voltage = axisY.min + (cursor.y / chartView.height) * (axisY.max - axisY.min ); // คำนวณค่า voltage
+-            }
+-
+-            Timer {
+-                id: initialTimer
+-                interval: 100
+-                running: true
+-                repeat: false
+-
+-                onTriggered: {
+-                    var initialPosition = '{"objectName":"distance", "distance": ' + cursor.distance.toFixed(2)+'}';
+-                    qmlCommand(initialPosition);
+-                }
+-            }
+-
+-            MouseArea {
+-                id: dragArea
+-                anchors.fill: parent
+-                anchors.topMargin: 0
+-                anchors.leftMargin: -25
+-                anchors.rightMargin: -25
+-                cursorShape: Qt.OpenHandCursor
+-                drag.target: cursor
+-                property double safeMargin: 0.0
+-                property double graphStartOffset: 0.0
+-                property double graphEndX: 0.0
+-                property double graphEndY: 0.0
+-
+-
+-                onPositionChanged: {
+-                    safeMargin = 41.53; // ถ้ามากขึ้น cursor จะขยับเข้ามาทางซ้าย
+-                    graphStartOffset = 95.25; // ถ้ามากขึ้นจะขยับเข้าใกล้ 0
+-                    graphEndX = chartView.width - safeMargin;
+-                    cursor.x = Math.max(graphStartOffset, Math.min(cursor.x, graphEndX - cursor.width));
+-
+-                    // คำนวณค่า distance และ voltage จากแกน X และ Y
+-                    cursor.distance = axisX.min + ((cursor.x - graphStartOffset) / (graphEndX - graphStartOffset)) * (axisX.max - axisX.min);
+-                    cursor.voltage = axisY.min + ((cursor.y - chartView.top) / chartView.height) * (axisY.max - axisY.min); // คำนวณค่า voltage จากตำแหน่ง Y
+-                    var positionDistance = '{"objectName":"distance", "distance": ' + cursor.distance.toFixed(2) +'}';
+-                    qmlCommand(positionDistance);
+-                }
+-
+-                onReleased: {
+-//                    console.log("Cursor moved to Distance (Km):", cursor.distance.toFixed(2), " Voltage (mV):", cursor.voltage.toFixed(2));
+-                }
+-            }
+-        }
+-    }
+-
+-    Cursorcontrol {
+-        id: cursorcontrol
+-        anchors.fill: parent
+-        anchors.bottomMargin: 0
+-        anchors.leftMargin: 651
+-        anchors.topMargin: 380
+-    }
+-
+-    DataStatusInfo {
+-        id: dataStatusInfo
+-        x: 0
+-        y: 380
+-        width: 650
+-        height: 220
+-    }
+-
+-    Rectangle {
+-        id: datafilename
+-        color: "#f2f2f2"
+-        radius: 5
+-        border.color: "#9b9b9b"
+-        anchors.fill: parent
+-        anchors.rightMargin: 214
+-        anchors.bottomMargin: 510
+-        anchors.leftMargin: 615
+-        anchors.topMargin: 60
+-
+-        Text {
+-            id: textdatafilename
+-            text: qsTr("Text")
+-            anchors.fill: parent
+-            font.pixelSize: 12
+-            horizontalAlignment: Text.AlignHCenter
+-            verticalAlignment: Text.AlignVCenter
+-        }
+-    }
+-
+-    Rectangle {
+-        id: patternfilename
+-        color: "#bfbfbf"
+-        radius: 5
+-        border.color: "#9b9b9b"
+-        anchors.fill: parent
+-        anchors.leftMargin: 816
+-        anchors.topMargin: 60
+-        anchors.rightMargin: 13
+-        anchors.bottomMargin: 510
+-
+-        Text {
+-            id: textpatternfilename
+-            text: qsTr("Text")
+-            anchors.fill: parent
+-            font.pixelSize: 12
+-            horizontalAlignment: Text.AlignHCenter
+-            verticalAlignment: Text.AlignVCenter
+-        }
+-    }
+-}
+diff --git a/media/pp/FE82-3B71/update_iTouch/iTouch_ver5/DataStoragePage.qml b/media/pp/FE82-3B71/iTouch_28082025/iTouch_ver5/DataStoragePage.qml
+index 9c3c7c6..290cd21 100755
+--- a/media/pp/FE82-3B71/update_iTouch/iTouch_ver5/DataStoragePage.qml
++++ b/media/pp/FE82-3B71/iTouch_28082025/iTouch_ver5/DataStoragePage.qml
+@@ -4,6 +4,7 @@ import QtQuick.Layouts 1.15
+ import QtWebSockets 1.0
+ import QtQuick.Extras 1.4
+ import QtQuick.Controls 1.4
++import QtQuick.Controls.Styles 1.4
+ 
+ Item {
+     width: 1024
+@@ -11,8 +12,8 @@ Item {
+     TabView {
+         anchors.fill: parent
+         anchors.bottomMargin: 0
+-        anchors.rightMargin: 0
+-        anchors.leftMargin: 0
++        anchors.rightMargin: 8
++        anchors.leftMargin: 9
+         anchors.topMargin: 59
+         Tab{
+             title: "PATTERN"
+@@ -57,6 +58,24 @@ Item {
+                 anchors.fill: parent
+             }
+         }
++        style: TabViewStyle {
++            tab: Rectangle {
++                implicitWidth: 252
++                implicitHeight: 65
++                color: styleData.selected ? "white" : "#d3d3d3"
++                border.color: "black"
++                radius: 5
++                Text {
++                    text: styleData.title
++                    anchors.centerIn: parent
++//                    font.bold: true
++                    font.pixelSize: 20
++                    horizontalAlignment: Text.AlignHCenter
++                    verticalAlignment: Text.AlignVCenter
++                    color: styleData.selected ? "black" : "#555"
++                }
++            }
++        }
+     }
+ 
+ 
+diff --git a/media/pp/FE82-3B71/update_iTouch/iTouch_ver5/DataTaggingPhaseA.qml b/media/pp/FE82-3B71/iTouch_28082025/iTouch_ver5/DataTaggingPhaseA.qml
+index 102375d..56026c0 100755
+--- a/media/pp/FE82-3B71/update_iTouch/iTouch_ver5/DataTaggingPhaseA.qml
++++ b/media/pp/FE82-3B71/iTouch_28082025/iTouch_ver5/DataTaggingPhaseA.qml
+@@ -23,12 +23,14 @@ Item {
+     property bool focustextInformation: inputPanel.visible
+     property string textforinformation:  textInformation.text
+     property bool tablestatus: statusA
+-    property int tablenumber: numberA
++    property int tablenumber: list_numberA
+     property double tabledistance: distanceA
+     property string tabledetail: detailA
+     property string tablephase: phaseA
+     property int tablenumlist: num_listA
+     property int selectedRowIndex: -1
++    property bool checked: list_statusA
++
+     //    property var checkedStates: false
+ 
+     onFocustextInformationChanged: {
+@@ -65,19 +67,22 @@ Item {
+         anchors.bottomMargin: 127
+         anchors.leftMargin: 0
+         anchors.topMargin: 34
+-        ListView{
+-            model:newlistdatatebleA
++        ListView {
++            model: newlistdatatebleA
++            width: parent.width
++            height: parent.height
++            clip: true
+             anchors.fill: parent
+-            anchors.topMargin: 0
+-            delegate:CheckBoxTagging {
+-                width: parent.width
+-                height:50
+-                taggingID:list_numberA
+-                checked:list_statusA
+-                distance:list_distanceA
+-                detail:list_detailA
++            delegate: CheckBoxTagging {
++                width: ListView.view.width
++                height: 50
++                taggingID: list_numberA
++                checked: list_statusA
++                distance: list_distanceA
++                detail: list_detailA
+             }
+         }
++
+     }
+ 
+     Row {
+@@ -98,7 +103,7 @@ Item {
+                 Layout.fillWidth: true
+                 Layout.preferredHeight: 40
+                 font.pointSize: 11
+-                placeholderText: qsTr("Enter DISTANCE")
++                placeholderText: qsTr("Enter DISTANCE") ? distanceA : qsTr("Enter DISTANCE")
+                 width: 150
+                 height: 35
+                 focus: false
+@@ -128,7 +133,7 @@ Item {
+                 Layout.fillWidth: true
+                 Layout.preferredHeight: 40
+                 font.pointSize: 11
+-                placeholderText: qsTr("Enter DETAIL")
++                placeholderText: qsTr("Enter DETAIL") ? detailA : qsTr("Enter DETAIL")
+                 width: 300
+                 height: 35
+                 focus: false
+@@ -173,36 +178,47 @@ Item {
+                 qmlCommand(dataTagging);
+             }
+         }
+-
+         Button {
+             text: "EDIT"
+             onClicked: {
+-                console.log("edit:", checkedStates, newlistdatatebleA.num_listA,num_listA,numberA);
+-                if (checkedStates === true) {
+-                    var numListA = num_listA;
+-                    var editPhaseA = '{"objectName":"editDataPhaseA","checkedStates":'+checkedStates +', "num_listA":'+newlistdatatebleA.num_listA +', "PHASE": "A"}';
+-                    console.log("editDataPhaseA", editPhaseA, num_listA);
+-                    qmlCommand(editPhaseA);
+-                }
++                var firstItem = newlistdatatebleA.get(0);
++                console.log("Edit:", checked,tablenumber);
++                var editPhaseA = '{"objectName":"editDataPhaseA","checkedStates":'+ checked+', "num_listA":'+tablenumber+', "PHASE": "A"}';
++                console.log("editDataPhaseA:", editPhaseA);
++                qmlCommand(editPhaseA);
+             }
+         }
+-
++//        Button {
++//            text: "EDIT"
++//            onClicked: {
++//                console.log("edit:", checked);
++//                var numListA = num_listA;
++//                var editPhaseA = '{"objectName":"editDataPhaseA","checkedStates":'+checked +', "num_listA":'+numberA+', "PHASE": "A"}';
++//                console.log("editDataPhaseA", editPhaseA, num_listA);
++//                qmlCommand(editPhaseA);
++//            }
++//        }
+         Button {
+             text: "SAVE"
+-            onClicked: console.log("Save button clicked.")
++            onClicked: {
++                console.log("SAVE:", checked, newlistdatatebleA.num_listA,num_listA,numberA);
++                var numListA = num_listA;
++                var saveDataTaggingA = '{"objectName":"saveDataTagingA","Distance": ' + distanceValue + ',"Detail": "' + detailValue + '", "PHASE": "A"}';
++                console.log("saveDataTagingA", editPhaseA, num_listA);
++                qmlCommand(saveDataTaggingA);
++
++            }
+         }
+ 
+         Button {
+             text: "DELETE"
+             onClicked: {
+-                console.log("Deleted:", checkedStates, newlistdatatebleA.num_listA, num_listA, numberA);
+-                if (checkedStates === true) {
+-                    // var numList = parseInt(newlistdatateble.num_list);
+-                    var numListA = num_listA;
+-                    var delectmySQL = '{"objectName":"delectmysqlA","checkedStates":'+checkedStates +',"num_listA":'+newlistdatatebleA.num_listA +'}';
+-                    console.log("delectmySQLA", delectmySQL, numListA);
+-                    //                    qmlCommand(delectmySQL);
+-                }
++                console.log("Deleted:", checked, newlistdatatebleA.num_listA, num_listA, numberA);
++                // var numList = parseInt(newlistdatateble.num_list);
++                var numListA = num_listA;
++                var delectmySQL = '{"objectName":"delectmysqlA","checkedStates":'+checkedStates +',"num_listA":'+newlistdatatebleA.num_listA +'}';
++                console.log("delectmySQLA", delectmySQL, numListA);
++                //                    qmlCommand(delectmySQL);
+             }
+         }
+     }
+diff --git a/media/pp/FE82-3B71/update_iTouch/iTouch_ver5/PointerTagging.qml b/media/pp/FE82-3B71/iTouch_28082025/iTouch_ver5/PointerTagging.qml
+index 3df0db6..0098131 100755
+--- a/media/pp/FE82-3B71/update_iTouch/iTouch_ver5/PointerTagging.qml
++++ b/media/pp/FE82-3B71/iTouch_28082025/iTouch_ver5/PointerTagging.qml
+@@ -2,66 +2,61 @@ import QtQuick 2.0
+ import QtQuick.Controls 2.15
+ import QtGraphicalEffects 1.12
+ Item {
+-    width: 50
+-    height: 50
++    width: 60
++    height: 60
+     property int number: 0
+-    property bool dataReceived: true
+-    //    property real distance: globalDistanceA
++    property bool dataReceived: false
++//    property real distance: globalDistanceA
++    property real positionX: 50
++    property real positionY: 50
+     property string phase: ""
+ 
+-    Rectangle {
+-        id: rectangle
+-        color: "#00000000"
++
++    ToolButton {
++        id: taggingpointer
+         anchors.fill: parent
+         visible: dataReceived
+-        //        ToolButton {
+-        //            id: taggingpointer
+-        //            anchors.fill: parent
+-        //            contentItem:
+-        //                Rectangle {
+-        //                color: "#00000000"
+-        //                border.color: "#00000000"
+-        Image {
++        contentItem: Image {
+             id:tagging
+-            width: 50
+-            height: 50
+-            anchors.right: parent.right
+-            anchors.top: parent.top
+-            source: phase == "A" ? "images/pinPointerTaggingA.png" :  phase == "B" ? "images/pinPointerTaggingB.png" : "images/pinPointerTaggingC.png"
+-            anchors.topMargin: -50
+-            anchors.rightMargin: 25
++            width: 60
++            height: 60
++            source: "images/pinPointerTaggingA.png"
+             fillMode: Image.PreserveAspectFit
+             smooth: true
+-
+-            Text {
+-                id: numberText
+-                x: 14
+-                y: 8
+-                anchors.fill: parent
+-                font.pixelSize: 15
+-                horizontalAlignment: Text.AlignHCenter
+-                verticalAlignment: Text.AlignVCenter
+-                anchors.horizontalCenterOffset: 14
+-                anchors.leftMargin: 14
+-                anchors.rightMargin: 16
+-                anchors.topMargin: 8
+-                anchors.bottomMargin: 26
+-                anchors.horizontalCenter: parent.horizontalCenter
+-                color: "black"
+-                text: number
+-                z: 1
+-                visible: dataReceived
++            ColorOverlay {
++                anchors.fill: tagging
++                source: tagging
++                color: "#FF0000"
+             }
+         }
++        background: Rectangle {
++            color: "#00000000"
++            border.color: "#00000000"
++        }
+     }
+-    //        }
+ 
++    Text {
++        id: numberText
++        text: number
++        anchors.fill: parent
++        font.pixelSize: 15
++        horizontalAlignment: Text.AlignHCenter
++        verticalAlignment: Text.AlignVCenter
++        anchors.horizontalCenterOffset: 14
++        anchors.leftMargin: 14
++        anchors.rightMargin: 14
++        anchors.topMargin: 8
++        anchors.bottomMargin: 27
++        anchors.horizontalCenter: parent.horizontalCenter
++        color: "#000000"
++        z: 1
++        visible: dataReceived
++    }
+ 
+-    //    }
+ }
+ 
+ /*##^##
+ Designer {
+-    D{i:0;formeditorZoom:6}D{i:3}D{i:2}D{i:1}
++    D{i:0;formeditorZoom:3}
+ }
+ ##^##*/
+diff --git a/media/pp/FE82-3B71/iTouch_28082025/iTouch_ver5/PointerTagging.qml.autosave b/media/pp/FE82-3B71/iTouch_28082025/iTouch_ver5/PointerTagging.qml.autosave
+new file mode 100755
+index 0000000..3df0db6
+--- /dev/null
++++ b/media/pp/FE82-3B71/iTouch_28082025/iTouch_ver5/PointerTagging.qml.autosave
+@@ -0,0 +1,67 @@
++import QtQuick 2.0
++import QtQuick.Controls 2.15
++import QtGraphicalEffects 1.12
++Item {
++    width: 50
++    height: 50
++    property int number: 0
++    property bool dataReceived: true
++    //    property real distance: globalDistanceA
++    property string phase: ""
++
++    Rectangle {
++        id: rectangle
++        color: "#00000000"
++        anchors.fill: parent
++        visible: dataReceived
++        //        ToolButton {
++        //            id: taggingpointer
++        //            anchors.fill: parent
++        //            contentItem:
++        //                Rectangle {
++        //                color: "#00000000"
++        //                border.color: "#00000000"
++        Image {
++            id:tagging
++            width: 50
++            height: 50
++            anchors.right: parent.right
++            anchors.top: parent.top
++            source: phase == "A" ? "images/pinPointerTaggingA.png" :  phase == "B" ? "images/pinPointerTaggingB.png" : "images/pinPointerTaggingC.png"
++            anchors.topMargin: -50
++            anchors.rightMargin: 25
++            fillMode: Image.PreserveAspectFit
++            smooth: true
++
++            Text {
++                id: numberText
++                x: 14
++                y: 8
++                anchors.fill: parent
++                font.pixelSize: 15
++                horizontalAlignment: Text.AlignHCenter
++                verticalAlignment: Text.AlignVCenter
++                anchors.horizontalCenterOffset: 14
++                anchors.leftMargin: 14
++                anchors.rightMargin: 16
++                anchors.topMargin: 8
++                anchors.bottomMargin: 26
++                anchors.horizontalCenter: parent.horizontalCenter
++                color: "black"
++                text: number
++                z: 1
++                visible: dataReceived
++            }
++        }
++    }
++    //        }
++
++
++    //    }
++}
++
++/*##^##
++Designer {
++    D{i:0;formeditorZoom:6}D{i:3}D{i:2}D{i:1}
++}
++##^##*/
+diff --git a/media/pp/FE82-3B71/update_iTouch/iTouch_ver5/TaggingPointer.qml b/media/pp/FE82-3B71/iTouch_28082025/iTouch_ver5/TaggingPointer.qml
+index 912b780..5f742c7 100755
+--- a/media/pp/FE82-3B71/update_iTouch/iTouch_ver5/TaggingPointer.qml
++++ b/media/pp/FE82-3B71/iTouch_28082025/iTouch_ver5/TaggingPointer.qml
+@@ -36,8 +36,8 @@ Item {
+ 
+                 var validPlotdata = plotdata.filter(isFinite);
+                 if (validPlotdata.length > 0) {
+-                    axisY.min = 0;//Math.min.apply(null, validPlotdata);
+-                    axisY.max = Math.max.apply(null, validPlotdata)+200;
++                    axisY.min = Math.min.apply(null, validPlotdata);
++                    axisY.max = Math.max.apply(null, validPlotdata);
+                 }
+             } else {
+                 console.log("Mismatch in data length or data is missing");
+diff --git a/media/pp/FE82-3B71/update_iTouch/iTouch_ver5/iTouch.pro b/media/pp/FE82-3B71/iTouch_28082025/iTouch_ver5/iTouch.pro
+index ccc4f9b..6fb167f 100755
+--- a/media/pp/FE82-3B71/update_iTouch/iTouch_ver5/iTouch.pro
++++ b/media/pp/FE82-3B71/iTouch_28082025/iTouch_ver5/iTouch.pro
+@@ -8,7 +8,6 @@ QT += serialbus
+ QT += virtualkeyboard
+ QT += charts qml quick
+ DEFINES += QT_DEPRECATED_WARNINGS
+-DEFINES += QT_NO_DEBUG_OUTPUT
+ QT += quick serialport charts
+ #TARGET = VNCiTouch
+ 
+diff --git a/media/pp/FE82-3B71/update_iTouch/iTouch_ver5/iTouch.pro.user b/media/pp/FE82-3B71/iTouch_28082025/iTouch_ver5/iTouch.pro.user
+index 746e3dc..6225d8b 100755
+--- a/media/pp/FE82-3B71/update_iTouch/iTouch_ver5/iTouch.pro.user
++++ b/media/pp/FE82-3B71/iTouch_28082025/iTouch_ver5/iTouch.pro.user
+@@ -1,10 +1,10 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+ <!DOCTYPE QtCreatorProject>
+-<!-- Written by QtCreator 6.0.3, 2025-02-28T11:08:36. -->
++<!-- Written by QtCreator 5.0.2, 2025-02-28T11:45:08. -->
+ <qtcreator>
+  <data>
+   <variable>EnvironmentId</variable>
+-  <value type="QByteArray">{888cc9b4-3fa4-4dde-b737-b4ce8ccdc2f2}</value>
++  <value type="QByteArray">{97085557-81e6-4030-af9e-c807343ad196}</value>
+  </data>
+  <data>
+   <variable>ProjectExplorer.Project.ActiveTarget</variable>
+@@ -51,7 +51,7 @@
+    <value type="bool" key="EditorConfiguration.addFinalNewLine">true</value>
+    <value type="bool" key="EditorConfiguration.cleanIndentation">true</value>
+    <value type="bool" key="EditorConfiguration.cleanWhitespace">true</value>
+-   <value type="QByteArray" key="EditorConfiguration.ignoreFileTypes">*.md, *.MD, Makefile</value>
++   <value type="QString" key="EditorConfiguration.ignoreFileTypes">*.md, *.MD, Makefile</value>
+    <value type="bool" key="EditorConfiguration.inEntireDocument">false</value>
+    <value type="bool" key="EditorConfiguration.skipTrailingWhitespace">true</value>
+   </valuemap>
+@@ -70,6 +70,19 @@
+    <valuemap type="QVariantMap" key="AutoTest.CheckStates"/>
+    <value type="int" key="AutoTest.RunAfterBuild">0</value>
+    <value type="bool" key="AutoTest.UseGlobal">true</value>
++   <valuelist type="QVariantList" key="ClangCodeModel.CustomCommandLineKey"/>
++   <value type="bool" key="ClangCodeModel.UseGlobalConfig">true</value>
++   <value type="QString" key="ClangCodeModel.WarningConfigId">Builtin.BuildSystem</value>
++   <valuemap type="QVariantMap" key="ClangTools">
++    <value type="bool" key="ClangTools.AnalyzeOpenFiles">true</value>
++    <value type="bool" key="ClangTools.BuildBeforeAnalysis">true</value>
++    <value type="QString" key="ClangTools.DiagnosticConfig">Builtin.DefaultTidyAndClazy</value>
++    <value type="int" key="ClangTools.ParallelJobs">16</value>
++    <valuelist type="QVariantList" key="ClangTools.SelectedDirs"/>
++    <valuelist type="QVariantList" key="ClangTools.SelectedFiles"/>
++    <valuelist type="QVariantList" key="ClangTools.SuppressedDiagnostics"/>
++    <value type="bool" key="ClangTools.UseGlobalSettings">true</value>
++   </valuemap>
+   </valuemap>
+  </data>
+  <data>
+@@ -78,14 +91,14 @@
+    <value type="QString" key="DeviceType">GenericLinuxOsType</value>
+    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DefaultDisplayName">RaspberryPi</value>
+    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">RaspberryPi</value>
+-   <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">{3e995606-c6eb-4c02-bb8a-62678f2f420d}</value>
++   <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">{d231bb02-9d5a-4ed7-b935-f47c64cde697}</value>
+    <value type="int" key="ProjectExplorer.Target.ActiveBuildConfiguration">0</value>
+    <value type="int" key="ProjectExplorer.Target.ActiveDeployConfiguration">0</value>
+    <value type="int" key="ProjectExplorer.Target.ActiveRunConfiguration">0</value>
+    <valuemap type="QVariantMap" key="ProjectExplorer.Target.BuildConfiguration.0">
+     <value type="int" key="EnableQmlDebugging">0</value>
+-    <value type="QString" key="ProjectExplorer.BuildConfiguration.BuildDirectory">/media/ubuntu/Piyanon/raspberrypi/QtProject/iTouch_28082025/build-iTouch-RaspberryPi-Debug</value>
+-    <value type="QString" key="ProjectExplorer.BuildConfiguration.BuildDirectory.shadowDir">/media/ubuntu/Piyanon/raspberrypi/QtProject/iTouch_28082025/build-iTouch-RaspberryPi-Debug</value>
++    <value type="QString" key="ProjectExplorer.BuildConfiguration.BuildDirectory">/home/pp/build-iTouch-RaspberryPi-Debug</value>
++    <value type="QString" key="ProjectExplorer.BuildConfiguration.BuildDirectory.shadowDir">/home/pp/build-iTouch-RaspberryPi-Debug</value>
+     <valuemap type="QVariantMap" key="ProjectExplorer.BuildConfiguration.BuildStepList.0">
+      <valuemap type="QVariantMap" key="ProjectExplorer.BuildStepList.Step.0">
+       <value type="bool" key="ProjectExplorer.BuildStep.Enabled">true</value>
+@@ -116,15 +129,14 @@
+     <value type="int" key="ProjectExplorer.BuildConfiguration.BuildStepListCount">2</value>
+     <value type="bool" key="ProjectExplorer.BuildConfiguration.ClearSystemEnvironment">false</value>
+     <valuelist type="QVariantList" key="ProjectExplorer.BuildConfiguration.CustomParsers"/>
+-    <value type="bool" key="ProjectExplorer.BuildConfiguration.ParseStandardOutput">false</value>
+     <valuelist type="QVariantList" key="ProjectExplorer.BuildConfiguration.UserEnvironmentChanges"/>
+     <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">Debug</value>
+     <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">Qt4ProjectManager.Qt4BuildConfiguration</value>
+     <value type="int" key="Qt4ProjectManager.Qt4BuildConfiguration.BuildConfiguration">2</value>
+    </valuemap>
+    <valuemap type="QVariantMap" key="ProjectExplorer.Target.BuildConfiguration.1">
+-    <value type="QString" key="ProjectExplorer.BuildConfiguration.BuildDirectory">/media/ubuntu/Piyanon/raspberrypi/QtProject/iTouch_28082025/build-iTouch-RaspberryPi-Release</value>
+-    <value type="QString" key="ProjectExplorer.BuildConfiguration.BuildDirectory.shadowDir">/media/ubuntu/Piyanon/raspberrypi/QtProject/iTouch_28082025/build-iTouch-RaspberryPi-Release</value>
++    <value type="QString" key="ProjectExplorer.BuildConfiguration.BuildDirectory">/home/pp/build-iTouch-RaspberryPi-Release</value>
++    <value type="QString" key="ProjectExplorer.BuildConfiguration.BuildDirectory.shadowDir">/home/pp/build-iTouch-RaspberryPi-Release</value>
+     <valuemap type="QVariantMap" key="ProjectExplorer.BuildConfiguration.BuildStepList.0">
+      <valuemap type="QVariantMap" key="ProjectExplorer.BuildStepList.Step.0">
+       <value type="bool" key="ProjectExplorer.BuildStep.Enabled">true</value>
+@@ -155,7 +167,6 @@
+     <value type="int" key="ProjectExplorer.BuildConfiguration.BuildStepListCount">2</value>
+     <value type="bool" key="ProjectExplorer.BuildConfiguration.ClearSystemEnvironment">false</value>
+     <valuelist type="QVariantList" key="ProjectExplorer.BuildConfiguration.CustomParsers"/>
+-    <value type="bool" key="ProjectExplorer.BuildConfiguration.ParseStandardOutput">false</value>
+     <valuelist type="QVariantList" key="ProjectExplorer.BuildConfiguration.UserEnvironmentChanges"/>
+     <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">Release</value>
+     <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">Qt4ProjectManager.Qt4BuildConfiguration</value>
+@@ -164,8 +175,8 @@
+    </valuemap>
+    <valuemap type="QVariantMap" key="ProjectExplorer.Target.BuildConfiguration.2">
+     <value type="int" key="EnableQmlDebugging">0</value>
+-    <value type="QString" key="ProjectExplorer.BuildConfiguration.BuildDirectory">/media/ubuntu/Piyanon/raspberrypi/QtProject/iTouch_28082025/build-iTouch-RaspberryPi-Profile</value>
+-    <value type="QString" key="ProjectExplorer.BuildConfiguration.BuildDirectory.shadowDir">/media/ubuntu/Piyanon/raspberrypi/QtProject/iTouch_28082025/build-iTouch-RaspberryPi-Profile</value>
++    <value type="QString" key="ProjectExplorer.BuildConfiguration.BuildDirectory">/home/pp/build-iTouch-RaspberryPi-Profile</value>
++    <value type="QString" key="ProjectExplorer.BuildConfiguration.BuildDirectory.shadowDir">/home/pp/build-iTouch-RaspberryPi-Profile</value>
+     <valuemap type="QVariantMap" key="ProjectExplorer.BuildConfiguration.BuildStepList.0">
+      <valuemap type="QVariantMap" key="ProjectExplorer.BuildStepList.Step.0">
+       <value type="bool" key="ProjectExplorer.BuildStep.Enabled">true</value>
+@@ -196,7 +207,6 @@
+     <value type="int" key="ProjectExplorer.BuildConfiguration.BuildStepListCount">2</value>
+     <value type="bool" key="ProjectExplorer.BuildConfiguration.ClearSystemEnvironment">false</value>
+     <valuelist type="QVariantList" key="ProjectExplorer.BuildConfiguration.CustomParsers"/>
+-    <value type="bool" key="ProjectExplorer.BuildConfiguration.ParseStandardOutput">false</value>
+     <valuelist type="QVariantList" key="ProjectExplorer.BuildConfiguration.UserEnvironmentChanges"/>
+     <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">Profile</value>
+     <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">Qt4ProjectManager.Qt4BuildConfiguration</value>
+@@ -259,14 +269,14 @@
+     <value type="int" key="PE.EnvironmentAspect.Base">1</value>
+     <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
+     <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">iTouch (on %{Device:Name})</value>
+-    <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">RemoteLinuxRunConfiguration:/media/ubuntu/Piyanon/raspberrypi/QtProject/iTouch_28082025/iTouch_ver5/iTouch.pro</value>
+-    <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">/media/ubuntu/Piyanon/raspberrypi/QtProject/iTouch_28082025/iTouch_ver5/iTouch.pro</value>
++    <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">RemoteLinuxRunConfiguration:/media/pp/FE82-3B71/iTouch_28082025/iTouch_ver5/iTouch.pro</value>
++    <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">/media/pp/FE82-3B71/iTouch_28082025/iTouch_ver5/iTouch.pro</value>
+     <value type="int" key="RemoteLinux.EnvironmentAspect.Version">1</value>
+     <value type="bool" key="RunConfiguration.UseCppDebugger">false</value>
+     <value type="bool" key="RunConfiguration.UseCppDebuggerAuto">true</value>
+     <value type="bool" key="RunConfiguration.UseQmlDebugger">false</value>
+     <value type="bool" key="RunConfiguration.UseQmlDebuggerAuto">true</value>
+-    <value type="QString" key="RunConfiguration.X11Forwarding">:0</value>
++    <value type="QString" key="RunConfiguration.X11Forwarding">:1</value>
+    </valuemap>
+    <value type="int" key="ProjectExplorer.Target.RunConfigurationCount">1</value>
+   </valuemap>
+diff --git a/media/pp/FE82-3B71/iTouch_28082025/iTouch_ver5/iTouch.txt b/media/pp/FE82-3B71/iTouch_28082025/iTouch_ver5/iTouch.txt
+new file mode 100755
+index 0000000..be3d4ee
+diff --git a/media/pp/FE82-3B71/update_iTouch/iTouch_ver5/main.qml b/media/pp/FE82-3B71/iTouch_28082025/iTouch_ver5/main.qml
+index 29132e9..ff5f83a 100755
+--- a/media/pp/FE82-3B71/update_iTouch/iTouch_ver5/main.qml
++++ b/media/pp/FE82-3B71/iTouch_28082025/iTouch_ver5/main.qml
+@@ -427,16 +427,25 @@ Window {
+             usertypeSelect = !JsonObject.userStatusSlave
+         }else if (objectName === "DateTime") {
+             datetime = JsonObject.formattedDateTime
+-//            console.log("check Date and Time:", message,datetime);
+-        }else if (objectName === "getDataTaggingPhaseA" || objectName === "TaggingPhaseA") {
++            console.log("check Date and Time:", message,datetime);
++        }else if (objectName === "getDataTaggingPhaseA") {
+             statusA = JsonObject.status ?? 0;
+             numberA = JsonObject.temp_no ?? -1;
+             num_listA = JsonObject.No ?? -1;
+             distanceA = JsonObject.Distance ?? 0.0;
+             detailA = JsonObject.Detail ?? "";
+             phaseA = JsonObject.Phase ?? "";
+-            console.log("TaggingPhaseA:", message);
++            console.log("qmlTaggingPhaseA:", message);
+             appendNewDataTableA(message);
++        }else if (objectName === "TaggingPhaseA") {
++            statusA = JsonObject.status
++            numberA = JsonObject.temp_no
++            num_listA = JsonObject.No
++            distanceA = JsonObject.Distance
++            detailA = JsonObject.Detail
++            phaseA = JsonObject.Phase
++            console.log("qmlupadataTaggingPhaseA:", message);
++            refreshTableDataA(message);
+         }else if (objectName === "getDataTaggingPhaseB" || objectName === "TaggingPhaseB") {
+             statusB = JsonObject.status; // แปลงเป็น bool
+             numberB = JsonObject.temp_no;
+@@ -494,12 +503,24 @@ Window {
+             commandID = JsonObject.list_deviceID
+             console.log("command from monitor",message , commandID)
+             deletedCommand(message)
+-        }else if (objectName === 'editDataPhaseA') {
++        }else if (objectName === 'editDataTaggingPhaseA') {
+             console.log("editDataPhaseA", message);
+             num_listA = JsonObject.IndexNum || 0;
+             distanceA = JsonObject.Distance || 0.0;
+             detailA = JsonObject.Detail || "";
+             phaseA = JsonObject.Phase || "";
++        }else if (objectName === 'editDataTaggingPhaseB') {
++            console.log("editDataPhaseA", message);
++            num_listB = JsonObject.IndexNum || 0;
++            distanceB = JsonObject.Distance || 0.0;
++            detailB = JsonObject.Detail || "";
++            phaseB = JsonObject.Phase || "";
++        }else if (objectName === 'editDataTaggingPhaseC') {
++            console.log("editDataPhaseA", message);
++            num_listC = JsonObject.IndexNum || 0;
++            distanceC = JsonObject.Distance || 0.0;
++            detailC = JsonObject.Detail || "";
++            phaseC = JsonObject.Phase || "";
+         }else if (objectName === 'marginlistCountA') {
+             console.log("QMLmarginCountA:", message);
+             listMarginA = JsonObject.no || 0;
+@@ -553,7 +574,7 @@ Window {
+             distanceRawA = JsonObject.distance || [];
+             voltageRawA = JsonObject.voltage || [];
+ 
+-//            console.log("Debug_RawdataA_dataPlotingA:", message , arrRawA, distanceRawA, voltageRawA);
++            console.log("Debug_RawdataA_dataPlotingA:", message , arrRawA, distanceRawA, voltageRawA);
+         } else if (objectName === 'dataPlotingB') {
+             if(arrRawB.length !== [] && distanceRawB.length != [] && voltageRawB.length != []){
+                 arrRawB = [];
+@@ -564,7 +585,7 @@ Window {
+             distanceRawB = JsonObject.distance || [];
+             voltageRawB = JsonObject.voltage || [];
+ 
+-//            console.log("Debug_RawdataA_dataPlotingB:", message , arrRawB, distanceRawB, voltageRawB);
++            console.log("Debug_RawdataA_dataPlotingB:", message , arrRawB, distanceRawB, voltageRawB);
+         } else if (objectName === 'dataPlotingC') {
+             if(arrRawC.length !== [] && distanceRawC.length != [] && voltageRawC.length != []){
+                 arrRawC = [];
+@@ -575,7 +596,7 @@ Window {
+             distanceRawC = JsonObject.distance || [];
+             voltageRawC = JsonObject.voltage || [];
+ 
+-//            console.log("Debug_RawdataA_dataPlotingC:", message , arrRawC, distanceRawC, voltageRawC);
++            console.log("Debug_RawdataA_dataPlotingC:", message , arrRawC, distanceRawC, voltageRawC);
+         } else if (objectName === 'patternA') {
+             console.log("patthernA_check_debug:", message);
+ 
+@@ -755,7 +776,7 @@ Window {
+             statusLFLOperates = JsonObject.LFLOPERATE;
+         }else if ((objectName === 'updateTaggingData')) {
+             console.log("update_Tagging_Data_point:", message);
+-            appendNewDataTableA(message)
++            refreshTableDataA(message)
+         }
+     }
+ 
+@@ -876,37 +897,69 @@ Window {
+     function refreshTableDataA(message) {
+         console.log("debug_refresh_data_A", message);
+ 
+-        var JsonObject = JSON.parse(message);
+-        var commandName = JsonObject.objectName;
+-        var selectStatus = JsonObject.status;
+-        var numberPhase = JsonObject.temp_no;
+-        var distancePhase = JsonObject.Distance;
+-        var detailPhase = JsonObject.Detail;
+-        var tablePhase = JsonObject.Phase;
+-        var numberoflist = JsonObject.num_list;
++        var JsonObject;
++        try {
++            JsonObject = typeof message === "string" ? JSON.parse(message) : message;
++        } catch (e) {
++            console.error("Error parsing JSON:", e, "Raw message:", message);
++            return;
++        }
+ 
+-        console.log("Type of distancePhase:", typeof distancePhase, "Value:", distancePhase);
++        var commandName = JsonObject.objectName || "";
++        var selectStatus = (JsonObject.status === 0&&JsonObject.status !== undefined) ? true : false ;
++        var numberPhase = JsonObject.temp_no !== undefined ? JsonObject.temp_no : null;
++        var distancePhase = JsonObject.Distance !== undefined ? JsonObject.Distance : null;
++        var detailPhase = JsonObject.Detail !== undefined ? JsonObject.Detail : "";
++        var tablePhase = JsonObject.Phase !== undefined ? JsonObject.Phase : "";
++        var numberoflist = JsonObject.num_list !== undefined ? JsonObject.num_list : 0;
++        var vuleOFAmp = 0.0;
++
++        console.log("Processed refreshTableDataA:", selectStatus, numberPhase, distancePhase, detailPhase, tablePhase, numberoflist, vuleOFAmp);
++
++        if (!commandName || numberPhase === null || distancePhase === null) {
++            console.warn("Invalid or missing data in JSON, skipping update.");
++            return;
++        }
+ 
+-        if (commandName === "updatedataTableA") {
+-            if (!isTableCleared) {
+-                newlistdatatebleA.clear();
+-                isTableCleared = true;
++        if (commandName === "updatedataTableA" || commandName === "TaggingPhaseA" || commandName === "getDataTaggingPhaseA") {
++            let foundIndex = -1;
++            for (var i = 0; i < newlistdatatebleA.count; i++) {
++                if (newlistdatatebleA.get(i).list_numberA === numberPhase) {
++                    foundIndex = i;
++                    break;
++                }
+             }
+ 
+-            newlistdatatebleA.append({
+-                "list_statusA": selectStatus,
+-                "list_numberA": numberPhase,
+-                "num_listA": numberoflist,
+-                "list_distanceA": String(distancePhase), // Convert to string
+-                "list_detailA": detailPhase,
+-                "list_phaseA": tablePhase,
+-            });
++            if (foundIndex !== -1) {
++                newlistdatatebleA.setProperty("list_statusA", selectStatus);
++                newlistdatatebleA.setProperty("num_listA", numberoflist);
++                newlistdatatebleA.setProperty("list_distanceA",distancePhase);
++                newlistdatatebleA.setProperty("list_detailA", detailPhase);
++                newlistdatatebleA.setProperty("list_phaseA", tablePhase);
++                newlistdatatebleA.setProperty("ampiltudeVol", vuleOFAmp);
+ 
++                console.log("Updated existing row at index:", foundIndex);
++            } else {
++                newlistdatatebleA.append({
++                    "list_statusA": selectStatus,
++                    "list_numberA": numberPhase,
++                    "num_listA": numberoflist,
++                    "list_distanceA": distancePhase,
++                    "list_detailA": detailPhase,
++                    "list_phaseA": tablePhase,
++                    "ampiltudeVol": vuleOFAmp,
++                });
++                console.log("Appended new row to newlistdatatebleA");
++            }
++
++//            newlistdatatebleA.sync();
+         } else {
+             console.warn("Invalid or unexpected `objectName` in JSON for Table A.");
+         }
+     }
+ 
++
++
+     function refreshTableDataB(message) {
+         console.log("debug_refresh_data_B", message);
+         newlistdatatebleB.clear();
+@@ -1181,14 +1234,9 @@ Window {
+             console.error("updateListModelWithScatterData: distanceData or plotData is missing or empty!");
+             return;
+         }
+-//        return 100;
+         console.log("Updating ListModel with Graph Data");
+-
+-//            var modelDistance = newlistdatatebleA.get(i).list_distanceA;
+-//            var modelNumber = newlistdatatebleA.get(i).list_numberA;
+             var closestIndex = -1;
+             var minDiff = Number.MAX_VALUE;
+-
+             for (var j = 0; j < distanceRawA.length; j++) {
+                 var diff = Math.abs(distanceRawA[j] - modelDistance);
+                 if (diff < minDiff) {
+@@ -1196,7 +1244,6 @@ Window {
+                     closestIndex = j;
+                 }
+             }
+-
+             if (closestIndex !== -1)
+             {
+                 var closestX = distanceRawA[closestIndex];
+@@ -1210,8 +1257,6 @@ Window {
+             {
+                 return 0;
+             }
+-
+-//        console.log("Finished updating ListModel");
+     }
+ 
+     function appendNewDataTableA(message) {
+@@ -1287,59 +1332,8 @@ Window {
+             }
+             scatterModel.clear();
+             newListDataTaggingTables = !newListDataTaggingTables
+-//        }
+-//        catch (e) {
+-//            console.error("Error in appendNewDataTableA:", e);
+-//        }
+     }
+-//    function updateListModelWithClosestData(closestX, closestY,numberOfTagging) {
+-//        console.log("updateListModelWithClosestData: Updating ListModel with", closestX, closestY,numberOfTagging);
+-
+-//        if (newlistdatatebleA.count === 0) {
+-//            console.warn("No data in newlistdatatebleA! Skipping update.");
+-//            return;
+-//        }
+-
+-//        console.log("Checking ListModel for update, Target TaggingID:", numberOfTagging);
+ 
+-//        for (var i = 0; i < newlistdatatebleA.count; i++) {
+-//            var modelNumber = newlistdatatebleA.get(i).list_numberA;
+-
+-//            if (modelNumber === numberOfTagging) {
+-//                console.log("Match found! Updating ampiltudeVol");
+-
+-//                newlistdatatebleA.setProperty(i, "ampiltudeVol", closestY);
+-
+-//                console.log("Updated newlistdatatebleA:", i, "Distance", closestX, "ampiltudeVol:", closestY);
+-
+-//                triggerScatterUpdate();
+-//                break;
+-//            }
+-//        }
+-//    }
+-
+-//    function triggerScatterUpdate() {
+-//        console.log("triggerScatterUpdate: Updating Scatter Model");
+-//        scatterModel.clear();
+-//        console.log("Updating ScatterModel, Total Items:", newlistdatatebleA.count);
+-
+-//        for (var i = 0; i < newlistdatatebleA.count; i++) {
+-//            var rawX = newlistdatatebleA.get(i).list_distanceA;
+-//            var rawY = newlistdatatebleA.get(i).ampiltudeVol;
+-//            var rawNumber = newlistdatatebleA.get(i).list_numberA;
+-
+-//            console.log(`Processing item ${i}: RawX=${rawX}, RawY=${rawY}, Number=${rawNumber}`);
+-
+-//            scatterModel.append({
+-//                "x": rawX,
+-//                "y": rawY,
+-//                "text": rawNumber,
+-//                "status": newlistdatatebleA.get(i).list_statusA
+-//            });
+-//        }
+-////        newListDataTaggingTables = true
+-//        console.log("ScatterModel updated successfully",newListDataTagging);
+-//    }
+ 
+     function updateListModelWithScatterData(distanceData, plotData) {
+         if (!distanceData || !plotData || distanceData.length === 0 || plotData.length === 0) {
+diff --git a/media/pp/FE82-3B71/update_iTouch/iTouch_ver5/mainwindows.cpp b/media/pp/FE82-3B71/iTouch_28082025/iTouch_ver5/mainwindows.cpp
+index ea27d1a..45f1c69 100755
+--- a/media/pp/FE82-3B71/update_iTouch/iTouch_ver5/mainwindows.cpp
++++ b/media/pp/FE82-3B71/iTouch_28082025/iTouch_ver5/mainwindows.cpp
+@@ -94,9 +94,9 @@ mainwindows::mainwindows(QObject *parent) : QObject(parent){
+     connect(mysql, SIGNAL(updateTableDisplay(QString)), SocketServer, SLOT(boardcasttomessaege(QString)));
+     connect(mysql, SIGNAL(eventmsg(QString)), SocketServer, SLOT(boardcasttomessaege(QString)));
+     connect(mysql,SIGNAL(deletedmydatabase(QString)),SocketServer,SLOT(boardcasttomessaege(QString)));
+-    connect(mysql,SIGNAL(updatedataTableA(QString)),SocketServer,SLOT(boardcasttomessaege(QString)));
+-    connect(mysql,SIGNAL(updatedataTableB(QString)),SocketServer,SLOT(boardcasttomessaege(QString)));
+-    connect(mysql,SIGNAL(updatedataTableC(QString)),SocketServer,SLOT(boardcasttomessaege(QString)));
++//    connect(mysql,SIGNAL(updatedataTableA(QString)),SocketServer,SLOT(boardcasttomessaege(QString)));
++//    connect(mysql,SIGNAL(updatedataTableB(QString)),SocketServer,SLOT(boardcasttomessaege(QString)));
++//    connect(mysql,SIGNAL(updatedataTableC(QString)),SocketServer,SLOT(boardcasttomessaege(QString)));
+     connect(mysql,SIGNAL(updataEditDataA(QString)),SocketServer,SLOT(boardcasttomessaege(QString)));
+ //------------------------------show information on Gerneral and graph ----------------------------------//displaysetting
+     connect(mysql,SIGNAL(UpdateSettingInfo(QString)),SocketServer,SLOT(boardcasttomessaege(QString)));
+@@ -282,6 +282,24 @@ void mainwindows::cppSubmitTextFiled(QString qmlJson){
+     }else if(getCommand == "updateParameterMargin"){
+          qDebug()<< "updateParameterMargin:" << qmlJson;
+          cppCommand(qmlJson);
++    }else if(getCommand == "updatedataTableA"){
++        qDebug()<< "updatedataTableA:" << qmlJson;
++        cppCommand(qmlJson);
++    }else if(getCommand == "updatedataTableB"){
++        qDebug()<< "updatedataTableB:" << qmlJson;
++        cppCommand(qmlJson);
++    }else if(getCommand == "updatedataTableC"){
++        qDebug()<< "updatedataTableC:" << qmlJson;
++        cppCommand(qmlJson);
++    }else if(getCommand == "saveDataTagingA"){
++        qDebug()<< "saveDataTagingA:" << qmlJson;
++        sendMessage(qmlJson);
++    }else if(getCommand == "saveDataTagingB"){
++        qDebug()<< "saveDataTagingB:" << qmlJson;
++        sendMessage(qmlJson);
++    }else if(getCommand == "saveDataTagingC"){
++        qDebug()<< "saveDataTagingC:" << qmlJson;
++        sendMessage(qmlJson);
+     }else if(qmlJson == "testRawData"){
+         rawdataPlot("testRawData");
+     } else if(getCommand.contains("UserSelectM")){
+@@ -469,18 +487,8 @@ void mainwindows::cppSubmitTextFiled(QString qmlJson){
+         qDebug() << "cppSubmitTextFiled Details:" << Details << detailField;
+ //        cppCommand(Details);
+     }else if (getCommand.contains("getDistanceDetailA")) {
+-        double distancecmd = QJsonValue(command["Distance"]).toDouble();
+-        QString detailcmd = QJsonValue(command["Detail"]).toString();
+-        QString phase = QJsonValue(command["PHASE"]).toString();
+-        QString DetailsAndDistance = QString("{"
+-                                             "\"objectName\":\"getDistanceDetailA\","
+-                                             "\"Distance\":\%1,"
+-                                             "\"Detail\":\"%2\","
+-                                             "\"PHASE\":\"%3\""
+-                                             "}").arg(distancecmd).arg(detailcmd).arg(phase);
+ 
+-        qDebug() << "cppSubmitTextFiled DetailsAndDistance:" << DetailsAndDistance << phase << distancecmd << detailcmd;
+-        sendMessage(DetailsAndDistance);
++        sendMessage(qmlJson);
+     }else if (getCommand.contains("getDistanceDetailB")) {
+         double distancecmd = QJsonValue(command["Distance"]).toDouble();
+         QString detailcmd = QJsonValue(command["Detail"]).toString();
+@@ -583,17 +591,17 @@ void mainwindows::cppSubmitTextFiled(QString qmlJson){
+         qDebug() << "getupdatePhaseA:" << getupdatePhaseC;
+         emit updateTablePhaseA(getupdatePhaseC);
+     }else if (getCommand.contains("editDataPhaseA")) {
+-        double checkedStates = QJsonValue(command["checkedStates"]).toDouble();
+-        QString phase = QJsonValue(command["PHASE"]).toString();
+-        int IndexNum = QJsonValue(command["num_listA"]).toInt();
+-        QString EditDatalist = QString("{"
+-                                             "\"objectName\":\"editDataPhaseA\","
+-                                             "\"IndexNum\":%1,"
+-                                             "\"PHASE\":\"%2\""
+-                                             "}").arg(IndexNum).arg(phase);
+-
+-        qDebug() << "Debug_editDataPhaseA:" << EditDatalist << phase << checkedStates;
+-        emit getEditDatafromMySQLA(EditDatalist);
++        sendMessage(qmlJson);
++    }else if (getCommand.contains("editDataPhaseB")) {
++        sendMessage(qmlJson);
++    }else if (getCommand.contains("editDataPhaseC")) {
++        sendMessage(qmlJson);
++    }else if (getCommand.contains("editDataTaggingPhaseA")) {
++        cppCommand(qmlJson);
++    }else if (getCommand.contains("editDataTaggingPhaseB")) {
++        cppCommand(qmlJson);
++    }else if (getCommand.contains("editDataTaggingPhaseC")) {
++        cppCommand(qmlJson);
+     }else if (getCommand.contains("marginCountA") || getCommand.contains("valueMarginVoltageA")) {
+         qDebug() << "SettingAndUpdateMargin:" << qmlJson;
+         SettingAndUpdateMargin(qmlJson);
+@@ -854,14 +862,14 @@ void mainwindows::cppSubmitTextFiled(QString qmlJson){
+ 
+         QString settingNetwork = QString("{"
+                                           "\"objectName\":\"updateSettingNetwork\","
+-                                          "\"ipaddress\":\"%1\","
+-                                          "\"gateway\":\"%2\""
++                                          "\"ip_address\":\"%1\","
++                                          "\"ip_gateway\":\"%2\""
+                                           "}")
+                                      .arg(IPaddress)
+                                      .arg(GateWsys);
+ 
+         qDebug() << "settingNetwork:" << settingNetwork;
+-//         emit settingNetWorkandSNMP(settingNetwork);
++         sendMessage(settingNetwork);
+     }else if (getCommand == "editSetSNMPServerIP") {
+         QString snmpIP = command.value("editsSNMPServer").toString();
+         qDebug() << "snmpIP:" << snmpIP;
+@@ -3443,6 +3451,7 @@ QString mainwindows::getCurrentVersion() {
+     versionFile.close();
+     return version;
+ }
++
+ void mainwindows::updateUserMode(QString msg){
+ 
+     qDebug() << "updateUserMode";

@@ -12,7 +12,9 @@ Item {
     height: 475
     property bool focustextInformation: inputPanel.visible
     property string textforinformation:  textInformation.text
-    visible: userLevelGlobalVars.count > 0 && (userLevelGlobalVars.get(0).userLevel >= 1 && userLevelGlobalVars.get(0).userLevel <= 3)
+    property int isReadyOnly: currentUserLevel
+    //    visible: userLevelGlobalVars.count > 0 && (userLevelGlobalVars.get(0).userLevel >= 1 && userLevelGlobalVars.get(0).userLevel <= 3)
+    //    visible: userLevelGlobalVars.count > 0 && (userLevelGlobalVars.get(0).userLevel >= 1 && userLevelGlobalVars.get(0).userLevel <= 3)
 
     onFocustextInformationChanged: {
         if(focustextInformation == false){
@@ -40,6 +42,13 @@ Item {
             fulldistanceText.text = textforinformation
         }
         console.log("onTextforinformationChanged",textforinformation)
+    }
+
+    function isReadOnlyUser() {
+        return currentUserLevel === 3
+//        return userLevelGlobalVars.count === 0 ||
+//                userLevelGlobalVars.get(0).userLevel === 2 ||
+//                userLevelGlobalVars.get(0).userLevel === 3;
     }
 
 
@@ -73,61 +82,53 @@ Item {
                 id: sag
                 text: qsTr("SAG")
                 font.pixelSize: 17
-                Layout.fillWidth: true
             }
 
             Text {
                 id: samplingrate
                 text: qsTr("SAMPLING RATE(m/sampling)")
                 font.pixelSize: 17
-                Layout.fillWidth: true
             }
 
             Text {
                 id: distancestart
                 text: qsTr("DISTANCE TO START(KM)")
                 font.pixelSize: 17
-                Layout.fillWidth: true
             }
 
             Text {
                 id: distanceshow
                 text: qsTr("DISTANCE TO SHOW(KM)")
                 font.pixelSize: 17
-                Layout.fillWidth: true
             }
 
             Text {
                 id: fulldistance
                 text: qsTr("FULL DISTANCE(KM)")
                 font.pixelSize: 17
-                Layout.fillWidth: true
             }
         }
 
         ColumnLayout {
+            x: 8
+            y: 77
+            width: 197
             height: 365
-            anchors.left: parent.left
-            anchors.right: parent.right
-            anchors.top: parent.top
-            anchors.leftMargin: 8
-            anchors.rightMargin: 77
-            anchors.topMargin: 77
+
             TextField {
                 id: sagText
                 Layout.fillWidth: true
                 placeholderText: (typeof sagfactor !== "undefined" && sagfactor !== null) ? sagfactor : qsTr("Enter Sag")
-                readOnly: (userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
+                readOnly: isReadOnlyUser()
+                color: isReadOnlyUser() ? "#808080" : "#000000"
                 background: Rectangle {
-                    color: (userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
-                           ? "#d3d3d3"
-                           : "#ffffff"
-                border.color: "#bcbcbc"
-                radius: 5
+                    color: isReadOnlyUser() ? "#d3d3d3" : "#ffffff"
+                    border.color: "#bcbcbc"
+                    radius: 5
                 }
                 focus: false
                 onFocusChanged: {
-                    if (focus && !textTime.readOnly ) {
+                    if (focus && !sagText.readOnly) {
                         sagText.focus = false;
                         currentField = "sagText";
                         inputPanel.visible = true;
@@ -141,41 +142,89 @@ Item {
                 }
             }
 
+
+            //            TextField {
+            //                id: sagText
+            //                Layout.fillWidth: true
+            //                placeholderText: (typeof sagfactor !== "undefined" && sagfactor !== null) ? sagfactor : qsTr("Enter Sag")
+            //                readOnly: (userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
+            //                background: Rectangle {
+            //                    color: (userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
+            //                           ? "#d3d3d3"
+            //                           : "#ffffff"
+            //                border.color: "#bcbcbc"
+            //                radius: 5
+            //                }
+            //                focus: false
+            //                onFocusChanged: {
+            //                    if (focus && !sagText.readOnly ) {
+            //                        sagText.focus = false;
+            //                        currentField = "sagText";
+            //                        inputPanel.visible = true;
+            //                        textInformation.visible = true;
+            //                        textInformation.placeholderText = qsTr("Enter Sag");
+            //                        textInformation.inputMethodHints = Qt.ImhFormattedNumbersOnly;
+            //                        textInformation.text = "";
+            //                        textInformation.focus = true;
+            //                        sagText.color = "#ff0000";
+            //                    }
+            //                }
+            //            }
+
             TextField {
                 id: samplingText
                 Layout.fillWidth: true
                 placeholderText: (typeof sampling !== "undefined" && sampling !== null) ? sampling : qsTr("Enter Sampling")
-                readOnly: (userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
+                readOnly: isReadOnlyUser()
+                color: isReadOnlyUser() ? "#808080" : "#000000"
                 background: Rectangle {
-                    color: (userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
-                           ? "#d3d3d3"
-                           : "#ffffff"
-                border.color: "#bcbcbc"
-                radius: 5
+                    color: isReadOnlyUser() ? "#d3d3d3" : "#ffffff"
+                    border.color: "#bcbcbc"
+                    radius: 5
                 }
                 focus: false
                 onFocusChanged: {
-                    if (focus && !textTime.readOnly ) {
+                    if (focus && !samplingText.readOnly) {
                         samplingText.focus = false;
                         currentField = "samplingText";
                         inputPanel.visible = true;
                         textInformation.visible = true;
                         textInformation.placeholderText = qsTr("Enter Sampling");
-                        textInformation.inputMethodHints = Qt.ImhFormattedNumbersOnly;
-                        textInformation.text = "";
+                        textInformation.inputMethodHints = Qt.ImhDigitsOnly;
+                        textInformation.clear();
                         textInformation.focus = true;
                         samplingText.color = "#ff0000";
                     }
                 }
+//                onFocusChanged: {
+//                    if (focus && !samplingText.readOnly) {
+//                        samplingText.focus = false;
+//                        currentField = "samplingText";
+//                        inputPanel.visible = true;
+//                        textInformation.visible = true;
+//                        textInformation.placeholderText = qsTr("Enter Sampling");
+//                        textInformation.inputMethodHints = Qt.ImhFormattedNumbersOnly;
+//                        textInformation.text = "" || textInformation.text >= 60 || textInformation.text <= 480;
+//                        textInformation.focus = true;
+//                        samplingText.color = "#ff0000";
+//                    }
+//                }
             }
 
             TextField {
                 id: distancetostartText
                 Layout.fillWidth: true
                 placeholderText: (typeof displayStart !== "undefined" && displayStart !== null) ? displayStart : qsTr("Enter Dist. Start")
+                readOnly: isReadOnlyUser()
+                color: isReadOnlyUser() ? "#808080" : "#000000"
+                background: Rectangle {
+                    color: isReadOnlyUser() ? "#d3d3d3" : "#ffffff"
+                    border.color: "#bcbcbc"
+                    radius: 5
+                }
                 focus: false
                 onFocusChanged: {
-                    if (focus) {
+                    if (focus && !distancetostartText.readOnly) {
                         distancetostartText.focus = false;
                         currentField = "distancetostartText";
                         inputPanel.visible = true;
@@ -193,9 +242,16 @@ Item {
                 id: distancetoshowText
                 Layout.fillWidth: true
                 placeholderText: (typeof displayShow !== "undefined" && displayShow !== null) ? displayShow : qsTr("Enter Dist. Show")
+                readOnly: isReadOnlyUser()
+                color: isReadOnlyUser() ? "#808080" : "#000000"
+                background: Rectangle {
+                    color: isReadOnlyUser() ? "#d3d3d3" : "#ffffff"
+                    border.color: "#bcbcbc"
+                    radius: 5
+                }
                 focus: false
                 onFocusChanged: {
-                    if (focus) {
+                    if (focus && !distancetoshowText.readOnly) {
                         distancetoshowText.focus = false;
                         currentField = "distancetoshowText";
                         inputPanel.visible = true;
@@ -213,17 +269,16 @@ Item {
                 id: fulldistanceText
                 Layout.fillWidth: true
                 placeholderText: (typeof fulldistances !== "undefined" && fulldistances !== null) ? fulldistances : qsTr("Enter Full Dist")
-                readOnly: (userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
+                readOnly: isReadOnlyUser()
+                color: isReadOnlyUser() ? "#808080" : "#000000"
                 background: Rectangle {
-                    color: (userLevelGlobalVars.get(0).userLevel === 2 || userLevelGlobalVars.get(0).userLevel === 3)
-                           ? "#d3d3d3"
-                           : "#ffffff"
-                border.color: "#bcbcbc"
-                radius: 5
+                    color: isReadOnlyUser() ? "#d3d3d3" : "#ffffff"
+                    border.color: "#bcbcbc"
+                    radius: 5
                 }
                 focus: false
                 onFocusChanged: {
-                    if (focus && !textTime.readOnly ) {
+                    if (focus && !fulldistanceText.readOnly) {
                         fulldistanceText.focus = false;
                         currentField = "fulldistanceText";
                         inputPanel.visible = true;
@@ -236,6 +291,18 @@ Item {
                     }
                 }
             }
+
+        }
+
+        Text {
+            id: text3
+            x: 211
+            y: 171
+            width: 74
+            height: 47
+            color: "#737373"
+            text: qsTr("e.g. 120,180\n 240,300,360,\n 420")
+            font.pixelSize: 11
         }
 
     }
@@ -252,6 +319,16 @@ Item {
             font.pixelSize: 18
             horizontalAlignment: Text.AlignLeft
             verticalAlignment: Text.AlignVCenter
+
+            Text {
+                id: text1
+                x: 0
+                y: 25
+                width: 265
+                height: 31
+                text: qsTr("**Sampling rate not less than 60 and \n not more than 480")
+                font.pixelSize: 12
+            }
         }
 
         Text {
@@ -261,10 +338,6 @@ Item {
             horizontalAlignment: Text.AlignLeft
             verticalAlignment: Text.AlignVCenter
         }
-    }
-
-    Item {
-        id: __materialLibrary__
     }
     //    InputPanel {
     //        id: inputPanel
@@ -337,6 +410,6 @@ Item {
 
 /*##^##
 Designer {
-    D{i:0;formeditorZoom:0.9}D{i:10}
+    D{i:0;formeditorZoom:1.5}
 }
 ##^##*/

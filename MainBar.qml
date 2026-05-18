@@ -1,4 +1,4 @@
-import QtQuick 2.0
+import QtQuick 2.15
 import QtCharts 2.0
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.0
@@ -6,20 +6,23 @@ import QtQml 2.2
 import QtQuick.Controls.Material 2.4
 
 Item {
+
     width: 1024
     height: 600
+    z:9999
     property bool isOnDataStoragePage: false
-    property string currentPage: "MainPage"
+
     property string currentDateTime: datetime
+    property alias listView: listView
+    property alias mainListView: listView
 
 //    property string mainBarMasterSelect
 //    property string mainBarSlaveSelect
 //    property bool checkUser: checkUser
     property string typeUser: userMode
-
     ListModel{
         id: listmodel
-        ListElement {index:0; source: "qrc:/Mainpage.qml"; name:"MainPage" }
+        ListElement {index:0; source: "qrc:/main.qml"; name:"MainPage" }
         ListElement {index:1; source: "qrc:/Eventspage.qml"; name:"EventandAlrams" }
         ListElement {index:2; source: "qrc:/DataStoragePage.qml"; name:"DataStorage" }
         ListElement {index:3; source: "qrc:/SettingPage.qml"; name:"Setting" }
@@ -28,29 +31,32 @@ Item {
 
     ListView {
         id: listView
+        property alias mainListView: listView
         currentIndex: 0
-        onCurrentIndexChanged: {
-            if (!((currentIndex == 0) || (currentIndex == -1))){
-                stackView.push(listmodel.get(currentIndex).source)
-                stackView.currentItem.objectName=listmodel.get(currentIndex).name
-            }
-            else if (currentIndex == 0)
-            {
-                stackView.pop(null)
-                stackView.currentItem.objectName="Home"
-            }
-            else
-            {
 
+        onCurrentIndexChanged: {
+            if (currentIndex === -1 || currentIndex === 0) {
+                stackView.pop(null)
+                stackView.currentItem.objectName = "Home"
+                currentPage = "MainPage"
+                imageUnlock.visible = true
+                console.log("currentIndex_Home:", currentIndex)
+            } else {
+                stackView.push(listmodel.get(currentIndex).source)
+                stackView.currentItem.objectName = listmodel.get(currentIndex).name
+                console.log("currentIndex:", currentIndex)
             }
         }
+
         model: listmodel
     }
+
 
     Rectangle {
         id: mainbar
         x: 0
         y: 0
+        z: 9999
         width: 1024
         height: 62
         color: "#f2f2f2"
@@ -59,7 +65,7 @@ Item {
 
         LedStatus {
             id: ledStatus
-            x: 8
+            x: 4
             y: 11
 
         }
@@ -88,7 +94,7 @@ Item {
             id: mode
             x: 51
             y: 5
-            width: 85
+            width: 65
             height: 48
             color: "#7e7e7e"
             text: qsTr("MODE")
@@ -100,9 +106,9 @@ Item {
 
         Rectangle {
             id: master
-            x: 142
+            x: 128
             y: 5
-            width: 73
+            width: 90
             height: 48
             color: "#ffffff"
             radius: 8
@@ -111,13 +117,13 @@ Item {
 
             Text {
                 id: userType
-                text: typeUser
+                text: typeUser//(typeUser === "STANDALONE") ? "MASTER" : typeUser
                 anchors.fill: parent
                 font.pixelSize: 12
                 horizontalAlignment: Text.AlignHCenter
                 verticalAlignment: Text.AlignVCenter
-
             }
+
         }
         // Rectangle {
         //     id: admin
@@ -171,23 +177,18 @@ Item {
            radius: 8
            border.color: "#ababab"
            border.width: 2
-           visible: userLevelGlobalVars.count > 0 && (userLevelGlobalVars.get(0).userLevel >= 1 && userLevelGlobalVars.get(0).userLevel <= 3)
+//           visible: userLevelGlobalVars.count > 0 && (userLevelGlobalVars.get(0).userLevel >= 1 && userLevelGlobalVars.get(0).userLevel <= 3)
            Text {
                id: text3
                text: {
-                   if (userLevelGlobalVars.count > 0) {
-                       switch (userLevelGlobalVars.get(0).userLevel) {
-                           case 1:
-                               return qsTr("ADMIN");
-                           case 2:
-                               return qsTr("SUPERVISOR");
-                           case 3:
-                               return qsTr("VIEWER");
-                           default:
-                               return "";
-                       }
+                   if (currentUserLevel === 1) {
+                       return qsTr("ADMIN");
+                   } else if (currentUserLevel === 2) {
+                       return qsTr("SUPERVISOR");
+                   } else if (currentUserLevel === 3) {
+                       return qsTr("VIEWER");
                    } else {
-                       return "";
+                       return "";  // ต้องใส่กรณี default เสมอ
                    }
                }
                anchors.left: parent.left
@@ -210,45 +211,35 @@ Item {
                border.color: "#ababab"
                border.width: 2
 
-               visible: userLevelGlobalVars.count > 0 && (userLevelGlobalVars.get(0).userLevel >= 1 && userLevelGlobalVars.get(0).userLevel <= 3)
                color: {
-                       if (userLevelGlobalVars.count > 0) {
-                               switch (userLevelGlobalVars.get(0).userLevel) {
-                                   case 1:
-                                   case 2:
-                                       return "#fae6d7";
-                                   case 3:
-                                       return "#b8b8b8";
-                                   default:
-                                          return "#f2f2f2";
-                                  }
-                              } else {
-                                  return "#f2f2f2";
-                              }
-                          }
-               Text {
-                   id: text4
-                   text: {
-                       if (userLevelGlobalVars.count > 0) {
-                           switch (userLevelGlobalVars.get(0).userLevel) {
-                               case 1:
-                                   return qsTr("LOCKED\nBY ADMIN");
-                               case 2:
-                                   return qsTr("LOCKED\nBY SUPERVISOR");
-                               case 3:
-                                   return qsTr("LOCKED\nBY VIEWER");
-                               default:
-                                   return "";
-                           }
-                       } else {
-                           return "";
-                       }
+                   switch (currentUserLevel) {
+                   case 1:
+                   case 2:
+                       return "#fae6d7"
+                   case 3:
+                       return "#b8b8b8"
+                   default:
+                       return "#f2f2f2"
                    }
+               }
+
+               Text {
                    anchors.fill: parent
                    font.pixelSize: 12
                    horizontalAlignment: Text.AlignHCenter
                    verticalAlignment: Text.AlignVCenter
                    wrapMode: Text.WordWrap
+
+                   text: {
+                       if (currentUserLevel === 1)
+                           return qsTr("LOCKED\nBY ADMIN")
+                       else if (currentUserLevel === 2)
+                           return qsTr("LOCKED\nBY SUPERVISOR")
+                       else if (currentUserLevel === 3)
+                           return qsTr("LOCKED\nBY VIEWER")
+                       else
+                           return ""
+                   }
                }
            }
        }
@@ -262,7 +253,7 @@ Item {
                 id: backtoMainpage
                 Layout.fillHeight: true
                 Layout.fillWidth: true
-                visible: false
+                visible: currentPage !== "MainPage"
                 contentItem: Label {
                     text: qsTr("MAIN \n PAGE")
                     anchors.fill: parent
@@ -271,17 +262,15 @@ Item {
                     font.pointSize: 9
                 }
                 onClicked: {
-                    // while (stackView.depth > 1) {
-                    //     stackView.pop()
-                    // }
                     stackView.push("qrc:/Mainpage.qml")
                     currentPage = "MainPage"
-                    backtoMainpage.visible = false
-                    eventsalarms.visible = true
-                    dataStorage.visible = true
-                    imageSetting.visible = true
-                    imageUnlock.visible = true
                     console.log("Returned to MainPage from " + currentPage)
+//                    contorlAndMonitor.updateAllTagPositions();
+                    contorlAndMonitor.reloadTaggingData();
+//                    contorlAndMonitor.canvasPlot.requestPaint()
+//                    newListDataTaggingTables = !newListDataTaggingTables
+                    console.log("newListDataTaggingTablesMainBar:",newListDataTaggingTables);
+                    returnToMainPageAndFreeRam()
                 }
             }
 
@@ -289,7 +278,7 @@ Item {
                 id: eventsalarms
                 Layout.fillHeight: true
                 Layout.fillWidth: true
-                visible: true
+                visible: currentPage !== "Eventspage"
                 contentItem: Label {
                     text: qsTr("EVENTS \n ALARMS")
                     anchors.fill: parent
@@ -300,11 +289,11 @@ Item {
                 onClicked: {
                     stackView.push("qrc:/Eventspage.qml")
                     currentPage = "Eventspage"
-                    eventsalarms.visible = false
-                    backtoMainpage.visible = true
-                    dataStorage.visible = true
-                    imageSetting.visible = true
-                    imageUnlock.visible = true
+//                    eventsalarms.visible = false
+////                    backtoMainpage.visible = true
+////                    dataStorage.visible = true
+//                    imageSetting.visible = true
+//                    imageUnlock.visible = true
                     console.log("Navigated to Eventspage")
                 }
             }
@@ -313,7 +302,7 @@ Item {
                 id: dataStorage
                 Layout.fillHeight: true
                 Layout.fillWidth: true
-                visible: true
+                visible: currentPage !== "DataStoragePage"
                 contentItem: Label {
                     text: qsTr("DATA \n STORAGE")
                     anchors.fill: parent
@@ -324,11 +313,11 @@ Item {
                 onClicked: {
                     stackView.push("qrc:/DataStoragePage.qml")
                     currentPage = "DataStoragePage"
-                    dataStorage.visible = false
-                    backtoMainpage.visible = true
-                    eventsalarms.visible = true
-                    imageSetting.visible = true
-                    imageUnlock.visible = true
+//                    dataStorage.visible = false
+//                    backtoMainpage.visible = true
+//                    eventsalarms.visible = true
+//                    imageSetting.visible = true
+//                    imageUnlock.visible = true
                     console.log("Navigated to DataStoragePage")
                 }
             }
@@ -343,16 +332,16 @@ Item {
                 Layout.fillHeight: false
                 Layout.fillWidth: false
                 property bool isOnSettingPage: false
-                visible: true
+                visible: currentPage !== "Setting"
                 onClicked: {
                     if (!isOnSettingPage) {
                         stackView.push("qrc:/SettingPage.qml")
                         currentPage = "Setting"
-                        imageSetting.visible = false
-                        backtoMainpage.visible = true
-                        eventsalarms.visible = true
-                        dataStorage.visible = true
-                        imageUnlock.visible = true
+//                        imageSetting.visible = false
+////                        backtoMainpage.visible = true
+//                        eventsalarms.visible = true
+////                        dataStorage.visible = true
+//                        imageUnlock.visible = true
                         console.log("Navigated to DataStoragePage")
                     }
                 }
@@ -360,28 +349,29 @@ Item {
 
             ToolButton {
                 id: imageUnlock
+                visible: currentPage !== "Login"
                 Layout.preferredWidth: 58
-                Layout.fillHeight: false
-                Layout.fillWidth: false
                 Layout.preferredHeight: 58
                 icon.source: "images/unlock.png"
                 icon.width: 200
                 icon.height: 200
-                visible: true
                 property bool isLogInPage: false
 
                 onClicked: {
-                    if(!isLogInPage){
+                    if (!isLogInPage) {
                         stackView.push("qrc:/LoginPage.qml")
-                        imageUnlock.visible = false
-                        backtoMainpage.visible = true
-                        eventsalarms.visible = true
-                        dataStorage.visible = true
-                        imageSetting.visible = true
-                        userLevelGlobalVars.clear();
+                        currentPage = "Login"
+//                        imageUnlock.visible = false
+////                        backtoMainpage.visible = true
+//                        eventsalarms.visible = true
+////                        dataStorage.visible = true
+//                        imageSetting.visible = true
+//                        userLevelGlobalVars.clear()
+                        console.log("imageUnlock clicked")
                     }
                 }
             }
+
 
         }
         ToolButton {
@@ -409,8 +399,7 @@ Item {
                                                 "objectName": "Screenshot",
                                                 "onClicked":"true",
                                                 });
-
-                console.log("Sending JSON:", Screenshot);
+                currentPage = "MainPage";
                 qmlCommand(Screenshot);
                 console.log("Capture screen")
             }

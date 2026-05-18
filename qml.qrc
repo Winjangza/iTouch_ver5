@@ -50,9 +50,7 @@
         <file>images/pointer.jpg</file>
         <file>images/pointerTagging.png</file>
         <file>images/pinPointer.png</file>
-        <file>images/pinPointerTagging.png</file>
         <file>TaggingPointer.qml</file>
-        <file>images/remoteButton.png</file>
         <file>images/capture.png</file>
         <file>images/button-Manual-Test.jpg</file>
         <file>images/buttonManualPress.png</file>
@@ -67,5 +65,19 @@
         <file>images/search.png</file>
         <file>images/invisible.png</file>
         <file>images/show.png</file>
+        <file>CheckBoxTagging.qml</file>
+        <file>TaggingDetail.qml</file>
+        <file>images/remoteButtonSlave.png</file>
+        <file>images/remoteButtonMaster.png</file>
+        <file>images/manual_level3.png</file>
+        <file>images/manual_level3_press.png</file>
+        <file>images/buttonRed.png</file>
+        <file>images/buttonGray.png</file>
+        <file>images/buttonGreen.png</file>
+        <file>images/pinPointerTaggingC.png</file>
+        <file>images/pinPointerTaggingA.png</file>
+        <file>images/pinPointerTaggingB.png</file>
+        <file>PopupWarningPeriodic.qml</file>
+        <file>SavePopUp.qml</file>
     </qresource>
 </RCC>

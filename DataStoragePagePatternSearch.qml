@@ -9,12 +9,38 @@ import QtQuick.VirtualKeyboard.Styles 2.15
 import QtQuick.VirtualKeyboard.Settings 2.15
 import QtQuick.Controls 2.13
 Item {
+    id:searchpattern
     width: 530
     height: 460
     // property alias patternModel: patternListView.model
-
+    property string currentField: ""
+    // property bool focustextInformation: inputPanel.visible
+    // property string textforinformation:  textInformation.text
+    property bool focustextInformation: inputPanel.visible
+    property string textforinformation: textInformation.text
     signal rowSelected(string filename, string event_datetime)
     signal clearTableRequested()
+
+    Component.onCompleted: {
+        Qt.inputMethod.hide() // แล้วค่อยโชว์คีย์บอร์ด
+    }
+    onFocustextInformationChanged: {
+        if(focustextInformation == false){
+            namesearch.color = "#000000"
+            dataSearch.color = "#000000"
+        }
+    }
+    onTextforinformationChanged: {
+        if(namesearch.color == "#ff0000"){
+            namesearch.text = textforinformation
+        }
+        if(dataSearch.color == "#ff0000"){
+            dataSearch.text = textforinformation
+        }
+
+        console.log("onTextforinformationChanged",textforinformation)
+    }
+
     Rectangle {
         id: rectangle
         color: "#f2f2f2"
@@ -37,47 +63,110 @@ Item {
             TextField {
                 id: namesearch
                 Layout.fillWidth: true
-                placeholderText: qsTr("Name search")
-            }
+                placeholderText: qsTr("Enter Name")
+                readOnly: userLevelGlobalVars.count === 0 ||
+                          userLevelGlobalVars.get(0).userLevel !== 1
+                focus: false
+                color: (userLevelGlobalVars.count > 0 &&
+                        userLevelGlobalVars.get(0).userLevel !== 1) ? "#808080" : "#000000"
 
-            ToolButton {
-                id: toolButtonNameSearch
-                Layout.preferredHeight: 32
-                Layout.preferredWidth: 40
-                contentItem: Image {
-                    source: "images/search.png"
-                    width: 24
-                    height: 24
-                    fillMode: Image.PreserveAspectFit
-                }
                 background: Rectangle {
-                    color: "#E0E0E0"
-                    radius: 8
+                    color: namesearch.readOnly ? "#d3d3d3" : "#ffffff"
+                    border.color: "#bcbcbc"
+                    radius: 5
                 }
-                onClicked: {
-                    console.log("Searching for name:", namesearch.text);
-                    var nameFile = namesearch.text.trim();
 
-                    if (nameFile.length > 0) {
-                        var NameSearch = JSON.stringify({
-                                                            "objectName": "SearchName",
-                                                            "categories":"Pattern",
-                                                            "text": nameFile
-                                                        });
+                onFocusChanged: {
+                    if (focus) {
+                        Qt.inputMethod.show();
+                        currentField = "namesearch";
+                        inputPanel.visible = true;
+                        textInformation.visible = true;
+                        textInformation.placeholderText = qsTr("Enter Name");
+                        textInformation.inputMethodHints = Qt.ImhUppercaseOnly;
+                        textInformation.text = "";
+                        textInformation.focus = true;
+                        namesearch.color = "#ff0000";
+                        namesearch.focus = false;
 
-                        console.log("Sending JSON:", NameSearch);
-                        qmlCommand(NameSearch);
-                        clearDatapattern();
-                    } else {
-                        console.log("Empty search text! No request sent.");
                     }
                 }
+            }
+
+
+            ToolButton {
+                   id: toolButtonNameSearch
+                   Layout.preferredHeight: 32
+                   Layout.preferredWidth: 40
+                   contentItem: Image {
+                       source: "images/search.png"
+                       width: 24; height: 24
+                       fillMode: Image.PreserveAspectFit
+                   }
+                   background: Rectangle { color: "#E0E0E0"; radius: 8 }
+
+                   onClicked: {
+                       var nameFile = (namesearch.text || "").trim();
+                       if (!nameFile.length) {
+                           console.log("Empty search text! No request sent.");
+                           return;
+                       }
+
+                       // ลิงก์ไป main แบบที่คุณต้องการ
+                       currentField = "SearchName";          // <-- ตัวเดิมที่ main ใช้เช็ค
+                       namesearch.color = "#ff0000";
+
+                       // sync ค่าไปที่ editor กลางใน main
+                       if (currentField) {
+                           currentField.text = nameFile;
+                           var NameSearch = JSON.stringify({"objectName": "SearchName","categories":"Pattern","text": nameFile});
+                           console.log("Sending JSON:", NameSearch);
+                           qmlCommand(NameSearch);
+                           clearDatapattern();
+                           textInformation.text = "";
+
+                       } else {
+                           console.warn("textEditor (textInformation) is not set!");
+                       }
+
+                       // เคลียร์ช่อง local (แล้วแต่ต้องการ)
+                       namesearch.text = "";
+                       namesearch.focus = false;
+                       Qt.inputMethod.hide();
+                   }
+
             }
 
             TextField {
                 id: dataSearch
                 Layout.fillWidth: true
-                placeholderText: qsTr("Date search")
+                placeholderText: qsTr("Enter Date")
+                readOnly: userLevelGlobalVars.count === 0 ||
+                          userLevelGlobalVars.get(0).userLevel !== 1
+                focus: false
+                color: (userLevelGlobalVars.count > 0 &&
+                        userLevelGlobalVars.get(0).userLevel !== 1) ? "#808080" : "#000000"
+
+                background: Rectangle {
+                    color: dataSearch.readOnly ? "#d3d3d3" : "#ffffff"
+                    border.color: "#bcbcbc"
+                    radius: 5
+                }
+                onFocusChanged: {
+                    if (focus) {
+                        Qt.inputMethod.show();
+                        currentField = "dataSearch";
+                        inputPanel.visible = true;
+                        textInformation.visible = true;
+                        textInformation.placeholderText = qsTr("Enter Date");
+                        textInformation.inputMethodHints = Qt.ImhPreferNumbers;
+                        textInformation.text = "";
+                        textInformation.focus = true;
+                        dataSearch.color = "#ff0000";
+                        dataSearch.focus = false;
+
+                    }
+                }
             }
 
             ToolButton {
@@ -95,27 +184,42 @@ Item {
                     radius: 8
                 }
                 onClicked: {
-                    console.log("Searching for data:", dataSearch.text);
-                    var nameFile = dataSearch.text.trim();
-
-                    if (nameFile.length > 0) {
-                        var NameSearch = JSON.stringify({
-                                                            "objectName":"SearchDate",
-                                                            "categories":"Pattern",
-                                                            "text": nameFile
-                                                        });
-
-                        console.log("Sending JSON:", NameSearch);
-                        qmlCommand(NameSearch);
-                        clearDatapattern();
-                    } else {
+                    var nameFile = (dataSearch.text || "").trim();
+                    if (!nameFile.length) {
                         console.log("Empty search text! No request sent.");
+                        return;
                     }
 
+                    // ลิงก์ไป main แบบที่คุณต้องการ
+                    currentField = "SearchDate";          // <-- ตัวเดิมที่ main ใช้เช็ค
+                    dataSearch.color = "#ff0000";
+
+                    // sync ค่าไปที่ editor กลางใน main
+                    if (currentField) {
+                        currentField.text = nameFile;
+                        var DataSearch = JSON.stringify({"objectName": "SearchDate","categories":"Pattern","text": nameFile});
+                        console.log("Sending JSON:", dataSearch);
+                        qmlCommand(DataSearch);
+                        clearDatapattern();
+                        textInformation.text = "";
+
+                    } else {
+                        console.warn("textEditor (textInformation) is not set!");
+                    }
+
+                    // เคลียร์ช่อง local (แล้วแต่ต้องการ)
+                    namesearch.text = "";
+                    namesearch.focus = false;
+                    Qt.inputMethod.hide();
                 }
+
             }
+
         }
-        Rectangle {
+
+    }
+
+    Rectangle {
             id: rectangle1
             color: "#d9d9d9"
             border.color: "#ffffff"
@@ -146,7 +250,7 @@ Item {
                         background: Rectangle { color: "transparent" }
                         onClicked: {
                             isAscending = !isAscending;
-                            console.log("Sorting by FILENAME:", isAscending ? "Ascending" : "Descending");
+//                            console.log("Sorting by FILENAME:", isAscending ? "Ascending" : "Descending");
                             // sortPatternData("filename", isAscending);
                             var getNamePasttern = '{"objectName":"sortnamePattern", "Sort":'+isAscending+' , "categories":"Pattern"}';
                             qmlCommand(getNamePasttern);
@@ -169,7 +273,7 @@ Item {
                         background: Rectangle { color: "transparent" }
                         onClicked: {
                             isAscending = !isAscending;
-                            console.log("Sorting by EVENT DATE:", isAscending ? "Ascending" : "Descending");
+//                            console.log("Sorting by EVENT DATE:", isAscending ? "Ascending" : "Descending");
                             // sortPatternData("event_datetime", isAscending);
                             var getDatePasttern =  '{"objectName":"sortdatePattern", "Sort":'+isAscending+' , "categories":"Pattern"}';
                             qmlCommand(getDatePasttern);
@@ -202,19 +306,19 @@ Item {
                         var selectedFilename = patternDataStorage.get(row).filename;
                         var selectedEventDatetime = patternDataStorage.get(row).event_datetime;
 
-                        console.log("Selected Row:", row,);
-                        console.log("Filename:", patternDataStorage.get(row).filename);
-                        console.log("Event Date:", patternDataStorage.get(row).event_datetime);
+//                        console.log("Selected Row:", row,);
+//                        console.log("Filename:", patternDataStorage.get(row).filename);
+//                        console.log("Event Date:", patternDataStorage.get(row).event_datetime);
                         rowSelected(selectedFilename, selectedEventDatetime);
 
                     }
                 }
             }
         }
-    }
+
     function clearDatapattern() {
         patternDataStorage.clear();
-        console.log("Table cleared!");
+//        console.log("Table cleared!");
     }
     onClearTableRequested: {
         clearDatapattern();
